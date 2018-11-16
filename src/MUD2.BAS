@@ -85,6 +85,8 @@ DECLARE SUB FamiliarCall ()
 DECLARE SUB ToadSteal ()
 DECLARE SUB CallFamiliar ()
 
+DECLARE SUB InitGlobals ()
+
 'Game Required
 DIM SHARED Operation$
 DIM SHARED SavePos%
@@ -114,17 +116,26 @@ DIM SHARED Sex$
 DIM SHARED DamageLostArmour%
 DIM SHARED DamageLostHelm%
 DIM SHARED ShieldSave%
+
+DIM SHARED Expertise%
 DIM SHARED Mage%
 DIM SHARED Fighter%
 DIM SHARED ROGUE%
 DIM SHARED Thief%
 DIM SHARED Bard%
+
 DIM SHARED Helm$
 DIM SHARED STRO%
 DIM SHARED DEXO%
 DIM SHARED VITO%
 DIM SHARED ENGO%
 DIM SHARED LHO$
+
+CONST CLASS_MAGE    = 1
+CONST CLASS_FIGHTER = 2
+CONST CLASS_ROGUE   = 3
+CONST CLASS_THIEF   = 4
+CONST CLASS_BARD    = 5
 
 'Familiar Stuff
 DIM SHARED Familiar$
@@ -368,16 +379,31 @@ DIM SHARED Key2%
 DIM SHARED FamiliarFlute%
 DIM SHARED GateKey%
 
+TYPE SpellProps
+    hasIt AS INTEGER
+
+    name AS STRING
+    dmg AS INTEGER
+    heal AS INTEGER
+
+    special AS INTEGER
+END TYPE
+DIM SHARED OwlSpells(12) AS SpellProps
+
+DIM SHARED XanathusFleeAreas(8) AS STRING
+
 'INITIALIZING Sound
 CLS : PRINT "Loading...Please Wait"
-	InitDS4QB
-	RemoveMusic 1
-	WillsSoundEffectVolume% = 50
-	WillsMusicVolume% = 75
-	SetVolume WillsSoundEffectVolume%, WillsSoundEffectVolume%, WillsMusicVolume%
-	MainMenu
-	RemoveMusic 1
-	ShutdownDS4QB
+    RANDOMIZE TIMER
+    InitGlobals
+    InitDS4QB
+    RemoveMusic 1
+    WillsSoundEffectVolume% = 50
+    WillsMusicVolume% = 75
+    SetVolume WillsSoundEffectVolume%, WillsSoundEffectVolume%, WillsMusicVolume%
+    MainMenu
+    RemoveMusic 1
+    ShutdownDS4QB
 END
 
 REM $STATIC
@@ -512,31 +538,31 @@ SUB ACT1
 
         IF A$ = "help" THEN WorldHelp
         IF A$ = "help" GOTO 210
-           
+
         IF A$ = "describe" GOTO 209
         IF A$ = "describe" GOTO 210
-           
+
         IF A$ = "stats" THEN displaystats
         IF A$ = "stats" GOTO 210
-           
+
         IF A$ = "inventory" THEN displayinventory
         IF A$ = "inventory" GOTO 210
-           
+
         IF A$ = "equipment" THEN displayequip
         IF A$ = "equipment" GOTO 210
 
         IF A$ = "equip LH" THEN EQlh
         IF A$ = "equip LH" GOTO 210
-           
+
         IF A$ = "equip RH" THEN EQrh
         IF A$ = "equip RH" GOTO 210
-           
+
         IF A$ = "equip ARMOUR" THEN EqArmour
         IF A$ = "equip ARMOUR" GOTO 210
 
         IF A$ = "equip HEAD" THEN EqHead
         IF A$ = "equip HEAD" GOTO 210
-           
+
         IF A$ = "use potion" THEN
             IF Potion% >= 1 THEN
                 HPS% = HPS% + 15
@@ -625,10 +651,10 @@ SUB ACT1
     PRINT "         The Door: south"
     COLOR 15
     225 INPUT ">", A0$
-           
+
         IF A0$ = "south" THEN A1ShopEnter% = 1
         IF A0$ = "south" GOTO 230
-           
+
         IF A0$ = "talk to samael" THEN
             COLOR 5
             PRINT "Samael> What can I do fer ye?"
@@ -652,24 +678,24 @@ SUB ACT1
 
         IF A0$ = "help" THEN WorldHelp
         IF A0$ = "help" GOTO 225
-          
+
         IF A0$ = "describe" GOTO 220
 
         IF A0$ = "stats" THEN displaystats
         IF A0$ = "stats" GOTO 225
-          
+
         IF A0$ = "inventory" THEN displayinventory
         IF A0$ = "inventory" GOTO 225
-          
+
         IF A0$ = "equipment" THEN displayequip
         IF A0$ = "equipment" GOTO 225
 
         IF A0$ = "equip LH" THEN EQlh
         IF A0$ = "equip LH" GOTO 225
-          
+
         IF A0$ = "equip RH" THEN EQrh
         IF A0$ = "equip RH" GOTO 225
-          
+
         IF A0$ = "equip ARMOUR" THEN EqArmour
         IF A0$ = "equip ARMOUR" GOTO 225
 
@@ -755,25 +781,25 @@ SUB ACT1
 
         IF AEncampment$ = "describe" GOTO 230
         IF AEncampment$ = "describe" GOTO 235
-          
+
         IF AEncampment$ = "stats" THEN displaystats
         IF AEncampment$ = "stats" GOTO 235
-          
+
         IF AEncampment$ = "inventory" THEN displayinventory
         IF AEncampment$ = "inventory" GOTO 235
-          
+
         IF AEncampment$ = "equipment" THEN displayequip
         IF AEncampment$ = "equipment" GOTO 235
 
         IF AEncampment$ = "equip LH" THEN EQlh
         IF AEncampment$ = "equip LH" GOTO 235
-          
+
         IF AEncampment$ = "equip RH" THEN EQrh
         IF AEncampment$ = "equip RH" GOTO 235
-          
+
         IF AEncampment$ = "equip ARMOUR" THEN EqArmour
         IF AEncampment$ = "equip ARMOUR" GOTO 235
-          
+
         IF AEncampment$ = "equip HEAD" THEN EqHead
         IF AEncampment$ = "equip HEAD" GOTO 235
 
@@ -828,7 +854,6 @@ SUB ACT1
     PRINT "  You make your way into the fiery pit, all around you flames burn"
     PRINT "unnaturally, above you is a dark starless night but beside you looms"
     PRINT "the dark labrynth."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -858,25 +883,25 @@ SUB ACT1
 
         IF A1$ = "menu" THEN MainMenu
         IF A1$ = "menu" GOTO 245
-                    
+
         IF A1$ = "describe" GOTO 241
         IF A1$ = "describe" GOTO 245
-         
+
         IF A1$ = "stats" THEN displaystats
         IF A1$ = "stats" GOTO 245
-         
+
         IF A1$ = "inventory" THEN displayinventory
         IF A1$ = "inventory" GOTO 245
-         
+
         IF A1$ = "equipment" THEN displayequip
         IF A1$ = "equipment" GOTO 245
 
         IF A1$ = "equip LH" THEN EQlh
         IF A1$ = "equip LH" GOTO 245
-         
+
         IF A1$ = "equip RH" THEN EQrh
         IF A1$ = "equip RH" GOTO 245
-         
+
         IF A1$ = "equip ARMOUR" THEN EqArmour
         IF A1$ = "equip ARMOUR" GOTO 245
 
@@ -905,7 +930,6 @@ SUB ACT1
     250 CLS
     PRINT "You enter a small room with two adjoining hallways."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -971,7 +995,6 @@ SUB ACT1
     PRINT "To the east is a long corridor that falls into darkness. To the west"
     PRINT "is a small storage closet. The south hallway opens into a large room."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1039,7 +1062,6 @@ SUB ACT1
     PRINT "is a small bending tunnel.  To the east and west is a dark corridor. The"
     PRINT "south hallway leads into a large room."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1071,7 +1093,7 @@ SUB ACT1
 
         IF A5$ = "menu" THEN MainMenu
         IF A5$ = "menu" GOTO 275
-        
+
         IF A5$ = "describe" GOTO 270
         IF A5$ = "describe" GOTO 275
 
@@ -1115,7 +1137,6 @@ SUB ACT1
     PRINT "This is a small junction of two hallways.  To the west is a long dark"
     PRINT "tunnel.  To the east is the entrance to a large hall."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1198,7 +1219,6 @@ SUB ACT1
         COLOR 15
         END IF
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1253,7 +1273,7 @@ SUB ACT1
 
         IF A3$ = "menu" THEN MainMenu
         IF A3$ = "menu" GOTO 295
-                       
+
         IF A3$ = "describe" GOTO 290
         IF A3$ = "describe" GOTO 295
 
@@ -1304,7 +1324,6 @@ SUB ACT1
     PRINT "north is a small corridor.  To the west lies a small room which appears"
     PRINT "to be a spiral staircase, and to the east remains the rest of this"
     PRINT "great hall of horror."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 30 THEN
             COLOR 4
@@ -1371,7 +1390,6 @@ SUB ACT1
     PRINT "to leave this evil hall and quickly search for exits. To the north lies"
     PRINT "a small corridor.  To the east and west lie the rest of the hall. To the"
     PRINT "south is a small dark passageway."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 30 THEN
             COLOR 4
@@ -1403,7 +1421,7 @@ SUB ACT1
 
         IF A7$ = "menu" THEN MainMenu
         IF A7$ = "menu" GOTO 225
-        
+
         IF A7$ = "describe" GOTO 310
         IF A7$ = "describe" GOTO 315
 
@@ -1450,7 +1468,6 @@ SUB ACT1
     PRINT "away from this hallway quickly.  To the north is a small corridor. To"
     PRINT "the west is the rest of the hall.  To the east lies a stage with a "
     PRINT "large throne on top."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 30 THEN
             COLOR 4
@@ -1480,7 +1497,7 @@ SUB ACT1
 
         IF A9$ = "menu" THEN MainMenu
         IF A9$ = "menu" GOTO 325
-                      
+
         IF A9$ = "describe" GOTO 320
         IF A9$ = "describe" GOTO 325
 
@@ -1524,7 +1541,6 @@ SUB ACT1
     330 CLS
     PRINT "You have entered the room which contains a spiral staircase.  Other"
     PRINT "than the staircase the room seems blank."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1602,7 +1618,6 @@ SUB ACT1
         COLOR 15
     END IF
 
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1613,7 +1628,7 @@ SUB ACT1
             SLEEP 2
             BATTLE
             RemoveMusic 1
-            
+
             LoadMusic "assets/underground.mp3", 2, 1, 1, 1
             GOTO 340
         END IF
@@ -1653,7 +1668,7 @@ SUB ACT1
                 COLOR 15
                 GOTO 345
             END IF
-        
+
             IF ThroneSwitch% = 1 THEN
                 COLOR 5
                 PRINT "There's no need to examine it again."
@@ -1782,7 +1797,7 @@ SUB ACT1
 
         IF A12$ = "menu" THEN MainMenu
         IF A12$ = "menu" GOTO 355
-                    
+
         IF A12$ = "describe" GOTO 350
         IF A12$ = "describe" GOTO 355
 
@@ -1828,7 +1843,6 @@ SUB ACT1
     PRINT "jail cells, skeletons seem to inhabit these once empty rooms. There"
     PRINT "are a total of three jail cells to the east, west and south."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1860,7 +1874,7 @@ SUB ACT1
 
         IF A13$ = "menu" THEN MainMenu
         IF A13$ = "menu" GOTO 365
-                    
+
         IF A13$ = "describe" GOTO 300
         IF A13$ = "describe" GOTO 365
 
@@ -1910,7 +1924,6 @@ SUB ACT1
         COLOR 15
     END IF
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -1921,7 +1934,7 @@ SUB ACT1
             SLEEP 2
             BATTLE
             RemoveMusic 1
-            
+
             LoadMusic "assets/underground.mp3", 2, 1, 1, 1
             GOTO 370
         END IF
@@ -1993,7 +2006,6 @@ SUB ACT1
     380 CLS
     PRINT "You enter this cell which, except for a few skeletons, seems to be bare."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2019,7 +2031,7 @@ SUB ACT1
 
         IF A15$ = "menu" THEN MainMenu
         IF A15$ = "menu" GOTO 385
-              
+
         IF A15$ = "describe" GOTO 380
         IF A15$ = "describe" GOTO 385
 
@@ -2064,7 +2076,6 @@ SUB ACT1
     390 CLS
     PRINT "The western jail cell is completely bare and devoid of any objects."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2090,7 +2101,7 @@ SUB ACT1
 
         IF A16$ = "menu" THEN MainMenu
         IF A16$ = "menu" GOTO 395
-                    
+
         IF A16$ = "describe" GOTO 390
         IF A16$ = "describe" GOTO 395
 
@@ -2137,7 +2148,6 @@ SUB ACT1
     PRINT "to the east opens up into a large spacious room with a burning fire in"
     PRINT "the middle of this room."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2224,7 +2234,6 @@ SUB ACT1
         END IF
     END IF
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2258,7 +2267,7 @@ SUB ACT1
         IF A18$ = "menu" GOTO 510
 
         IF A18$ = "describe" GOTO 510
-             
+
         IF A18$ = "stats" THEN displaystats
         IF A18$ = "stats" GOTO 515
 
@@ -2319,7 +2328,6 @@ SUB ACT1
     PRINT "To the south is another long passageway.  To the west is a passage that"
     PRINT "bends south."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2440,7 +2448,6 @@ SUB ACT1
     IF A20Lvl1Door% = 0 THEN PRINT "  To the east is a locked door."
     IF A20Lvl1Door% = 1 THEN PRINT "  To the east is a small hall."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2541,7 +2548,6 @@ SUB ACT1
     PRINT "To the east is a long tunel.  The southern exit leads to an open area"
     PRINT "which appears to be a chasm."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2619,7 +2625,6 @@ SUB ACT1
     PRINT "is a large open room which seems to be a chasm. The western exit leads"
     PRINT "down a long hallway."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2697,7 +2702,6 @@ SUB ACT1
     PRINT "into the darkness.  There is a walkway forming a U in the room.  In the"
     PRINT "middle of the room is a small platform with a skeleton in the middle."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -2761,7 +2765,7 @@ SUB ACT1
                 GOTO 565
             END IF
         END IF
-        
+
         IF A23$ = "get flute" THEN
             IF A23FamiliarFlute% = 0 THEN
                 A23FamiliarFlute% = 1
@@ -2777,7 +2781,7 @@ SUB ACT1
     PRINT "Huh?"
     COLOR 15
     GOTO 565
-       
+
     'Area 24
     570 CLS
     PRINT "You have entered a large dimly lit room filled with corpses. You stare"
@@ -2785,7 +2789,6 @@ SUB ACT1
     PRINT "pool.  As much as you hate to look at the pool you can make out the edge"
     PRINT "of a underwater tunnel."
     RANDOMSTRING
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
             IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -3063,7 +3066,7 @@ SUB ACT1
 
         IF A27$ = "equip LH" THEN EQlh
         IF A27$ = "equip LH" GOTO 605
-             
+
         IF A27$ = "equip RH" THEN EQrh
         IF A27$ = "equip RH" GOTO 605
 
@@ -3421,7 +3424,7 @@ SUB ACT1
         IF A31$ = "menu" GOTO 640
 
         IF A31$ = "describe" GOTO 640
-             
+
         IF A31$ = "stats" THEN displaystats
         IF A31$ = "stats" GOTO 645
 
@@ -3812,7 +3815,7 @@ SUB Act1Pt2
         IF A35$ = "menu" GOTO 680
 
         IF A35$ = "describe" GOTO 680
-             
+
         IF A35$ = "stats" THEN displaystats
         IF A35$ = "stats" GOTO 685
 
@@ -4424,7 +4427,7 @@ SUB Act1Pt2
         IF A43$ = "menu" GOTO 760
 
         IF A43$ = "describe" GOTO 760
-             
+
         IF A43$ = "stats" THEN displaystats
         IF A43$ = "stats" GOTO 765
 
@@ -4832,7 +4835,6 @@ SUB Act1Pt2
     PRINT "You have entered a bright red-orange passage with many torches burning"
     PRINT "high.  On the floor is a small raised platform with an orange gem"
     PRINT "embedded in it."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -4880,7 +4882,7 @@ SUB Act1Pt2
         IF A49$ = "menu" GOTO 815
 
         IF A49$ = "describe" GOTO 815
-             
+
         IF A49$ = "stats" THEN displaystats
         IF A49$ = "stats" GOTO 817
 
@@ -4923,7 +4925,6 @@ SUB Act1Pt2
     820 CLS
     PRINT "You are now standing in another section of the tunnel.  So far the tunnel"
     PRINT "hasn't shown any bends or turns."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -4992,7 +4993,6 @@ SUB Act1Pt2
     830 CLS
     PRINT "You have entered a three way intersection, to the east and west are "
     PRINT "bending passageways.  To the south is the long passageway."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5020,19 +5020,19 @@ SUB Act1Pt2
         IF A51$ = "menu" GOTO 830
 
         IF A51$ = "describe" GOTO 830
-             
+
         IF A51$ = "stats" THEN displaystats
         IF A51$ = "stats" GOTO 835
-             
+
         IF A51$ = "inventory" THEN displayinventory
         IF A51$ = "inventory" GOTO 835
 
         IF A51$ = "equipment" THEN displayequip
         IF A51$ = "equipment" GOTO 835
-             
+
         IF A51$ = "equip LH" THEN EQlh
         IF A51$ = "equip LH" GOTO 835
-             
+
         IF A51$ = "equip RH" THEN EQrh
         IF A51$ = "equip RH" GOTO 835
 
@@ -5041,7 +5041,7 @@ SUB Act1Pt2
 
         IF A51$ = "equip HEAD" THEN EqHead
         IF A51$ = "equip HEAD" GOTO 835
-             
+
         IF A51$ = "use potion" THEN
             IF Potion% >= 1 THEN
                 HPS% = HPS% + 15
@@ -5063,7 +5063,6 @@ SUB Act1Pt2
     PRINT "You are now standing in the southwestern area of a great hall."
     PRINT "the hall is strangely bare except for the large raised platform"
     PRINT "in the middle of the hall, which has the shape of a chaos star."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5092,7 +5091,7 @@ SUB Act1Pt2
 
         IF A52$ = "help" THEN WorldHelp
         IF A52$ = "help" GOTO 845
-             
+
         IF A52$ = "menu" THEN MainMenu
         IF A52$ = "menu" GOTO 840
 
@@ -5141,7 +5140,6 @@ SUB Act1Pt2
     PRINT "You are now standing in the southeastern area of a great hall."
     PRINT "the hall is strangely bare except for the large raised platform"
     PRINT "in the middle of the hall, which has the shape of a chaos star."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5219,7 +5217,6 @@ SUB Act1Pt2
     PRINT "You are now standing in the northeastern area of a great hall."
     PRINT "the hall is strangely bare except for the large raised platform"
     PRINT "in the middle of the hall, which has the shape of a chaos star."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5259,7 +5256,7 @@ SUB Act1Pt2
 
         IF A54$ = "inventory" THEN displayinventory
         IF A54$ = "inventory" GOTO 865
-             
+
         IF A54$ = "equipment" THEN displayequip
         IF A54$ = "equipment" GOTO 865
 
@@ -5297,7 +5294,6 @@ SUB Act1Pt2
     PRINT "You are now standing in the northwestern area of a great hall."
     PRINT "the hall is strangely bare except for the large raised platform"
     PRINT "in the middle of the hall, which has the shape of a chaos star."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5469,7 +5465,6 @@ SUB Act1Pt2
     PRINT "You are now standing in an intersection.  This intersection seems to be"
     PRINT "identical to all the others.  There is a bending hallway to the south and"
     PRINT "north.  There is a short hallway to the east"
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5540,7 +5535,6 @@ SUB Act1Pt2
     900 CLS
     PRINT "You are now standing at a dead end.  The wall here has a shrine built in"
     PRINT "it.  On the shrine a grey gem is displayed."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5630,7 +5624,6 @@ SUB Act1Pt2
     910 CLS
     PRINT "You are now standing at a dead end in the short hallway.  Inserted into the"
     PRINT "wall is a shrine with a red gem displayed."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5678,7 +5671,7 @@ SUB Act1Pt2
         IF A59$ = "menu" GOTO 910
 
         IF A59$ = "describe" GOTO 910
-             
+
         IF A59$ = "stats" THEN displaystats
         IF A59$ = "stats" GOTO 915
 
@@ -5721,7 +5714,6 @@ SUB Act1Pt2
     PRINT "You are now standing in an intersection.  This intersection seems to resemble"
     PRINT "all the other intersections.  There is a bending hallway to the east and west."
     PRINT "There is a short hallway to the north."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5792,7 +5784,6 @@ SUB Act1Pt2
     930 CLS
     PRINT "You are now standing at a dead end.  There is a small shrine built into"
     PRINT "the nearby wall, on the shrine lies a black gem."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5840,7 +5831,7 @@ SUB Act1Pt2
         IF A61$ = "menu" GOTO 930
 
         IF A61$ = "describe" GOTO 930
-             
+
         IF A61$ = "stats" THEN displaystats
         IF A61$ = "stats" GOTO 935
 
@@ -5877,12 +5868,11 @@ SUB Act1Pt2
     PRINT "Huh?"
     COLOR 15
     GOTO 935
-           
+
     'Area 62
     940 CLS
     PRINT "You are now standing at a dead end.  There is a small shrine built into"
     PRINT "the wall, displayed on the shrine is a jade coloured gem."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -5973,7 +5963,6 @@ SUB Act1Pt2
     PRINT "You are now standing in an intersection.  This intersection resembles"
     PRINT "all the others.  There is a bending hallway to the north and south."
     PRINT "There is a short hallway to the west."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -6043,7 +6032,6 @@ SUB Act1Pt2
     960 CLS
     PRINT "You are now standing at a dead end.  In the closest wall is a small shrine"
     PRINT "displayed on the shrine is a blood gem."
-        RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -6133,7 +6121,6 @@ SUB Act1Pt2
     970 CLS
     PRINT "You are now standing at a dead end.  Built into the nearest wall is a small"
     PRINT "shrine.  On the shrine a white gem is displayed."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -6193,7 +6180,7 @@ SUB Act1Pt2
 
         IF A65$ = "equip LH" THEN EQlh
         IF A65$ = "equip LH" GOTO 975
-                       
+
         IF A65$ = "equip RH" THEN EQrh
         IF A65$ = "equip RH" GOTO 975
 
@@ -6224,7 +6211,6 @@ SUB Act1Pt2
     980 CLS
     PRINT "You are now standing at a dead end.  In the dead end's wall is a small"
     PRINT "shrine.  Displayed on the shrine is a blue gem."
-    RANDOMIZE TIMER
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
             COLOR 4
@@ -6272,7 +6258,7 @@ SUB Act1Pt2
         IF A66$ = "menu" GOTO 980
 
         IF A66$ = "describe" GOTO 980
-             
+
         IF A66$ = "stats" THEN displaystats
         IF A66$ = "stats" GOTO 985
 
@@ -6481,8 +6467,7 @@ SUB Act1Pt2
 
 END SUB
 
-SUB AI
-    RANDOMIZE TIMER                            'RANDOMIZING AI PROTOCOLS
+SUB AI                            'RANDOMIZING AI PROTOCOLS
     AII% = INT(RND * 10) + 1                    'RANDOMIZING AI PROTOCOLS
     IF AII% = 1 THEN                           'RANDOMIZING AI PROTOCOLS
         GOTO 11                            'RANDOMIZING AI PROTOCOLS
@@ -6517,10 +6502,8 @@ SUB AI
     11 PRINT "The "; ENEMY$; " starts circling "; Name$; "."
     GOTO 2500
     12 PRINT "The "; ENEMY$; " attacks."
-    RANDOMIZE TIMER
     ENEMYDAMAGECHANCE% = INT(RND * 100) + 1
     IF ENEMYDAMAGECHANCE% <= 75 THEN
-        RANDOMIZE TIMER
         ENEMYDAMAGE% = INT(RND * 5) + 1
         IF A27JadeSocket% = 2 THEN ENEMYDAMAGE% = ENEMYDAMAGE% + 20
         PRINT "The "; ENEMY$; " has caused you"; ENEMYDAMAGE%; " damage."
@@ -6584,7 +6567,6 @@ SUB AI
 2500 END SUB
 
 SUB BardMusic
-    RANDOMIZE TIMER
     MusicChance% = INT(RND * 100) - VIT%
         IF MusicChance% <= 50 THEN
         PRINT "You start playing your insturment."
@@ -6664,14 +6646,12 @@ SUB BATTLE
         END IF
     PRINT "The "; ENEMY$; " spits at "; Name$; " and readies his weapon."
 
-    RANDOMIZE TIMER
     ENEMY% = INT(RND * 20) + 1
     SPEED% = INT(RND * 20) + 1
     ENEMYSPEED% = ENEMY% + SPEED%
     IF WightLord% = 1 THEN
         ENEMYSPEED% = 40
         END IF
-    RANDOMIZE TIMER
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
@@ -6776,7 +6756,6 @@ SUB BATTLE
         END IF
     IF ACTION$ = "kick" THEN
         PRINT "Aiming your foot, you lash out towards his groin."
-        RANDOMIZE TIMER
         KICKCHANCE% = INT(RND * 100) + 1
         IF KICKCHANCE% >= 50 THEN
             PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
@@ -6792,7 +6771,6 @@ SUB BATTLE
     IF ACTION$ = "punch" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
         PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        RANDOMIZE TIMER
         PUNCHCHANCE% = INT(RND * 100) + 1
         IF PUNCHCHANCE% >= 50 THEN
             PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
@@ -6806,7 +6784,6 @@ SUB BATTLE
     END IF
     END IF
     IF ACTION$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -7115,7 +7092,6 @@ SUB BATTLE
         GOTO 2001
     END IF
     IF ACTIONA$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -7133,7 +7109,6 @@ SUB BATTLE
     PRINT "Huh?"
     GOTO 20
     70 PRINT "You attempt to parry the "; ENEMY$; "'s blow."
-    RANDOMIZE TIMER
     PC% = INT(RND * 100) + 1
     PARRYCHANCE% = PC% + ShieldSave%
     IF PARRYCHANCE% >= 50 THEN
@@ -7145,7 +7120,6 @@ SUB BATTLE
     80
         IF COMBATSPEED% >= ENEMYSPEED% THEN
         PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        RANDOMIZE TIMER
         PUNCHCHANCE% = INT(RND * 100) + 1
         IF PUNCHCHANCE% >= 50 THEN
             PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
@@ -7159,7 +7133,6 @@ SUB BATTLE
         END IF
     90
         PRINT "Aiming your foot, you lash out towards his groin."
-        RANDOMIZE TIMER
         KICKCHANCE% = INT(RND * 100) + 1
         IF KICKCHANCE% >= 50 THEN
             PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
@@ -7172,7 +7145,6 @@ SUB BATTLE
             AI
         END IF
     100 PRINT "As the "; ENEMY$; " attacks, you attempt to dodge his attack."
-    RANDOMIZE TIMER
     DC% = INT(RND * 100) + 1
     DODGECHANCE% = DC% - DEX%
     IF DODGECHANCE% >= 45 THEN
@@ -7197,7 +7169,6 @@ SUB BATTLE
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7213,7 +7184,6 @@ SUB BATTLE
     END IF
 
     IF Fighter% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7229,7 +7199,6 @@ SUB BATTLE
     END IF
 
     IF ROGUE% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7245,7 +7214,6 @@ SUB BATTLE
     END IF
 
     IF Thief% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7261,7 +7229,6 @@ SUB BATTLE
     END IF
 
     IF Bard% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7289,17 +7256,14 @@ REM $STATIC
 SUB BATTLE2
     CLS
     Ethereal% = 0
-    RANDOMIZE TIMER
     P% = INT(RND * 6) + 1
     q% = INT(RND * 6) + 1
     ENEMYHPB% = P% + q% + ENEMYHPSBONUS
 
-    RANDOMIZE TIMER
     ENEMY% = INT(RND * 20) + 1
     SPEED% = INT(RND * 20) + 1
     SPDBONUS% = ENEMY% + SPEED%
 
-    RANDOMIZE TIMER
     M% = INT(RND * 9) + 1
     IF M% = 1 THEN
         ENEMY$ = "Skeleton"
@@ -7374,7 +7338,6 @@ SUB BATTLE2
 
     PRINT "The "; ENEMY$; " spits at "; Name$; " and readies his weapon."
 
-    RANDOMIZE TIMER
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
@@ -7479,7 +7442,6 @@ SUB BATTLE2
         END IF
     IF ACTION$ = "kick" THEN
         PRINT "Aming your foot, you lash out towards his groin."
-        RANDOMIZE TIMER
         KICKCHANCE% = INT(RND * 100) + 1
         IF Ethereal% = 1 THEN
             PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
@@ -7500,7 +7462,6 @@ SUB BATTLE2
     IF ACTION$ = "punch" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
         PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        RANDOMIZE TIMER
         PUNCHCHANCE% = INT(RND * 100) + 1
         IF Ethereal% = 1 THEN
             PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
@@ -7519,7 +7480,6 @@ SUB BATTLE2
     END IF
     END IF
     IF ACTION$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -8031,7 +7991,6 @@ SUB BATTLE2
         GOTO 102001
     END IF
     IF ACTIONA$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -8049,7 +8008,6 @@ SUB BATTLE2
     PRINT "Huh?"
     GOTO 1020
     1070 PRINT "You attempt to parry the "; ENEMY$; "'s blow."
-    RANDOMIZE TIMER
     PC% = INT(RND * 100) + 1
     PARRYCHANCE% = PC% + ShieldSave%
     IF PARRYCHANCE% >= 50 THEN
@@ -8066,7 +8024,6 @@ SUB BATTLE2
             GOTO 1020
         END IF
         PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        RANDOMIZE TIMER
         PUNCHCHANCE% = INT(RND * 100) + 1
         IF PUNCHCHANCE% >= 50 THEN
             PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
@@ -8080,7 +8037,6 @@ SUB BATTLE2
         END IF
     1090
         PRINT "Aming your foot, you lash out towards his groin."
-        RANDOMIZE TIMER
         KICKCHANCE% = INT(RND * 100) + 1
         IF Ethereal% = 1 THEN
             PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
@@ -8098,7 +8054,6 @@ SUB BATTLE2
             AI
         END IF
     10100 PRINT "As the "; ENEMY$; " attacks, you attempt to dodge his attack."
-    RANDOMIZE TIMER
     DC% = INT(RND * 100) + 1
     DODGECHANCE% = DC% - DEX%
     IF DODGECHANCE% >= 45 THEN
@@ -8128,7 +8083,6 @@ SUB BATTLE2
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8144,7 +8098,6 @@ SUB BATTLE2
     END IF
 
     IF Fighter% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8160,7 +8113,6 @@ SUB BATTLE2
     END IF
 
     IF ROGUE% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8176,7 +8128,6 @@ SUB BATTLE2
     END IF
 
     IF Thief% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8192,7 +8143,6 @@ SUB BATTLE2
     END IF
 
     IF Bard% = 1 THEN
-        RANDOMIZE TIMER
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8245,37 +8195,42 @@ SUB CHARCREATE
     INPUT ">", CLASSDECISION$
     'Fighter Setup
         IF CLASSDECISION$ = "0" THEN
-        Class$ = "Fighter"
+            Class$ = "Fighter"
             Fighter% = 1
-        GOTO 21.5
+            Expertise% = CLASS_FIGHTER
+            GOTO 21.5
         END IF
 
     'Mage Setup
         IF CLASSDECISION$ = "1" THEN
-        Class$ = "Mage"
+            Class$ = "Mage"
              Mage% = 1
-        GOTO 21.5
+             Expertise% = CLASS_MAGE
+            GOTO 21.5
         END IF
 
     'Rogue Setup
         IF CLASSDECISION$ = "2" THEN
-        Class$ = "Rogue"
+            Class$ = "Rogue"
             ROGUE% = 1
-        GOTO 21.5
+            Expertise% = CLASS_ROGUE
+            GOTO 21.5
         END IF
 
     'Thief Setup
         IF CLASSDECISION$ = "3" THEN
-        Class$ = "Thief"
-        Thief% = 1
-        GOTO 21.5
+            Class$ = "Thief"
+            Thief% = 1
+            Expertise% = CLASS_THIEF
+            GOTO 21.5
         END IF
 
     'Bard Setup
         IF CLASSDECISION$ = "4" THEN
-        Class$ = "Bard"
-        Bard% = 1
-        GOTO 21.5
+            Class$ = "Bard"
+            Bard% = 1
+            Expertise% = CLASS_BARD
+            GOTO 21.5
         END IF
 
     PRINT "Huh?"
@@ -8323,7 +8278,7 @@ SUB CHARCREATE
     GOTO 21.5
 
 
-    22     RANDOMIZE TIMER
+    22
         STR% = INT(RND * 20) + 1
         DEX% = INT(RND * 20) + 1
         VIT% = INT(RND * 20) + 1
@@ -8471,7 +8426,7 @@ SUB CheckRunes
     IF RUNE3$ = "cal" THEN IF cal% = 0 THEN PRINT "You don't have that rune": GOTO 101010
     IF RUNE3$ = "das" THEN IF das% = 0 THEN PRINT "You don't have that rune": GOTO 101010
     IF RUNE3$ = "uss" THEN IF uss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-                                        
+
     RuneError% = 0
     COLOR 15
 101010 END SUB
@@ -8578,7 +8533,7 @@ SUB displayequip
     PRINT ""
 
     PRINT Name$; "'s equipment"
-    
+
     PRINT "Left Hand: "; LH$
     PRINT "Right Hand: "; RH$
     PRINT "Armour: "; Armour$
@@ -9108,12 +9063,12 @@ SUB EqArmour
 
     'Rags
         IF ArmourName$ = "rags" THEN
-         
+
             IF Rags% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Rags"
                 END IF
-         
+
             IF Rags% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9131,12 +9086,12 @@ SUB EqArmour
 
     'Robes (Upper)
         IF ArmourName$ = "upper robes" THEN
-         
+
             IF RobesUpper% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Upper Robes"
                 END IF
-         
+
             IF RobesUpper% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9154,12 +9109,12 @@ SUB EqArmour
 
     'Robes (Lower) [Used in conjunction with Robes (Upper)]
         IF ArmourName$ = "lower robes" THEN
-         
+
             IF RobesLower% >= 1 THEN
                 RemoveArmour
                 Armour$ = "RobesLower"
                 END IF
-         
+
             IF RobesLower% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9177,12 +9132,12 @@ SUB EqArmour
 
     'Surcoat
         IF ArmourName$ = "surcoat" THEN
-          
+
             IF Surcoat% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Surcoat"
                 END IF
-          
+
             IF Surcoat% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9200,12 +9155,12 @@ SUB EqArmour
 
     'Quilted Armour
         IF ArmourName$ = "quilted armour" THEN
-          
+
             IF QuiltedArmour% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Quilted Armour"
                 END IF
-          
+
             IF QuiltedArmour% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9223,12 +9178,12 @@ SUB EqArmour
 
     'Leather Armour
         IF ArmourName$ = "leather armour" THEN
-         
+
             IF LeatherArmour% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Leather Armour"
                 END IF
-         
+
             IF LeatherArmour% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9246,12 +9201,12 @@ SUB EqArmour
 
     'Hard Leather Armour
         IF ArmourName$ = "hard leather armour" THEN
-          
+
             IF HardLeatherArmour% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Hard Leather Armour"
                 END IF
-          
+
             IF HardLeatherArmour% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9269,12 +9224,12 @@ SUB EqArmour
 
     'Studded Leather Armour
         IF ArmourName$ = "studded leather armour" THEN
-         
+
             IF StuddedLeather% >= 1 THEN
                 RemoveArmour
                 Armour$ = "Studded Leather Armour"
                 END IF
-         
+
             IF StuddedLeather% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9300,12 +9255,12 @@ SUB EqHead
 
     'Cap
         IF HelmName$ = "cap" THEN
-        
+
             IF Cap% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Cap"
                 END IF
-        
+
             IF Cap% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9323,12 +9278,12 @@ SUB EqHead
 
     'Skull Cap
         IF HelmName$ = "skull cap" THEN
-        
+
             IF SkullCap% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Skull Cap"
                 END IF
-        
+
             IF SkullCap% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9346,12 +9301,12 @@ SUB EqHead
 
     'Helm
         IF HelmName$ = "helm" THEN
-           
+
             IF Helm% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Helm"
                 END IF
-           
+
             IF Helm% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9369,12 +9324,12 @@ SUB EqHead
 
     'Full Helm
         IF HelmName$ = "full helm" THEN
-           
+
             IF FullHelm% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Full Helm"
                 END IF
-           
+
             IF FullHelm% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9392,12 +9347,12 @@ SUB EqHead
 
     'Great Helm
         IF HelmName$ = "great helm" THEN
-           
+
             IF GreatHelm% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Great Helm"
                 END IF
-           
+
             IF GreatHelm% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9415,12 +9370,12 @@ SUB EqHead
 
     'Horned Great Helm
         IF HelmName$ = "horned great helm" THEN
-           
+
             IF GreatHelmHorned% >= 1 THEN
                 RemoveHelm
                 Helm$ = "Horned Great Helm"
                 END IF
-           
+
             IF GreatHelmHorned% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9442,7 +9397,7 @@ SUB EqHead
                 RemoveHelm
                 Helm$ = "Mythril Dwarven Helm"
                 END IF
-           
+
             IF MythrilDwarvenHelm% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have that"
@@ -9464,9 +9419,9 @@ SUB EQlh
     PRINT "Equip what in the Left Hand?"
     COLOR 15
     INPUT "Weapon Name>", LeftHand$
-         
+
         IF LeftHand$ = "short sword" THEN
-             
+
             IF ShortSword% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9480,7 +9435,7 @@ SUB EQlh
                     LH$ = "Short Sword"
                     RH$ = ""
             END IF
-               
+
             IF ShortSword% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -9498,7 +9453,7 @@ SUB EQlh
 
     'Long Sword
         IF LeftHand$ = "long sword" THEN
-             
+
             IF LongSword% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9512,14 +9467,14 @@ SUB EQlh
                     LH$ = "Long Sword"
                     RH$ = ""
             END IF
-             
+
             IF LongSword% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
                 COLOR 15
                 GOTO 400
                 END IF
-             
+
             LongSword% = LongSword% - 1
             COLOR 5
             PRINT "Equipped left hand with a Long Sword"
@@ -9530,7 +9485,7 @@ SUB EQlh
 
     'Bastard Sword
         IF LeftHand$ = "bastard sword" THEN
-             
+
             IF BastardSword% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9562,7 +9517,7 @@ SUB EQlh
 
     'Battle Blade
         IF LeftHand$ = "battle blade" THEN
-               
+
             IF BattleBlade% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9576,7 +9531,7 @@ SUB EQlh
                     LH$ = "Battle Blade"
                     RH$ = ""
             END IF
-           
+
             IF BattleBlade% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -9627,7 +9582,7 @@ SUB EQlh
 
     'Great Battle Blade
         IF LeftHand$ = "great battle blade" THEN
-              
+
             IF GreatBattleBlade% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9673,7 +9628,7 @@ SUB EQlh
                     LH$ = "Holy Sword"
                     RH$ = ""
             END IF
-            
+
             IF HolySword% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -9712,7 +9667,7 @@ SUB EQlh
                 COLOR 15
                 GOTO 400
                 END IF
-                
+
             SwordPlusOne% = SwordPlusOne% - 1
             COLOR 5
             PRINT "Equipped left hand with a Sword +1"
@@ -9744,7 +9699,7 @@ SUB EQlh
                 COLOR 15
                 GOTO 400
                 END IF
-               
+
             SwordPlusTwo% = SwordPlusTwo% - 1
             COLOR 5
             PRINT "Equipped left hand with a Sword +2"
@@ -9851,7 +9806,7 @@ SUB EQlh
 
     'Avenger Sword +7
         IF LeftHand$ = "avenger sword +7" THEN
-              
+
             IF AvengerSwordPlusSeven% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9882,9 +9837,9 @@ SUB EQlh
         END IF
 
     'Staves
-           
+
         IF LeftHand$ = "short staff" THEN
-            
+
             IF ShortStaff% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9915,7 +9870,7 @@ SUB EQlh
 
     'Long Staff
         IF LeftHand$ = "long staff" THEN
-            
+
             IF LongStaff% >= 1 THEN
                 IF LH$ = "Short Staff" THEN
                     RemoveLH
@@ -9928,14 +9883,14 @@ SUB EQlh
                 LH$ = "Long Staff"
                 RH$ = "Long Staff"
             END IF
-            
+
             IF LongStaff% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
                 COLOR 15
                 GOTO 400
                 END IF
-            
+
             LongStaff% = LongStaff% - 1
             COLOR 5
             PRINT "Equipped left hand with a Long Staff"
@@ -9968,15 +9923,15 @@ SUB EQrh
     0.9 PRINT "Equip what in the Right Hand?"
     COLOR 15
     INPUT "Shield Name>", RightHand$
-         
+
     'Buckler
         IF RightHand$ = "buckler" THEN
-             
+
             IF Buckler% >= 1 THEN
                 RemoveRH
                 RH$ = "Buckler"
                 END IF
-             
+
             IF Buckler% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -9994,12 +9949,12 @@ SUB EQrh
 
     'Small Shield
         IF RightHand$ = "small shield" THEN
-            
+
             IF SmallShield% >= 1 THEN
                 RemoveRH
                 RH$ = "Small Shield"
                 END IF
-            
+
             IF SmallShield% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10017,12 +9972,12 @@ SUB EQrh
 
     'Large Shield
         IF RightHand$ = "large shield" THEN
-            
+
             IF LargeShield% >= 1 THEN
                 RemoveRH
                 RH$ = "Large Shield"
                 END IF
-            
+
             IF LargeShield% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10040,12 +9995,12 @@ SUB EQrh
 
     'Holy Shield
         IF RightHand$ = "holy shield" THEN
-            
+
             IF HolyShield% >= 1 THEN
                 RemoveRH
                 RH$ = "Holy Shield"
                 END IF
-            
+
             IF HolyShield% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10063,12 +10018,12 @@ SUB EQrh
 
     'Shield +1
         IF RightHand$ = "shield +1" THEN
-            
+
             IF ShieldPlusOne% >= 1 THEN
                 RemoveRH
                 RH$ = "Shield +1"
                 END IF
-            
+
             IF ShieldPlusOne% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10086,12 +10041,12 @@ SUB EQrh
 
     'Shield +2
         IF RightHand$ = "shield +2" THEN
-            
+
             IF ShieldPlusTwo% >= 1 THEN
                 RemoveRH
                 RH$ = "Shield +2"
                 END IF
-            
+
             IF ShieldPlusTwo% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10109,12 +10064,12 @@ SUB EQrh
 
     'Shield +3
         IF RightHand$ = "shield +3" THEN
-            
+
             IF ShieldPlusThree% >= 1 THEN
                 RemoveRH
                 RH$ = "Shield +3"
                 END IF
-            
+
             IF ShieldPlusThree% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10132,12 +10087,12 @@ SUB EQrh
 
     'Shield +4
         IF RightHand$ = "shield +4" THEN
-            
+
             IF ShieldPlusFour% >= 1 THEN
                 RemoveRH
                 RH$ = "Shield +4"
                 END IF
-            
+
             IF ShieldPlusFour% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10155,12 +10110,12 @@ SUB EQrh
 
     'Shield +5
         IF RightHand$ = "shield +5" THEN
-            
+
             IF ShieldPlusFive% >= 1 THEN
                 RemoveRH
                 RH$ = "Shield +5"
                 END IF
-            
+
             IF ShieldPlusFive% <= 0 THEN
                 COLOR 5
                 PRINT "You don't have one of those"
@@ -10203,223 +10158,19 @@ END SUB
 
 REM $DYNAMIC
 SUB EXPERIENCELVLUP
-	IF EXPR% >= 1000 THEN
-		IF Lvl% = 1 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 2
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 2000 THEN
-		IF Lvl% = 2 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 3
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 4000 THEN
-		IF Lvl% = 2 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 3
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 8000 THEN
-		IF Lvl% = 3 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 4
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 16000 THEN
-		IF Lvl% = 4 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 5
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 18000 THEN
-		IF Lvl% = 5 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 6
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 19000 THEN
-		IF Lvl% = 6 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 7
-			END IF
-	END IF
-	IF EXPR% >= 20000 THEN
-		IF Lvl% = 7 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 8
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 21000 THEN
-		IF Lvl% = 8 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 9
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 22000 THEN
-		IF Lvl% = 9 THEN
-			HP% = HP% + 5
-			PRINT "You have gone up one level."
-			Lvl% = 10
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 23000 THEN
-		IF Lvl% = 10 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 11
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 24000 THEN
-		IF Lvl% = 11 THEN
-			PRINT "You have gone up one level."
-			HP% = HP% + 5
-			Lvl% = 12
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 25000 THEN
-		IF Lvl% = 12 THEN
-			HP% = HP% + 5
-			PRINT "You have gone up one level."
-			Lvl% = 13
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 26000 THEN
-		IF Lvl% = 13 THEN
-			HP% = HP% + 5
-			PRINT "You have gone up one level."
-			Lvl% = 14
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 27000 THEN
-		IF Lvl% = 14 THEN
-			HP% = HP% + 5
-			PRINT "You have gone up one level."
-			Lvl% = 15
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 28000 THEN
-		IF Lvl% = 15 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 16
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 29000 THEN
-		IF Lvl% = 16 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 17
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 30000 THEN
-		IF Lvl% = 18 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 19
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 31000 THEN
-		IF Lvl% = 19 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 20
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 32000 THEN
-		IF Lvl% = 20 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 21
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 33000 THEN
-		IF Lvl% = 21 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 22
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 34000 THEN
-		IF Lvl% = 23 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 24
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 35000 THEN
-		IF Lvl% = 24 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 25
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 36000 THEN
-		IF Lvl% = 25 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 26
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 37000 THEN
-		IF Lvl% = 26 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 27
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 38000 THEN
-		IF Lvl% = 27 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 28
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 39000 THEN
-		IF Lvl% = 28 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 29
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 40000 THEN
-		IF Lvl% = 29 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 30
-			SLEEP 4
-			END IF
-	END IF
-	IF EXPR% >= 41000 THEN
-		IF Lvl% = 30 THEN
-			PRINT "You have gone up one level."
-			Lvl% = 31
-			SLEEP 4
-			END IF
-	END IF
+    reqExp% = 0
+    IF Lvl% <= 5 THEN
+        reqExp% = 1000*2^(Lvl-1)
+    ELSE
+        reqExp% = 18000 + 1000*(Lvl% - 6)
+    END IF
+
+    IF EXPR% >= reqExp% THEN
+        PRINT "You have gone up one level."
+        HP% = HP% + 5
+        Lvl% = Lvl% + 1
+        SLEEP 4
+    END IF
 END SUB
 
 REM $STATIC
@@ -10653,7 +10404,6 @@ SUB FamiliarCall
                     MP% = MP% - 10
                     PRINT Familiar$; " casts wind!"
                     ENEMYPTS% = ENEMYPTS% - 5
-                    RANDOMIZE TIMER
                     Tornado% = INT(RND * 20)
                         IF Tornado% <= 7 THEN
                             IF Boss% = 0 THEN
@@ -10698,7 +10448,6 @@ SUB FamiliarCall
                     MP% = MP% - 10
                     PRINT Familiar$; " casts wind!"
                     ENEMYPTS% = ENEMYPTS% - 5
-                    RANDOMIZE TIMER
                     Tornado% = INT(RND * 20)
                         IF Tornado% <= 7 THEN
                             IF A56VampFight% = 1 THEN
@@ -11130,28 +10879,28 @@ SUB GetSaveLoadPos
     IF Ppos% = 3 THEN PSav$ = "Start of the game"
 
     IF FirstName$ = "" THEN
-	FirstName$ = "Young Warrior"
-	FSav$ = "Start of the game"
+    FirstName$ = "Young Warrior"
+    FSav$ = "Start of the game"
     END IF
 
     IF SName$ = "" THEN
-	SName$ = "Young Warrior"
-	SSav$ = "Start of the game"
+    SName$ = "Young Warrior"
+    SSav$ = "Start of the game"
     END IF
 
     IF TName$ = "" THEN
-	TName$ = "Young Warrior"
-	TSav$ = "Start of the game"
+    TName$ = "Young Warrior"
+    TSav$ = "Start of the game"
     END IF
 
     IF QName$ = "" THEN
-	QName$ = "Young Warrior"
-	QSav$ = "Start of the game"
+    QName$ = "Young Warrior"
+    QSav$ = "Start of the game"
     END IF
 
     IF PName$ = "" THEN
-	PName$ = "Young Warrior"
-	PSav$ = "Start of the game"
+    PName$ = "Young Warrior"
+    PSav$ = "Start of the game"
     END IF
 
     CLS
@@ -12067,10 +11816,10 @@ SUB MAGIC
     PRINT "Do you know that this is the 100th spell?"
     COLOR 7
     GOTO 3000
-    3000 END SUB
+3000 END SUB
 
     REM $STATIC
-    SUB MainMenu
+SUB MainMenu
     PauseMusic 1
     PauseMusic 2
     PauseMusic 3
@@ -12141,27 +11890,26 @@ SUB MAGIC
 10000 END SUB
 
 SUB NecrotaliaAI
-    RANDOMIZE TIMER
     NecroAI% = INT(RND * 4) + 1
-	IF NecroAI% = 1 THEN
-		GOTO 39760
-	END IF
+    IF NecroAI% = 1 THEN
+        GOTO 39760
+    END IF
 
-	IF NecroAI% = 2 THEN
-		GOTO 39770
-	END IF
+    IF NecroAI% = 2 THEN
+        GOTO 39770
+    END IF
 
-	IF NecroAI% = 3 THEN
-		GOTO 39780
-	END IF
+    IF NecroAI% = 3 THEN
+        GOTO 39780
+    END IF
 
-	IF NecroAI% = 4 THEN
-		GOTO 39790
-	END IF
+    IF NecroAI% = 4 THEN
+        GOTO 39790
+    END IF
 
-	IF NecroAI% = 5 THEN
-		GOTO 39800
-	END IF
+    IF NecroAI% = 5 THEN
+        GOTO 39800
+    END IF
     PRINT "Error: No AI protocol chosen"
     GOTO 39900
 
@@ -12169,7 +11917,6 @@ SUB NecrotaliaAI
     GOTO 39900
 
     39770 PRINT "Necrotalia casts fire"
-    RANDOMIZE TIMER
     MiscastChance% = INT(RND * 40)
     IF MiscastChance% >= 10 THEN
         PRINT "Necrotalia miscasts!"
@@ -12196,7 +11943,6 @@ SUB NecrotaliaAI
 
 
     39780 PRINT "Necrotalia casts Gaze of Death!"
-    RANDOMIZE TIMER
     MiscastChance% = INT(RND * 11)
     IF MiscastChance% >= 10 THEN
         PRINT "Necrotalia miscasts!"
@@ -12257,7 +12003,6 @@ SUB NecrotaliaAI
     GOTO 39900
 
     39800 PRINT "Necrotalia casts hand of dust!"
-    RANDOMIZE TIMER
     MiscastChance% = INT(RND * 100)
     IF MiscastChance% >= 10 THEN
         PRINT "Necrotalia miscasts!"
@@ -12288,11 +12033,9 @@ SUB NecrotaliaBattle
     NecrotaliaHP% = 1000
     PRINT "Necrotalia readies her glowing red sword"
 
-    RANDOMIZE TIMER
     SPEED% = 15
     ENEMYSPEED% = SPEED%
 
-    RANDOMIZE TIMER
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
@@ -12386,7 +12129,6 @@ SUB NecrotaliaBattle
         END IF
     END IF
     IF ACTION$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
@@ -12730,7 +12472,6 @@ SUB NecrotaliaBattle
         GOTO 36000
     END IF
     IF ACTIONA$ = "judge enemy" THEN
-        RANDOMIZE TIMER
         CORRECTJUDGECHANCE% = INT(RND * 100) + 1
         IF CORRECTJUDGECHANCE% <= 35 THEN
             PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
@@ -12748,7 +12489,6 @@ SUB NecrotaliaBattle
     PRINT "Huh?"
     GOTO 36000
     37000 PRINT "You attempt to parry Necrotalia's blow."
-    RANDOMIZE TIMER
     PC% = INT(RND * 100) + 1
     PARRYCHANCE% = PC% + ShieldSave%
     IF PARRYCHANCE% >= 50 THEN
@@ -12759,7 +12499,6 @@ SUB NecrotaliaBattle
     END IF
     38000
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-        RANDOMIZE TIMER
         PRINT "Necrotalia ignores the punch."
         END IF
         NecrotaliaAI
@@ -12772,7 +12511,6 @@ SUB NecrotaliaBattle
     GOTO 36000
 
     39500 PRINT "As Necrotalia attacks, you attempt to dodge her attack."
-    RANDOMIZE TIMER
     DC% = INT(RND * 100) + 1
     DODGECHANCE% = DC% - DEX%
     IF DODGECHANCE% >= 45 THEN
@@ -12800,7 +12538,8 @@ SUB NecrotaliaBattle
 END SUB
 
 SUB NecrotaliaFight
-    1000000 CLS
+  1000000
+    CLS
     PRINT "You are now standing in a large open room, in the middle of the room is a chaos"
     PRINT "star symbol.  drawn in blood.  On the opposite side of the room is a sort of "
     PRINT "throne, built of bones.  The floor of this room is littered with skeletons, "
@@ -12809,34 +12548,18 @@ SUB NecrotaliaFight
     PRINT "There is one obvious exit:"
     PRINT "         South: Dark passage"
     COLOR 15
-    1000005 INPUT ">", Necro$
-        IF Necro$ = "help" THEN WorldHelp
-        IF Necro$ = "help" THEN GOTO 1000005
-        
-        IF Necro$ = "menu" THEN MainMenu
-        IF Necro$ = "menu" THEN GOTO 1000005
-                    
-        IF Necro$ = "describe" THEN GOTO 1000000
-             
-        IF Necro$ = "stats" THEN displaystats
-        IF Necro$ = "stats" THEN GOTO 1000005
-         
-        IF Necro$ = "inventory" THEN displayinventory
-        IF Necro$ = "inventory" THEN GOTO 1000005
-         
-        IF Necro$ = "equipment" THEN displayequip
-        IF Necro$ = "equipment" THEN GOTO 1000005
-
-        IF Necro$ = "equip LH" THEN EQlh
-        IF Necro$ = "equip LH" THEN GOTO 1000005
-         
-        IF Necro$ = "equip RH" THEN EQrh
-        IF Necro$ = "equip RH" THEN GOTO 1000005
-         
-        IF Necro$ = "equip ARMOUR" THEN EqArmour
-        IF Necro$ = "equip ARMOUR" THEN GOTO 1000005
-         
-        IF Necro$ = "use potion" THEN
+  1000005
+    INPUT ">", Necro$
+    SELECT CASE Necro$
+        CASE "help"         : WorldHelp
+        CASE "menu"         : MainMenu
+        CASE "stats"        : displaystats
+        CASE "inventory"    : displayinventory
+        CASE "equipment"    : displayequip
+        CASE "equip LH"     : EQlh
+        CASE "equip RH"     : EQrh
+        CASE "equip ARMOUR" : EqArmour
+        CASE "use potion"
             IF Potion% >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
@@ -12844,75 +12567,77 @@ SUB NecrotaliaFight
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
-                GOTO 1000005
+            ELSE
+                GOTO 1000010
             END IF
-        END IF
+        CASE "south"
+            RemoveMusic 1
+            RemoveMusic 2
+            RemoveMusic 3
+            RemoveMusic 4
+            RemoveMusic 5
+            SetVolume 0, 0, 0
+            LoadMusic "assets/intro.mp3", 2, 1, 1, 1
+            PauseMusic 1
+            LoadMusic "assets/main.mp3", 2, 2, 1, 1
+            PauseMusic 2
+            SetVolume WillsSoundEffectVolume%, WillsSoundEffectVolume%, WillsMusicVolume%
+            ResumeMusic 1
+            IF Sex$ = "his" THEN SexType$ = "boy"
+            IF Sex$ = "her" THEN SexType$ = "girl"
+            COLOR 2
 
-        IF Necro$ = "south" THEN
-        RemoveMusic 1
-        RemoveMusic 2
-        RemoveMusic 3
-        RemoveMusic 4
-        RemoveMusic 5
-        SetVolume 0, 0, 0
-        LoadMusic "assets/intro.mp3", 2, 1, 1, 1
-        PauseMusic 1
-        LoadMusic "assets/main.mp3", 2, 2, 1, 1
-        PauseMusic 2
-        SetVolume WillsSoundEffectVolume%, WillsSoundEffectVolume%, WillsMusicVolume%
-        ResumeMusic 1
-        IF Sex$ = "his" THEN SexType$ = "boy"
-        IF Sex$ = "her" THEN SexType$ = "girl"
-        COLOR 2
-    SLEEP 3
-    PRINT "As you leave the area the blood behind you ignites, sending flames impossibly"
-    PRINT "high.  Turning around you notice that the skeletons on the floor are no longer"
-    PRINT "inanimate, they are standing and clutching short swords and bucklers, amongst"
-    PRINT "the sounds of the flames you hear laughing."
-    SLEEP 10
-    COLOR 14
-    PRINT "Unknown Voice> You challenge me? you are only a "; SexType$; "."
-    SLEEP 2
-    PRINT Name$; "> Well if you are so confident then why do you hide?"
-    SLEEP 2
-    PRINT "Unknown Voice> Good question, I suppose the great Necrotalia has no reason"
-    PRINT "               to hide."
-    SLEEP 2
-    PRINT Name$; "> You are Necrotalia? I thought daemons were supposed "
-    PRINT "         to be frightening."
-    SLEEP 2
-    PRINT "Sir Jacob> Enough, as simple as she appears, daemons are dangerous."
-    SLEEP 2
-    PRINT "Necrotalia> You attempt to anger me? very well if the only fighting you do is"
-    PRINT "            with words, perhaps.  I will show you a better means of fighting."
-    PRINT "            Go forth my minions, eliminate this nuisance."
-    SLEEP 4
-    PRINT "Suddenly the skeletons start marching forward."
-    PRINT "Sir Jacob> You send mere warriors of undeath to fight us? are you too cowardly"
-    PRINT "to fight us yourself?"
-    SLEEP 4
-    PRINT "Sir Jacob> Very well, I will turn your minions to dust!"
-    SLEEP 2
-    PRINT "A blue magical field surrounds Sir Jacob and lashes out towards all the "
-    PRINT "minions in the area.  Soon afterwards all the skeletons collapse into "
-    PRINT "piles of bones."
-    SLEEP 3
-    PRINT "Necrotalia> Hah! you annoy me with your pitiful magic!"
-    PRINT "A red magic field surrounds Necrotalia and advances on Sir Jacob."
-    SLEEP 3
-    PRINT "Sir Jacob falls to one knee and says `I can't move!'"
-    SLEEP 1
-    COLOR 3
-    PRINT "Necrotalia> You! you will die now!"
-    SLEEP 3
-    COLOR 15
-    RemoveMusic 1
-    ResumeMusic 2
-    NecrotaliaBattle
-    COLOR 15
-    EndGameCutscene
-    END IF
-
+            SLEEP 3
+            PRINT "As you leave the area the blood behind you ignites, sending flames impossibly"
+            PRINT "high.  Turning around you notice that the skeletons on the floor are no longer"
+            PRINT "inanimate, they are standing and clutching short swords and bucklers, amongst"
+            PRINT "the sounds of the flames you hear laughing."
+            SLEEP 10
+            COLOR 14
+            PRINT "Unknown Voice> You challenge me? you are only a "; SexType$; "."
+            SLEEP 2
+            PRINT Name$; "> Well if you are so confident then why do you hide?"
+            SLEEP 2
+            PRINT "Unknown Voice> Good question, I suppose the great Necrotalia has no reason"
+            PRINT "               to hide."
+            SLEEP 2
+            PRINT Name$; "> You are Necrotalia? I thought daemons were supposed "
+            PRINT "         to be frightening."
+            SLEEP 2
+            PRINT "Sir Jacob> Enough, as simple as she appears, daemons are dangerous."
+            SLEEP 2
+            PRINT "Necrotalia> You attempt to anger me? very well if the only fighting you do is"
+            PRINT "            with words, perhaps.  I will show you a better means of fighting."
+            PRINT "            Go forth my minions, eliminate this nuisance."
+            SLEEP 4
+            PRINT "Suddenly the skeletons start marching forward."
+            PRINT "Sir Jacob> You send mere warriors of undeath to fight us? are you too cowardly"
+            PRINT "to fight us yourself?"
+            SLEEP 4
+            PRINT "Sir Jacob> Very well, I will turn your minions to dust!"
+            SLEEP 2
+            PRINT "A blue magical field surrounds Sir Jacob and lashes out towards all the "
+            PRINT "minions in the area.  Soon afterwards all the skeletons collapse into "
+            PRINT "piles of bones."
+            SLEEP 3
+            PRINT "Necrotalia> Hah! you annoy me with your pitiful magic!"
+            PRINT "A red magic field surrounds Necrotalia and advances on Sir Jacob."
+            SLEEP 3
+            PRINT "Sir Jacob falls to one knee and says `I can't move!'"
+            SLEEP 1
+            COLOR 3
+            PRINT "Necrotalia> You! you will die now!"
+            SLEEP 3
+            COLOR 15
+            RemoveMusic 1
+            ResumeMusic 2
+            NecrotaliaBattle
+            COLOR 15
+            EndGameCutscene
+            GOTO 1000010
+    END SELECT
+    GOTO 1000005
+  1000010
     COLOR 5
     PRINT "Huh?"
     COLOR 15
@@ -12920,13 +12645,15 @@ SUB NecrotaliaFight
 END SUB
 
 SUB Options
-    1.05 CLS
+  1.05
+    CLS
     PRINT "Options:"
     PRINT "   1-Game Options"
     PRINT "   2-Sound Options"
     PRINT "   3-Return to main menu"
     PRINT ""
-    1.1 PRINT "What is your choice? <1-3>"
+  1.1
+    PRINT "What is your choice? <1-3>"
     INPUT ">", Optionse$
         IF Optionse$ = "1" THEN GOTO 1.2
         IF Optionse$ = "2" THEN GOTO 1.3
@@ -12936,12 +12663,14 @@ SUB Options
     COLOR 15
     GOTO 1.1
 
-    1.2 CLS
+  1.2
+    CLS
     PRINT "Difficulty level:"
     PRINT "<E>asy"
     PRINT "<M>edium"
     PRINT "<H>ard"
-    1.25 PRINT "What is your choice?"
+  1.25
+    PRINT "What is your choice?"
     INPUT ">", Difficulty$
         IF Difficulty$ = "e" THEN
             Diff% = 0
@@ -12960,7 +12689,8 @@ SUB Options
     COLOR 15
     GOTO 1.25
 
-    1.3 CLS
+  1.3 
+    CLS
     PRINT "Sound options:"
     PRINT "Volume   -<S>ound Effects:"; WillsSoundEffectVolume%
     PRINT "         -<M>usic:"; WillsMusicVolume%
@@ -12970,7 +12700,8 @@ SUB Options
     PRINT ""
     PRINT "<L>eave"
     PRINT ""
-    1.35 PRINT "What is your choice?"
+  1.35
+    PRINT "What is your choice?"
     INPUT ">", Sound$
         IF Sound$ = "s" THEN
             PRINT "What new volume do you wish to set it to? <1-100>"
@@ -13015,91 +12746,99 @@ SUB Options
     PRINT "Huh?"
     COLOR 15
     GOTO 1.35
-1.7 END SUB
+  1.7
+END SUB
 
 REM $DYNAMIC
 SUB OWLSPELL
-    IF ALLE% = 9 THEN
-    GOTO 9900
-    ELSE
-    RANDOMIZE TIMER
-    OWLSPELLCHANCE% = INT(RND * 100) + 1
-    IF OWLSPELLCHANCE% <= 10 THEN
-    19999.9 RANDOMIZE TIMER
-    WHICHOWLSPELL% = INT(RND * 11) + 1
-    IF WHICHOWLSPELL% = 1 THEN
-        IF fire% = 1 THEN GOTO 9900
-        LEARNOWLSPELL$ = "fireball"
-        fire% = 1
-        ALLE% = ALLE% + 1
+    IF ALLE% <> 9 THEN
+        OWLSPELLCHANCE% = INT(RND * 100) + 1
+        IF OWLSPELLCHANCE% <= 10 THEN
+  19999.9 
+            WHICHOWLSPELL% = INT(RND * 12) + 1
+            SELECT CASE WHICHOWLSPELL%
+                CASE 1
+                    IF fire% <> 1 THEN
+                        LEARNOWLSPELL$ = "fireball"
+                        fire% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 2
+                    IF LIGHT% <> 1 THEN
+                        LEARNOWLSPELL$ = "lightning bolt"
+                        LIGHT% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 3
+                    IF HEAL% <> 1 THEN
+                        LEARNOWLSPELL$ = "healing"
+                        HEAL% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 4
+                    IF ELDR% <> 1 THEN
+                        LEARNOWLSPELL$ = "eldrich storm"
+                        ELDR% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 5
+                    IF blast% <> 1 THEN
+                        LEARNOWLSPELL$ = "fire blast"
+                        blast% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 6
+                    IF CURE% <> 1 THEN
+                        LEARNOWLSPELL$ = "cure"
+                        CURE% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 7
+                    IF AUG% <> 1 THEN
+                        LEARNOWLSPELL$ = "augment"
+                        AUG% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 8
+                    IF FORT% <> 1 THEN
+                        LEARNOWLSPELL$ = "fortune"
+                        FORT% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 9
+                    IF PRED% <> 1 THEN
+                        LEARNOWLSPELL$ = "predict"
+                        PRED% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 10
+                    IF Reflect% <> 1 Then
+                        LEARNOWLSPELL$ = "reflect"
+                        Reflect% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 11
+                    IF Cura% <> 1 THEN
+                        LEARNOWLSPELL$ = "Cura"
+                        Cura% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+                CASE 12
+                    IF Fira% <> 1 THEN
+                        LEARNOWLSPELL$ = "Fira"
+                        PRED% = 1
+                        ALLE% = ALLE% + 1
+                    END IF
+            END SELECT
+            PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
+            OwlSpells(WHICHOWLSPELL% - 1).hasIt = TRUE
+        ELSE
+            GOTO 9900
+        END IF
+        GOTO 19999.9
     END IF
-    IF WHICHOWLSPELL% = 2 THEN
-        IF LIGHT% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "lightning bolt"
-        LIGHT% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 3 THEN
-        IF HEAL% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "healing"
-        HEAL% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 4 THEN
-        IF ELDR% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "eldrich storm"
-        ELDR% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 5 THEN
-        IF blast% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "fire blast"
-        blast% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 6 THEN
-        IF CURE% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "cure"
-        CURE% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 7 THEN
-        IF AUG% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "augment"
-        AUG% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 8 THEN
-        IF FORT% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "fortune"
-        FORT% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 9 THEN
-        IF PRED% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "predict"
-        PRED% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 10 THEN
-        IF Cura% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "Cura"
-        Cura% = 1
-        ALLE% = ALLE% + 1
-    END IF
-    IF WHICHOWLSPELL% = 11 THEN
-        IF Fira% = 1 THEN GOTO 19999.9
-        LEARNOWLSPELL$ = "Fira"
-        PRED% = 1
-        ALLE% = ALLE% + 1
-    END IF
-
-    PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
-    ELSE
-    GOTO 9900
-    END IF
-    END IF
-9900 END SUB
+  9900
+END SUB
 
 REM $DYNAMIC
 SUB PurchaseSamael
@@ -13168,9 +12907,9 @@ SUB PurchaseSamael
         IF Quest% = 1 THEN PRINT "Sword +1             100"
         PRINT ""
         PRINT "Gold="; Gold&
-      
+
         INPUT "item name>", Purchase$
-          
+
         IF Purchase$ = "potion" THEN
             IF Gold& >= 10 THEN
                 Gold& = Gold& - 10
@@ -13261,7 +13000,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
            END IF
-          
+
         IF Purchase$ = "leather armour" THEN
             IF Gold& >= 50 THEN
                 Gold& = Gold& - 50
@@ -13287,7 +13026,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
            END IF
-          
+
         IF Purchase$ = "sword +1" THEN
            IF Quest% = 1 THEN
             IF Gold& >= 100 THEN
@@ -13302,7 +13041,7 @@ SUB PurchaseSamael
                 END IF
            END IF
         END IF
-           
+
         IF Purchase$ = "short staff" THEN
            IF Gold& >= 25 THEN
                 Gold& = Gold& - 25
@@ -13315,7 +13054,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
            END IF
-           
+
         IF Purchase$ = "long staff" THEN
            IF Gold& >= 50 THEN
                 Gold& = Gold& - 50
@@ -13328,7 +13067,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
         END IF
-           
+
         IF Purchase$ = "cap" THEN
             IF Gold& >= 5 THEN
                 Gold& = Gold& - 5
@@ -13341,7 +13080,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
         END IF
-           
+
         IF Purchase$ = "skull cap" THEN
             IF Gold& >= 10 THEN
                 Gold& = Gold& - 10
@@ -13354,7 +13093,7 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
         END IF
-           
+
         IF Purchase$ = "helm" THEN
             IF Gold& >= 15 THEN
                 Gold& = Gold& - 15
@@ -13367,11 +13106,12 @@ SUB PurchaseSamael
                 GOTO 430
                 END IF
         END IF
-          
-          
+
+
     GOTO 430
 
-    460 displayinventory
+  460
+    displayinventory
     PRINT "What do you wish to sell?"
     INPUT "Item Name>", Sell$
     IF Sell$ = "potion" THEN
@@ -13471,7 +13211,7 @@ SUB PurchaseSamael
             END IF
         END IF
     END IF
-            
+
     IF Sell$ = "long staff" THEN
         IF LongStaff% > 0 THEN
             PRINT "Samael> Okay I can give ye 25 gold fer each of em"
@@ -13614,131 +13354,142 @@ SUB PurchaseSamael
 
     PRINT "Samael> ooook...I don't quite understande ye, try again."
     GOTO 430
-470 END SUB
+  470
+END SUB
 
 SUB RANDOMRUNEDROP
     Runes
-    RANDOMIZE TIMER
     RRD% = INT(RND * 26) + 1
-    IF RRD% = 1 THEN RANDOMRUNE$ = ken$: ken% = 1
-    IF RRD% = 2 THEN RANDOMRUNE$ = wak$: wak% = 1
-    IF RRD% = 3 THEN RANDOMRUNE$ = yoo$: yoo% = 1
-    IF RRD% = 4 THEN RANDOMRUNE$ = tog$: tog% = 1
-    IF RRD% = 5 THEN RANDOMRUNE$ = wir$: wir% = 1
-    IF RRD% = 6 THEN RANDOMRUNE$ = gnu$: gnu% = 1
-    IF RRD% = 7 THEN RANDOMRUNE$ = poa$: poa% = 1
-    IF RRD% = 8 THEN RANDOMRUNE$ = rer$: rer% = 1
-    IF RRD% = 9 THEN RANDOMRUNE$ = coz$: coz% = 1
-    IF RRD% = 10 THEN RANDOMRUNE$ = arp$: arp% = 1
-    IF RRD% = 11 THEN RANDOMRUNE$ = oje$: oje% = 1
-    IF RRD% = 12 THEN RANDOMRUNE$ = til$: til% = 1
-    IF RRD% = 13 THEN RANDOMRUNE$ = roc$: roc% = 1
-    IF RRD% = 14 THEN RANDOMRUNE$ = wod$: wod% = 1
-    IF RRD% = 15 THEN RANDOMRUNE$ = sho$: sho% = 1
-    IF RRD% = 16 THEN RANDOMRUNE$ = vas$: vas% = 1
-    IF RRD% = 17 THEN RANDOMRUNE$ = dop$: dop% = 1
-    IF RRD% = 18 THEN RANDOMRUNE$ = rof$: rof% = 1
-    IF RRD% = 19 THEN RANDOMRUNE$ = POS$: poss% = 1
-    IF RRD% = 20 THEN RANDOMRUNE$ = uch$: uch% = 1
-    IF RRD% = 21 THEN RANDOMRUNE$ = dire$: dire% = 1
-    IF RRD% = 22 THEN RANDOMRUNE$ = fla$: fla% = 1
-    IF RRD% = 23 THEN RANDOMRUNE$ = pud$: pud% = 1
-    IF RRD% = 24 THEN RANDOMRUNE$ = cal$: cal% = 1
-    IF RRD% = 25 THEN RANDOMRUNE$ = das$: das% = 1
-    IF RRD% = 26 THEN RANDOMRUNE$ = uss$: uss% = 1
+    SELECT CASE RRD%
+        CASE 1  : RANDOMRUNE$ = ken$ : ken% = 1
+        CASE 2  : RANDOMRUNE$ = wak$ : wak% = 1
+        CASE 3  : RANDOMRUNE$ = yoo$ : yoo% = 1
+        CASE 4  : RANDOMRUNE$ = tog$ : tog% = 1
+        CASE 5  : RANDOMRUNE$ = wir$ : wir% = 1
+        CASE 6  : RANDOMRUNE$ = gnu$ : gnu% = 1
+        CASE 7  : RANDOMRUNE$ = poa$ : poa% = 1
+        CASE 8  : RANDOMRUNE$ = rer$ : rer% = 1
+        CASE 9  : RANDOMRUNE$ = coz$ : coz% = 1
+        CASE 10 : RANDOMRUNE$ = arp$ : arp% = 1
+        CASE 11 : RANDOMRUNE$ = oje$ : oje% = 1
+        CASE 12 : RANDOMRUNE$ = til$ : til% = 1
+        CASE 13 : RANDOMRUNE$ = roc$ : roc% = 1
+        CASE 14 : RANDOMRUNE$ = wod$ : wod% = 1
+        CASE 15 : RANDOMRUNE$ = sho$ : sho% = 1
+        CASE 16 : RANDOMRUNE$ = vas$ : vas% = 1
+        CASE 17 : RANDOMRUNE$ = dop$ : dop% = 1
+        CASE 18 : RANDOMRUNE$ = rof$ : rof% = 1
+        CASE 19 : RANDOMRUNE$ = POS$ : poss% = 1
+        CASE 20 : RANDOMRUNE$ = uch$ : uch% = 1
+        CASE 21 : RANDOMRUNE$ = dire$: dire% = 1
+        CASE 22 : RANDOMRUNE$ = fla$ : fla% = 1
+        CASE 23 : RANDOMRUNE$ = pud$ : pud% = 1
+        CASE 24 : RANDOMRUNE$ = cal$ : cal% = 1
+        CASE 25 : RANDOMRUNE$ = das$ : das% = 1
+        CASE 26 : RANDOMRUNE$ = uss$ : uss% = 1
+    END SELECT
 END SUB
 
 SUB RANDOMSTRING
     'Generates a random string
-    RANDOMIZE TIMER
     RNDSTRING% = INT(RND * 40)
     COLOR 4
-    IF RNDSTRING% = 1 THEN PRINT "You hear a creaking sound."
-    IF RNDSTRING% = 2 THEN PRINT "An evil laugh penetrates the silence."
-    IF RNDSTRING% = 3 THEN PRINT "You hear the screaming of an unknown person."
-    IF RNDSTRING% = 4 THEN PRINT "You begin to shiver from the cold."
-    IF RNDSTRING% = 5 THEN PRINT "You sense several eyes on you."
-    IF RNDSTRING% = 6 THEN PRINT "You hear a low moaning sound nearby."
-    IF RNDSTRING% = 7 THEN PRINT "A woman's high pitched shriek pierces the silence."
-    IF RNDSTRING% = 8 THEN PRINT "You look down at a gruesome corpse and shudder."
+    SELECT CASE RNDSTRING%
+        CASE 1 : PRINT "You hear a creaking sound."
+        CASE 2 : PRINT "An evil laugh penetrates the silence."
+        CASE 3 : PRINT "You hear the screaming of an unknown person."
+        CASE 4 : PRINT "You begin to shiver from the cold."
+        CASE 5 : PRINT "You sense several eyes on you."
+        CASE 6 : PRINT "You hear a low moaning sound nearby."
+        CASE 7 : PRINT "A woman's high pitched shriek pierces the silence."
+        CASE 8 : PRINT "You look down at a gruesome corpse and shudder."
+    END SELECT
 END SUB
 
 SUB RemoveArmour
-    IF Armour$ = "Rags" THEN Rags% = Rags% + 1
-    IF Armour$ = "Robes (Upper)" THEN RobesUpper% = RobesUpper% + 1
-    IF Armour$ = "Robes (Lower)" THEN RobesLower% = RobesLower% + 1
-    IF Armour$ = "Surcoat" THEN Surcoat% = Surcoat% + 1
-    IF Armour$ = "Quilted Armour" THEN QuiltedArmour% = QuiltedArmour% + 1
-    IF Armour$ = "Leather Armour" THEN LeatherArmour% = LeatherArmour% + 1
-    IF Armour$ = "Hard Leather Armour" THEN HardLeatherArmour% = HardLeatherArmour% + 1
+    SELECT CASE Armour$
+        CASE "Rags"                : Rags% = Rags% + 1
+        CASE "Robes (Upper)"       : RobesUpper% = RobesUpper% + 1
+        CASE "Robes (Lower)"       : RobesLower% = RobesLower% + 1
+        CASE "Surcoat"             : Surcoat% = Surcoat% + 1
+        CASE "Quilted Armour"      : QuiltedArmour% = QuiltedArmour% + 1
+        CASE "Leather Armour"      : LeatherArmour% = LeatherArmour% + 1
+        CASE "Hard Leather Armour" : HardLeatherArmour% = HardLeatherArmour% + 1
+    END SELECT
 END SUB
 
 SUB RemoveHelm
-    IF Armour$ = "Cap" THEN Cap% = Cap% + 1
-    IF Armour$ = "Skull Cap" THEN SkullCap% = SkullCap% + 1
-    IF Armour$ = "Helm" THEN Helm% = Helm% + 1
-    IF Armour$ = "Full Helm" THEN FullHelm% = FullHelm% + 1
-    IF Armour$ = "Great Helm" THEN GreatHelm% = GreatHelm% + 1
-    IF Armour$ = "Horned Great Helm" THEN GreatHelmHorned% = GreatHelmHorned% + 1
-    IF Armour$ = "Mythril Dwarven Helm" THEN MythrilDwarvenHelm% = MythrilDwarvenHelm% + 1
+    SELECT CASE Helm$
+        CASE "Cap"                  : Cap% = Cap% + 1
+        CASE "Skull Cap"            : SkullCap% = SkullCap% + 1
+        CASE "Helm"                 : Helm% = Helm% + 1
+        CASE "Full Helm"            : FullHelm% = FullHelm% + 1
+        CASE "Great Helm"           : GreatHelm% = GreatHelm% + 1
+        CASE "Horned Great Helm"    : GreatHelmHorned% = GreatHelmHorned% + 1
+        CASE "Mythril Dwarven Helm" : MythrilDwarvenHelm% = MythrilDwarvenHelm% + 1
+    END SELECT
 END SUB
 
 SUB RemoveLH
-    'Swords
-    IF LH$ = "Short Sword" THEN ShortSword% = ShortSword% + 1
-    IF LH$ = "Long Sword" THEN LongSword% = LongSword% + 1
-    IF LH$ = "Bastard Sword" THEN BastardSword% = BastardSword% + 1
-    IF LH$ = "Battle Blade" THEN BattleBlade% = BattleBlade% + 1
-    IF LH$ = "Greatsword" THEN GreatSword% = GreatSword% + 1
-    IF LH$ = "Great Battle Blade" THEN GreatBattleBlade% = GreatBattleBlade% + 1
-    IF LH$ = "Holy Sword" THEN HolySword% = HolySword% + 1
-    IF LH$ = "Sword +1" THEN SwordPlusOne% = SwordPlusOne% + 1
-    IF LH$ = "Sword +2" THEN SwordPlusTwo% = SwordPlusTwo% + 1
-    IF LH$ = "Sword +3" THEN SwordPlusThree% = SwordPlusThree% + 1
-    IF LH$ = "Sword +4" THEN SwordPlusFour% = SwordPlusFour% + 1
-    IF LH$ = "Sword +5" THEN SwordPlusFive% = SwordPlusFive% + 1
-    IF LH$ = "Avenger Sword +7" THEN AvengerSwordPlusSeven% = AvengerSwordPlusSeven% + 1
-
-    'Staves
-    IF LH$ = "Shord Staff" THEN ShortStaff% = ShortStaff% + 1
-    IF LH$ = "Long Staff" THEN LongStaff% = LongStaff% + 1
+    SELECT CASE LH$
+        'Swords
+        CASE "Short Sword"        : ShortSword% = ShortSword% + 1
+        CASE "Long Sword"         : LongSword% = LongSword% + 1
+        CASE "Bastard Sword"      : BastardSword% = BastardSword% + 1
+        CASE "Battle Blade"       : BattleBlade% = BattleBlade% + 1
+        CASE "Greatsword"         : GreatSword% = GreatSword% + 1
+        CASE "Great Battle Blade" : GreatBattleBlade% = GreatBattleBlade% + 1
+        CASE "Holy Sword"         : HolySword% = HolySword% + 1
+        CASE "Sword +1"           : SwordPlusOne% = SwordPlusOne% + 1
+        CASE "Sword +2"           : SwordPlusTwo% = SwordPlusTwo% + 1
+        CASE "Sword +3"           : SwordPlusThree% = SwordPlusThree% + 1
+        CASE "Sword +4"           : SwordPlusFour% = SwordPlusFour% + 1
+        CASE "Sword +5"           : SwordPlusFive% = SwordPlusFive% + 1
+        CASE "Avenger Sword +7"   : AvengerSwordPlusSeven% = AvengerSwordPlusSeven% + 1
+        'Staves
+        CASE "Shord Staff"        : ShortStaff% = ShortStaff% + 1
+        CASE "Long Staff"         : LongStaff% = LongStaff% + 1
+    END SELECT
 END SUB
 
 REM $DYNAMIC
 SUB RemoveRH
-    'Shields
-    IF RH$ = "Buckler" THEN Buckler% = Buckler% + 1
-    IF RH$ = "Small Shield" THEN SmallShield% = SmallShield% + 1
-    IF RH$ = "Large Shield" THEN LargeShield% = LargeShield% + 1
-    IF RH$ = "Holy Shield" THEN HolyShield% = HolyShield% + 1
-    IF RH$ = "Shield +1" THEN ShieldPlusOne% = ShieldPlusOne% + 1
-    IF RH$ = "Shield +2" THEN ShieldPlusTwo% = ShieldPlusTwo% + 1
-    IF RH$ = "Shield +3" THEN ShieldPlusThree% = ShieldPlusThree% + 1
-    IF RH$ = "Shield +4" THEN ShieldPlusFour% = ShieldPlusFour% + 1
-    IF RH$ = "Shield +5" THEN ShieldPlusFive% = ShieldPlusFive% + 1
-
-    'Staves
-    IF RH$ = "Short Staff" THEN ShortStaff% = ShortStaff% + 1
-    IF RH$ = "Long Staff" THEN LongStaff% = LongStaff% + 1
+    SELECT CASE RH$
+        'Shields
+        CASE "Buckler"      : Buckler% = Buckler% + 1
+        CASE "Small Shield" : SmallShield% = SmallShield% + 1
+        CASE "Large Shield" : LargeShield% = LargeShield% + 1
+        CASE "Holy Shield"  : HolyShield% = HolyShield% + 1
+        CASE "Shield +1"    : ShieldPlusOne% = ShieldPlusOne% + 1
+        CASE "Shield +2"    : ShieldPlusTwo% = ShieldPlusTwo% + 1
+        CASE "Shield +3"    : ShieldPlusThree% = ShieldPlusThree% + 1
+        CASE "Shield +4"    : ShieldPlusFour% = ShieldPlusFour% + 1
+        CASE "Shield +5"    : ShieldPlusFive% = ShieldPlusFive% + 1
+        'Staves
+        CASE "Short Staff"  : ShortStaff% = ShortStaff% + 1
+        CASE "Long Staff"   : LongStaff% = LongStaff% + 1
+    END SELECT
 END SUB
 
 SUB ReturnWeapon
     LH$ = LHO$
-    IF LH$ = "Short Sword" THEN DAMAGEADDED% = 1
-    IF LH$ = "Long Sword" THEN DAMAGEADDED% = 2
-    IF LH$ = "Battle Blade" THEN DAMAGEADDED% = 3
-    IF LH$ = "Bastard Sword" THEN DAMAGEADDED% = 4
-    IF LH$ = "Great Sword" THEN DAMAGEADDED% = 5
-    IF LH$ = "Great Battle Blade" THEN DAMAGEADDED% = 6
-    IF LH$ = "Holy Sword" THEN DAMAGEADDED% = 7
-    IF LH$ = "Sword +1" THEN DAMAGEADDED% = 8
-    IF LH$ = "Sword +2" THEN DAMAGEADDED% = 9
-    IF LH$ = "Sword +3" THEN DAMAGEADDED% = 10
-    IF LH$ = "Sword +4" THEN DAMAGEADDED% = 11
-    IF LH$ = "Sword +5" THEN DAMAGEADDED% = 12
-    IF LH$ = "Avenger Sword +7" THEN DAMAGEADDED% = 15
-    IF LH$ = "Long Staff" THEN DAMAGEADDED% = 4
-    IF LH$ = "Short Staff" THEN DAMAGEADDED% = 2
+    SELECT CASE LH$
+        CASE "Short Sword"        : DAMAGEADDED% = 1
+        CASE "Long Sword"         : DAMAGEADDED% = 2
+        CASE "Battle Blade"       : DAMAGEADDED% = 3
+        CASE "Bastard Sword"      : DAMAGEADDED% = 4
+        CASE "Great Sword"        : DAMAGEADDED% = 5
+        CASE "Great Battle Blade" : DAMAGEADDED% = 6
+        CASE "Holy Sword"         : DAMAGEADDED% = 7
+        CASE "Sword +1"           : DAMAGEADDED% = 8
+        CASE "Sword +2"           : DAMAGEADDED% = 9
+        CASE "Sword +3"           : DAMAGEADDED% = 10
+        CASE "Sword +4"           : DAMAGEADDED% = 11
+        CASE "Sword +5"           : DAMAGEADDED% = 12
+        CASE "Avenger Sword +7"   : DAMAGEADDED% = 15
+        CASE "Long Staff"         : DAMAGEADDED% = 4
+        CASE "Short Staff"        : DAMAGEADDED% = 2
+    END SELECT
 END SUB
 
 REM $DYNAMIC
@@ -13776,480 +13527,311 @@ SUB SaveGame
     Operation$ = "Save"
     GetSaveLoadPos
 
-    IF SavedGame% = 1 THEN OPEN "mud.sav" FOR OUTPUT AS #1
-    IF SavedGame% = 2 THEN OPEN "mud1.sav" FOR OUTPUT AS #1
-    IF SavedGame% = 3 THEN OPEN "mud2.sav" FOR OUTPUT AS #1
-    IF SavedGame% = 4 THEN OPEN "mud3.sav" FOR OUTPUT AS #1
-    IF SavedGame% = 5 THEN OPEN "mud4.sav" FOR OUTPUT AS #1
-    IF SavedGame% = 6 THEN GOTO 100001
+    SELECT CASE SavedGame%
+        CASE 1 : OPEN "mud.sav" FOR OUTPUT AS #1
+        CASE 2 : OPEN "mud1.sav" FOR OUTPUT AS #1
+        CASE 3 : OPEN "mud2.sav" FOR OUTPUT AS #1
+        CASE 4 : OPEN "mud3.sav" FOR OUTPUT AS #1
+        CASE 5 : OPEN "mud4.sav" FOR OUTPUT AS #1
+        CASE 6 : GOTO 100001
+    END SELECT
 
-        'Saving position
-        WRITE #1, SavePos%
+    'Saving position
+    WRITE #1, SavePos%
 
-        'Player Stats
-        WRITE #1, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
+    'Player Stats
+    WRITE #1, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
 
-        'Act 1 items, triggers, helmsburg
-        WRITE #1, HelmsburgBttl%, StrangePendant%, BurningSphere%, GoldenSkull%, ChaosStar%, Key1%, Key2%, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%,  _
-    A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, FamiliarFlute%, ChaosStar%, A27AvengerSword, A28ChaosStarSocket%, JadeSkull%, WightLord%
+    'Act 1 items, triggers, helmsburg
+    WRITE #1, HelmsburgBttl%, StrangePendant%, BurningSphere%, GoldenSkull%, ChaosStar%, Key1%, Key2%, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%, A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, FamiliarFlute%, ChaosStar%, A27AvengerSword, A28ChaosStarSocket%, JadeSkull%, WightLord%
 
-        'Weapon Inventory
-        WRITE #1, ShortSword%, LongSword%, BastardSword%, BattleBlade%, GreatSword%, GreatBattleBlade%, HolySword%, SwordPlusOne%, SwordPlusTwo%, SwordPlusThree%, SwordPlusFour%, SwordPlusFive%, AvengerSwordPlusSeven%, ShortStaff%, LongStaff%
+    'Weapon Inventory
+    WRITE #1, ShortSword%, LongSword%, BastardSword%, BattleBlade%, GreatSword%, GreatBattleBlade%, HolySword%, SwordPlusOne%, SwordPlusTwo%, SwordPlusThree%, SwordPlusFour%, SwordPlusFive%, AvengerSwordPlusSeven%, ShortStaff%, LongStaff%
 
-        'Helms
-        WRITE #1, Cap%, SkullCap%, Helm%, FullHelm%, GreatHelm%, GreatHelmHorned%, MythrilDwarvenHelm%
+    'Helms
+    WRITE #1, Cap%, SkullCap%, Helm%, FullHelm%, GreatHelm%, GreatHelmHorned%, MythrilDwarvenHelm%
 
-        'Shield Inventory
-        WRITE #1, Buckler%, SmallShield%, LargeShield%, HolyShield%, ShieldPlusOne%, ShieldPlusTwo%, ShieldPlusThree%, ShieldPlusFour%, ShieldPlusFive%
+    'Shield Inventory
+    WRITE #1, Buckler%, SmallShield%, LargeShield%, HolyShield%, ShieldPlusOne%, ShieldPlusTwo%, ShieldPlusThree%, ShieldPlusFour%, ShieldPlusFive%
 
-        'Armour Inventory
-        WRITE #1, Rags%, Surcoat%, RobesUpper%, RobesLower%, QuiltedArmour%, LeatherArmour%, HardLeatherArmour%, StuddedLeatherArmour%, RingMail%, ChainMail%, ScaleMail%, BandedMail%, BreastPlate%, BandedPlateMail%, FieldPlateMail%, FieldPlate%,  _
-    LightPlateMail%, LightPlate%, GothicPlateMail%, GothicPlate%, HeavyPlateMail%, HeavyPlate%, AncientArmour%, MythrilMail%
+    'Armour Inventory
+    WRITE #1, Rags%, Surcoat%, RobesUpper%, RobesLower%, QuiltedArmour%, LeatherArmour%, HardLeatherArmour%, StuddedLeatherArmour%, RingMail%, ChainMail%, ScaleMail%, BandedMail%, BreastPlate%, BandedPlateMail%, FieldPlateMail%, FieldPlate%, LightPlateMail%, LightPlate%, GothicPlateMail%, GothicPlate%, HeavyPlateMail%, HeavyPlate%, AncientArmour%, MythrilMail%
 
-        'Potion Inventory
-        WRITE #1, Potion%
+    'Potion Inventory
+    WRITE #1, Potion%
 
-        'Act1Pt2 SUB Triggers, Quest Items
-        WRITE #1, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, GateKey% _
-    , A67PillarOn%
+    'Act1Pt2 SUB Triggers, Quest Items
+    WRITE #1, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, GateKey%, A67PillarOn%
 
-        'Familiar Flute
-        WRITE #1, FamiliarFlute%
+    'Familiar Flute
+    WRITE #1, FamiliarFlute%
 
-        'Familiar Stuff
-        WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, fire%, LIGHT%, HEAL%, ELDR%, blast%, CURE%, AUG%, FORT%, PRED%, LEARNOWLSPELL$, AL%, Reflect%, Cura%, Fira%, FamiliarHPS%
+    'Familiar Stuff
+    WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, fire%, LIGHT%, HEAL%, ELDR%, blast%, CURE%, AUG%, FORT%, PRED%, LEARNOWLSPELL$, AL%, Reflect%, Cura%, Fira%, FamiliarHPS%
 
-        'Class stuff
-        WRITE #1, Mage%, Fighter%, ROGUE%, Thief%, Bard%
+    'Class stuff
+    WRITE #1, Mage%, Fighter%, ROGUE%, Thief%, Bard%
 
-        'All The runestuff
-        WRITE #1, ken$, wak$, yoo$, tog$, wir$, gnu$, poa$, rer$, coz$, arp$, oje$, til$, roc$, wod$, sho$, vas$, dop$, rof$, POS$, uch$, dire$, fla$, pud$, cal$, das$, uss$
-        WRITE #1, ken%, wak%, yoo%, tog%, wir%, gnu%, poa%, rer%, coz%, arp%, oje%, til%, roc%, wod%, sho%, vas%, dop%, rof%, poss%, uch%, dire%, fla%, pud%, cal%, das%, uss%
+    'All The runestuff
+    WRITE #1, ken$, wak$, yoo$, tog$, wir$, gnu$, poa$, rer$, coz$, arp$, oje$, til$, roc$, wod$, sho$, vas$, dop$, rof$, POS$, uch$, dire$, fla$, pud$, cal$, das$, uss$
+    WRITE #1, ken%, wak%, yoo%, tog%, wir%, gnu%, poa%, rer%, coz%, arp%, oje%, til%, roc%, wod%, sho%, vas%, dop%, rof%, poss%, uch%, dire%, fla%, pud%, cal%, das%, uss%
 
-        CLOSE #1
+    CLOSE #1
 
     SaveToSavegame
-100001 END SUB
+  100001
+END SUB
 
 SUB SaveToSavegame
     OPEN "sgame.sav" FOR INPUT AS #1
-        INPUT #1, FirstName$, FClass$, Fpos%
-        INPUT #1, SName$, SClass$, Spos%
-        INPUT #1, TName$, TClass$, Tpos%
-        INPUT #1, QName$, QClass$, Qpos%
-        INPUT #1, PName$, PClass$, Ppos%
+
+    INPUT #1, FirstName$, FClass$, Fpos%
+    INPUT #1, SName$, SClass$, Spos%
+    INPUT #1, TName$, TClass$, Tpos%
+    INPUT #1, QName$, QClass$, Qpos%
+    INPUT #1, PName$, PClass$, Ppos%
 
     CLOSE #1
 
     OPEN "sgame.sav" FOR OUTPUT AS #2
 
-    IF SavedGame% = 1 THEN
-        WRITE #2, Name$, Class$, SavePos%
-        WRITE #2, SName$, SClass$, Spos%
-        WRITE #2, TName$, TClass$, Tpos%
-        WRITE #2, QName$, QClass$, Qpos%
-        WRITE #2, PName$, PClass$, Ppos%
-    END IF
-
-    IF SavedGame% = 2 THEN
-        WRITE #2, FirstName$, FClass$, Fpos%
-        WRITE #2, Name$, Class$, SavePos%
-        WRITE #2, TName$, TClass$, Tpos%
-        WRITE #2, QName$, QClass$, Qpos%
-        WRITE #2, PName$, PClass$, Ppos%
-    END IF
-
-    IF SavedGame% = 3 THEN
-        WRITE #2, FirstName$, FClass$, Fpos%
-        WRITE #2, SName$, SClass$, Spos%
-        WRITE #2, Name$, Class$, SavePos%
-        WRITE #2, QName$, QClass$, Qpos%
-        WRITE #2, PName$, PClass$, Ppos%
-    END IF
-
-    IF SavedGame% = 4 THEN
-        WRITE #2, FirstName$, FClass$, Fpos%
-        WRITE #2, SName$, SClass$, Spos%
-        WRITE #2, TName$, TClass$, Tpos%
-        WRITE #2, Name$, Class$, SavePos%
-        WRITE #2, PName$, PClass$, Ppos%
-    END IF
-
-    IF SavedGame% = 5 THEN
-        WRITE #2, FirstName$, FClass$, Fpos%
-        WRITE #2, SName$, SClass$, Spos%
-        WRITE #2, TName$, TClass$, Tpos%
-        WRITE #2, QName$, QClass$, Qpos%
-        WRITE #2, Name$, Class$, SavePos%
-    END IF
+    SELECT CASE SavedGame%
+        CASE 1
+            WRITE #2, Name$, Class$, SavePos%
+            WRITE #2, SName$, SClass$, Spos%
+            WRITE #2, TName$, TClass$, Tpos%
+            WRITE #2, QName$, QClass$, Qpos%
+            WRITE #2, PName$, PClass$, Ppos%
+        CASE 2
+            WRITE #2, FirstName$, FClass$, Fpos%
+            WRITE #2, Name$, Class$, SavePos%
+            WRITE #2, TName$, TClass$, Tpos%
+            WRITE #2, QName$, QClass$, Qpos%
+            WRITE #2, PName$, PClass$, Ppos%
+        CASE 3
+            WRITE #2, FirstName$, FClass$, Fpos%
+            WRITE #2, SName$, SClass$, Spos%
+            WRITE #2, Name$, Class$, SavePos%
+            WRITE #2, QName$, QClass$, Qpos%
+            WRITE #2, PName$, PClass$, Ppos%
+        CASE 4
+            WRITE #2, FirstName$, FClass$, Fpos%
+            WRITE #2, SName$, SClass$, Spos%
+            WRITE #2, TName$, TClass$, Tpos%
+            WRITE #2, Name$, Class$, SavePos%
+            WRITE #2, PName$, PClass$, Ppos%
+        CASE 5
+            WRITE #2, FirstName$, FClass$, Fpos%
+            WRITE #2, SName$, SClass$, Spos%
+            WRITE #2, TName$, TClass$, Tpos%
+            WRITE #2, QName$, QClass$, Qpos%
+            WRITE #2, Name$, Class$, SavePos%
+    END SELECT
 
     CLOSE #2
-END Sub
+END SUB
 
 SUB Steal
-    RANDOMIZE TIMER
     StealChance% = INT(RND * 100) - DEX%
     IF StealChance% <= 50 THEN
-    IF ENEMY$ = "Axe Maiden" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
+        SELECT CASE ENEMY$
+            CASE "Axe Maiden"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Skeleton"
+                StealItem$ = "a buckler"
+                Buckler% = Buckler% + 1
+            CASE "Giant Spider"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Zombie"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Imp"
+                StealItem$ = "a short sword"
+                ShortSword% = ShortSword% + 1
+            CASE "Ghoul"
+                StealItem$ = "nothing"
+            CASE "Ork"
+                StealItem$ = "some leather armour"
+                LeatherArmour% = LeatherArmour% + 1
+            CASE "Corpse"
+                StealItem$ = "another 100 gold coins"
+                Gold& = Gold& + 100
+            CASE "Wight"
+                StealItem$ = "a great battle blade"
+                GreatBattleBlade% = GreatBattleBlade% + 1
+            CASE "Fell Bat"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Wraith"
+                StealItem$ = "nothing"
+            CASE "Dire Wolf"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Lesser Vampire"
+                StealItem$ = "a bastard sword"
+                BastardSword% = BastardSword% + 1
+            CASE "Banshee"
+                StealItem$ = "a long sword"
+                LongSword% = LongSword% + 1
+            CASE "Phantom"
+                StealItem$ = "nothing"
+            CASE "Zombie Dragon"
+                StealItem$ = "some Hard Leather Armour"
+                HardLeatherArmour% = HardLeatherArmour% + 1
+            CASE "Xanathus"
+                StealItem$ = "a long staff"
+                LongStaff% = LongStaff% + 1
+            CASE "Necrotalia"
+                StealItem$ = "a jade skull"
+                JadeSkull% = JadeSkull% + 1
+        END SELECT
+        PRINT "You jump forward and steal "; StealItem$
     END IF
-
-    IF ENEMY$ = "Skeleton" THEN
-        StealItem$ = "a buckler"
-        Buckler% = Buckler% + 1
-    END IF
-
-    IF ENEMY$ = "Giant Spider" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Zombie" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Imp" THEN
-        StealItem$ = "a short sword"
-        ShortSword% = ShortSword% + 1
-    END IF
-
-    IF ENEMY$ = "Ghoul" THEN StealItem$ = "nothing"
-
-    IF ENEMY$ = "Ork" THEN
-        StealItem$ = "some leather armour"
-        LeatherArmour% = LeatherArmour% + 1
-    END IF
-
-    IF ENEMY$ = "Corpse" THEN
-        StealItem$ = "another 100 gold coins"
-        Gold& = Gold& + 100
-    END IF
-
-    IF ENEMY$ = "Wight" THEN
-        StealItem$ = "a great battle blade"
-        GreatBattleBlade% = GreatBattleBlade% + 1
-    END IF
-
-    IF ENEMY$ = "Fell Bat" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Wraith" THEN StealItem$ = "nothing"
-
-    IF ENEMY$ = "Dire Wolf" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Lesser Vampire" THEN
-        StealItem$ = "a bastard sword"
-        BastardSword% = BastardSword% + 1
-    END IF
-
-    IF ENEMY$ = "Banshee" THEN
-        StealItem$ = "a long sword"
-        LongSword% = LongSword% + 1
-    END IF
-
-    IF ENEMY$ = "Phantom" THEN StealItem$ = "nothing"
-
-    IF ENEMY$ = "Zombie Dragon" THEN
-        StealItem$ = "some Hard Leather Armour"
-        HardLeatherArmour% = HardLeatherArmour% + 1
-    END IF
-
-    IF ENEMY$ = "Xanathus" THEN
-        StealItem$ = "a long staff"
-        LongStaff% = LongStaff% + 1
-    END IF
-
-    IF ENEMY$ = "Necrotalia" THEN
-        StealItem$ = "a jade skull"
-        JadeSkull% = JadeSkull% + 1
-    END IF
-    PRINT "You jump forward and steal "; StealItem$
-    END IF
-END Sub
+END SUB
 
 SUB ToadSteal
-    RANDOMIZE TIMER
     StealChance% = INT(RND * 100)
     IF StealChance% <= 50 THEN
-    IF ENEMY$ = "Axe Maiden" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Skeleton" THEN
-        StealItem$ = "a buckler"
-        Buckler% = Buckler% + 1
-    END IF
-
-    IF ENEMY$ = "Giant Spider" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Zombie" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Imp" THEN
-        StealItem$ = "a short sword"
-        ShortSword% = ShortSword% + 1
-    END IF
-
-    IF ENEMY$ = "Ghoul" THEN StealItem$ = "nothing"
-
-    IF ENEMY$ = "Ork" THEN
-        StealItem$ = "some leather armour"
-        LeatherArmour% = LeatherArmour% + 1
-    END IF
-
-    IF ENEMY$ = "Corpse" THEN
-        StealItem$ = "another 100 gold coins"
-        Gold& = Gold& + 100
-    END IF
-
-    IF ENEMY$ = "Wight" THEN
-        StealItem$ = "a great battle blade"
-        GreatBattleBlade% = GreatBattleBlade% + 1
-    END IF
-
-    IF ENEMY$ = "Fell Bat" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Wraith" THEN StealItem$ = "nothing"
-        
-    IF ENEMY$ = "Dire Wolf" THEN
-        StealItem$ = "a potion"
-        Potion% = Potion% + 1
-    END IF
-
-    IF ENEMY$ = "Lesser Vampire" THEN
-        StealItem$ = "a bastard sword"
-        BastardSword% = BastardSword% + 1
-    END IF
-
-    IF ENEMY$ = "Banshee" THEN
-        StealItem$ = "a long sword"
-        LongSword% = LongSword% + 1
-    END IF
-
-    IF ENEMY$ = "Phantom" THEN StealItem$ = "nothing"
-
-    IF ENEMY$ = "Zombie Dragon" THEN
-        StealItem$ = "some Hard Leather Armour"
-        HardLeatherArmour% = HardLeatherArmour% + 1
-    END IF
-
-    IF ENEMY$ = "Xanathus" THEN
-        StealItem$ = "a long staff"
-        LongStaff% = LongStaff% + 1
-    END IF
-
-    IF ENEMY$ = "Necrotalia" THEN
-        StealItem$ = "a jade skull"
-        JadeSkull% = JadeSkull% + 1
-    END IF
-    PRINT "Toad steals "; StealItem$
+        SELECT CASE ENEMY$
+            CASE "Axe Maiden"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Skeleton"
+                StealItem$ = "a buckler"
+                Buckler% = Buckler% + 1
+            CASE "Giant Spider"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Zombie"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Imp"
+                StealItem$ = "a short sword"
+                ShortSword% = ShortSword% + 1
+            CASE "Ghoul"
+                StealItem$ = "nothing"
+            CASE "Ork"
+                StealItem$ = "some leather armour"
+                LeatherArmour% = LeatherArmour% + 1
+            CASE "Corpse"
+                StealItem$ = "another 100 gold coins"
+                Gold& = Gold& + 100
+            CASE "Wight"
+                StealItem$ = "a great battle blade"
+                GreatBattleBlade% = GreatBattleBlade% + 1
+            CASE "Fell Bat"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Wraith"
+                StealItem$ = "nothing"
+            CASE "Dire Wolf"
+                StealItem$ = "a potion"
+                Potion% = Potion% + 1
+            CASE "Lesser Vampire"
+                StealItem$ = "a bastard sword"
+                BastardSword% = BastardSword% + 1
+            CASE "Banshee"
+                StealItem$ = "a long sword"
+                LongSword% = LongSword% + 1
+            CASE "Phantom"
+                StealItem$ = "nothing"
+            CASE "Zombie Dragon"
+                StealItem$ = "some Hard Leather Armour"
+                HardLeatherArmour% = HardLeatherArmour% + 1
+            CASE "Xanathus"
+                StealItem$ = "a long staff"
+                LongStaff% = LongStaff% + 1
+            CASE "Necrotalia"
+                StealItem$ = "a jade skull"
+                JadeSkull% = JadeSkull% + 1
+        END SELECT
+        PRINT "Toad steals "; StealItem$
     END IF
 END SUB
 
 REM $DYNAMIC
 SUB USEOWLSPELL
-    10000.15 PRINT "Your owl spell list:"
-    IF fire% = 1 THEN PRINT "Fireball"
-    IF LIGHT% = 1 THEN PRINT "Lightning Bolt"
-    IF HEAL% = 1 THEN PRINT "Healing"
-    IF ELDR% = 1 THEN PRINT "Eldritch Storm"
-    IF blast% = 1 THEN PRINT "Fire Blast"
-    IF CURE% = 1 THEN PRINT "Cure"
-    IF AUG% = 1 THEN PRINT "Augment"
-    IF FORT% = 1 THEN PRINT "Fortune"
-    IF PRED% = 1 THEN PRINT "Predict"
-    IF Reflect% = 1 THEN PRINT "Reflect"
-    IF Cura% = 1 THEN PRINT "Cura"
-    IF Fira% = 1 THEN PRINT "Fira"
+    IF fire% = 1  THEN OwlSpells(0).hasIt = TRUE
+    IF LIGHT% = 1 THEN OwlSpells(1).hasIt = TRUE
+    IF HEAL% = 1  THEN OwlSpells(2).hasIt = TRUE
+    IF ELDR% = 1  THEN OwlSpells(3).hasIt = TRUE
+    IF blast% = 1 THEN OwlSpells(4).hasIt = TRUE
+    IF CURE% = 1  THEN OwlSpells(5).hasIt = TRUE
+    IF AUG% = 1   THEN OwlSpells(6).hasIt = TRUE
+    IF FORT% = 1  THEN OwlSpells(7).hasIt = TRUE
+    IF PRED% = 1  THEN OwlSpells(8).hasIt = TRUE
+    IF Reflect% = 1 THEN OwlSpells(9).hasIt = TRUE
+    IF Cura% = 1  THEN OwlSpells(10).hasIt = TRUE
+    IF Fira% = 1  THEN OwlSpells(11).hasIt = TRUE
+
+  10000.15
+    PRINT "Your owl spell list:"
+    FOR i = 0 TO 11
+        IF OwlSpells(i).hasIt THEN PRINT OwlSpells(i).name
+    NEXT i
     INPUT "Which spell do you wish to use?", USEOWL$
-    IF USEOWL$ = "fireball" THEN
-        IF fire% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
 
-        PRINT Familiar$; " used the fireball spell!"
-        ENEMYPTS% = ENEMYPTS% - 5
-        IF ENEMYPTS% <= 0 THEN
-            PRINT "The "; ENEMY$; " has died!"
-            GOTO 10000.1
-        ELSE
-            GOTO 10000.1
-        END IF
+    index% = -1
+
+    SELECT CASE USEOWL$
+        CASE "fireball"       : index = 0
+        CASE "lightning bolt" : index = 1
+        CASE "healing"        : index = 2
+        CASE "eldrich storm"  : index = 3
+        CASE "fire blast"     : index = 4
+        CASE "cure"           : index = 5
+        CASE "augment"        : index = 6
+        CASE "fortune"        : index = 7
+        CASE "predict"        : index = 8
+        CASE "reflect"        : index = 9
+        CASE "cura"           : index = 10
+        CASE "fira"           : index = 11
+        CASE ELSE
+            PRINT "Huh?"
+            GOTO 10000.15
+    END SELECT
+
+    IF NOT OwlSpells(index).hasIt THEN
+        PRINT Familiar$; " doesn't have that spell"
+        SLEEP 3
+        GOTO 10000.15
+    END IF
+
+    ENEMYPTS% = ENEMYPTS% - OwlSpells(index).dmg
+    IF ENEMYPTS% <= 0 THEN
+        PRINT "The "; ENEMY$; " has died!"
         GOTO 10000.1
     END IF
-    IF USEOWL$ = "lightning bolt" THEN
-        IF LIGHT% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
 
-        PRINT Familiar$; " used the lightning bolt spell!"
-        ENEMYPTS% = ENEMYPTS% - 6
-        IF ENEMYPTS% <= 0 THEN
-            PRINT "The "; ENEMY$; " has died!"
-            GOTO 10000.1
-        ELSE
-            GOTO 10000.1
-        END IF
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "healing" THEN
-        IF HEAL% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the healing spell!"
-        HP% = HP% + 5
+    IF OwlSpells(index).heal < 0 THEN
+        HP% = HP% - OwlSpells(index).heal
         IF HP% > HPS% THEN HP% = HPS%
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "eldrich storm" THEN
-        IF ELDR% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT "Your owl used the eldrich storm spell!"
-        ENEMYPTS% = ENEMYPTS% - 10
-        IF ENEMYPTS% <= 0 THEN
-            PRINT "The "; ENEMY$; " has died!"
-            GOTO 10000.1
-        ELSE
-            GOTO 10000.1
-        END IF
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "fire blast" THEN
-        IF blast% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the fire blast spell!"
-        ENEMYPTS% = ENEMYPTS% - 7
-        IF ENEMYPTS% <= 0 THEN
-            PRINT "The "; ENEMY$; " has died!"
-            GOTO 10000.1
-        ELSE
-            GOTO 10000.1
-        END IF
-    END IF
-    IF USEOWL$ = "cure" THEN
-        IF CURE% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " healed itself!"
-        FAMILIARHP% = FAMILIARHP% + 10
+    ELSE
+        FAMILIARHP% = FAMILIARHP% + OwlSpells(index).heal
         IF FAMILIARHP% > FamiliarHPS% THEN FAMILIARHP% = FamiliarHPS%
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "augment" THEN
-        IF AUG% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the augment spell!"
-        STR% = STR% + 5
-        DEX% = DEX% + 5
-        VIT% = VIT% + 5
-        ENG% = ENG% + 5
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "fortune" THEN
-        IF FORT% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the fortune spell!"
-        Golden& = Gold&
-        GOLDADDED% = Golden& * .1
-        Gold& = Gold& + GOLDADDED%
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "predict" THEN
-        IF FORT% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the predict spell!"
-        PRINT "You were successful at dodging the "; ENEMY$; "'s attack!"
-        GOTO 10000.1
-    END IF
-    IF USEOWL$ = "reflect" THEN
-        IF Reflect% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " casts reflect!"
-        PlayerReflect% = 1
-        GOTO 10000.1
     END IF
 
-    IF USEOWL$ = "cura" THEN
-        IF Cura% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
+    PRINT Familiar$; " used the "; OwlSpells(index).name; " spell!"
 
-        PRINT "Pheonix casts cura!"
-        PRINT "15 HP Cured"
-        FAMILIARHP% = FAMILIARHP% + 15
-        IF FAMILIARHP% > FamiliarHPS% THEN FAMILIARHP% = FamiliarHPS%
-        GOTO 10000.1
-    END IF
-
-    IF USEOWL$ = "fira" THEN
-        IF Fira% = 0 THEN
-            PRINT Familiar$; " doesn't have that spell"
-            SLEEP 3
-            GOTO 10000.15
-        END IF
-
-        PRINT Familiar$; " used the fira spell!"
-        ENEMYPTS% = ENEMYPTS% - 14
-        IF ENEMYPTS% <= 0 THEN
-            PRINT "The "; ENEMY$; " has died!"
-            GOTO 10000.1
-        ELSE
-            GOTO 10000.1
-        END IF
-    END IF
-10000.1 END SUB
+    SELECT CASE OwlSpells(index).special
+        CASE 1
+            STR% = STR% + 5
+            DEX% = DEX% + 5
+            VIT% = VIT% + 5
+            ENG% = ENG% + 5
+        CASE 2
+            Golden& = Gold&
+            GOLDADDED% = Golden& * .1
+            Gold& = Gold& + GOLDADDED%
+        CASE 3
+            PRINT "You were successful at dodging the "; ENEMY$; "'s attack!"
+        CASE 4
+            PlayerReflect% = 1
+    END SELECT
+  10000.1
+END SUB
 
 SUB WorldHelp
     'when user types help in world
@@ -14288,321 +13870,99 @@ SUB XanathusAI
     IF StunTime% > 0 THEN
         PRINT "Xanathus is stunned."
         StunTime% = StunTime% - 1
-        GOTO 3990
+    ELSE
+        XanathusFleeTime% = XanathusFleeTime - 1
+
+        XanAI% = INT(RND * 4) + 1
+        SELECT CASE XanAI%
+            CASE 1
+                PRINT "Xanathus casts a spell of curing on himself."
+                XanathusHP% = XanathusHP% + 5
+                IF XanathusHP% >= 150 THEN XanathusHP% = 150
+            CASE 2
+                PRINT "Xanathus casts magic arrow!"
+                MiscastChance% = INT(RND * 40)
+                IF MiscastChance% >= 10 THEN
+                    PRINT "Xanathus miscasts!"
+                ELSEIF PlayerReflect% = 1 THEN
+                    COLOR 5
+                    PRINT "The spell reflects off your magic"
+                    PRINT "The reflect spell wears off"
+                    PlayerReflect% = 0
+                    COLOR 15
+                ELSE
+                    ArrowDamage% = INT(RND * 20)
+                    PRINT "The arrow causes you "; ArrowDamage%; " damage"
+                    HPS% = HPS% - ArrowDamage%
+                    IF HPS% <= 0 THEN
+                        PRINT "You have died."
+                        ShutdownDS4QB
+                    END IF
+                END IF
+            CASE 3
+                PRINT "Xanathus casts magic arrow!"
+                MiscastChance% = INT(RND * 40)
+                IF MiscastChance% >= 10 THEN
+                    PRINT "Xanathus miscasts!"
+                ELSEIF PlayerReflect% = 1 THEN
+                    COLOR 5
+                    PRINT "The spell reflects off your magic"
+                    PRINT "The reflect spell wears off"
+                    PlayerReflect% = 0
+                    COLOR 15
+                ELSE
+                    ArrowDamage% = INT(RND * 20)
+                    PRINT "The arrow causes you "; ArrowDamage%; " damage"
+                    HPS% = HPS% - ArrowDamage%
+                    IF HPS% <= 0 THEN
+                        PRINT "You have died."
+                        ShutdownDS4QB
+                    END IF
+                END IF
+            CASE 4
+                PRINT "Xanathus prepares to flee!"
+                XanathusFleeTime% = XanathusFleeTime% - 1
+            CASE 5
+                PRINT "Xanathus attempts to flee!"
+                FleeChance% = INT(RND * 20)
+                IF FleeChance% >= 10 THEN
+                    PRINT "Xanathus casts raise dead!"
+                    MiscastChance% = INT(RND * 40)
+                    IF MiscastChance% >= 10 THEN
+                        PRINT "Xanathus miscasts!"
+                        StunTime% = INT(RND * 4) + 1
+                        PRINT "Xanathus is stunned for the next "; StunTime%; " turn(s)."
+                    ELSE
+                        XanathusFleeTime% = 0
+                        COLOR 14
+                        PRINT "Sir Jacob> Let me handle this you go after him."
+                        SLEEP 3
+                    END IF
+                END IF
+            CASE ELSE
+                PRINT "Error: No AI protocol chosen"
+        END SELECT
     END IF
-
-    XanathusFleeTime% = XanathusFleeTime - 1
-
-    RANDOMIZE TIMER
-    XanAI% = INT(RND * 4) + 1
-        IF XanAI% = 1 THEN
-            GOTO 3976
-        END IF
-
-        IF XanAI% = 2 THEN
-            GOTO 3977
-        END IF
-
-        IF XanAI% = 3 THEN
-            GOTO 3978
-        END IF
-
-        IF XanAI% = 4 THEN
-            GOTO 3979
-        END IF
-
-        IF XanAI% = 5 THEN
-            GOTO 3980
-        END IF
-    PRINT "Error: No AI protocol chosen"
-    GOTO 3990
-
-    3976 PRINT "Xanathus casts a spell of curing on himself."
-    XanathusHP% = XanathusHP% + 5
-    IF XanathusHP% >= 150 THEN XanathusHP% = 150
-    GOTO 3990
-
-    3977 PRINT "Xanathus casts magic arrow!"
-    RANDOMIZE TIMER
-    MiscastChance% = INT(RND * 40)
-    IF MiscastChance% >= 10 THEN
-        PRINT "Xanathus miscasts!"
-        GOTO 3990
-    END IF
-    IF PlayerReflect% = 1 THEN
-        COLOR 5
-        PRINT "The spell reflects off your magic"
-        PRINT "The reflect spell wears off"
-        PlayerReflect% = 0
-        COLOR 15
-        GOTO 3990
-    END IF
-
-    ArrowDamage% = INT(RND * 20)
-        PRINT "The arrow causes you "; ArrowDamage%; " damage"
-        HPS% = HPS% - ArrowDamage%
-        IF HPS% <= 0 THEN
-            PRINT "You have died."
-            ShutdownDS4QB
-        ELSE
-            GOTO 3990
-        END IF
-
-
-    3978 PRINT "Xanathus casts Hand of Dust!"
-    RANDOMIZE TIMER
-    MiscastChance% = INT(RND * 40)
-    IF MiscastChance% >= 10 THEN
-        PRINT "Xanathus miscasts!"
-        GOTO 3989
-    END IF
-    PRINT "You feel your strength fleeing from you."
-    COLOR 13
-    PRINT "Your strength is temporarily reduced by 2."
-    COLOR 15
-    STR% = STR% - 2
-    GOTO 3990
-
-    3979 PRINT "Xanathus prepares to flee!"
-    XanathusFleeTime% = XanathusFleeTime% - 1
-    GOTO 3990
-
-    3980 RANDOMIZE TIMER
-    PRINT "Xanathus attempts to flee!"
-    FleeChance% = INT(RND * 20)
-    IF FleeChance% >= 10 THEN
-        PRINT "Xanathus casts raise dead!"
-        MiscastChance% = INT(RND * 40)
-        IF MiscastChance% >= 10 THEN
-            PRINT "Xanathus miscasts!"
-            GOTO 3989
-        END IF
-
-        XanathusFleeTime% = 0
-        COLOR 14
-        PRINT "Sir Jacob> Let me handle this you go after him."
-        SLEEP 3
-        GOTO 3990
-    END IF
-
-    3989 'Miscasts
-    RANDOMIZE TIMER
-    StunTime% = INT(RND * 4) + 1
-    PRINT "Xanathus is stunned for the next "; StunTime%; " turn(s)."
-3990 END SUB
+END SUB
 
 SUB XanathusBattle
     CLS
     Boss% = 1
     LHO$ = LH$
-        XanathusFleeTime% = 6
-        ENEMY$ = "Xanathus"
-        COLOR 14
-        PRINT "Xanathus> Argh! if you won't stop chasing me then you will die!"
-        COLOR 15
-        PRINT "Xanathus readies his staff"
+    XanathusFleeTime% = 6
+    ENEMY$ = "Xanathus"
+    COLOR 14
+    PRINT "Xanathus> Argh! if you won't stop chasing me then you will die!"
+    COLOR 15
+    PRINT "Xanathus readies his staff"
 
-    RANDOMIZE TIMER
     SPEED% = 10
     ENEMYSPEED% = SPEED%
 
-    RANDOMIZE TIMER
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
-    3500 IF StunTime% = 0 THEN XanathusFleeTime% = XanathusFleeTime% - 1
-    IF XanathusFleeTime% = 0 THEN
-        PRINT "Xanathus flees from you!"
-        XanathusFlee
-        GOTO 4001
-    END IF
-
-    PRINT "What would you like to do?"
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
-    PRINT "Hitpoints: "; HPS%; "/"; HP%
-    INPUT ">", ACTION$
-
-    IF ACTION$ = "call familiar" THEN
-        PRINT Familiar$; " arrives and takes your place."
-        SLEEP 2
-        PRINT "Xanathus casts a banishment!"
-        PRINT "you're familiar falls to the ground!"
-        FAMILIARHP% = 0
-        GOTO 3500
-    END IF
-    IF ACTION$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
-                GOTO 3500
-                XanathusAI
-            END IF
-            IF Potion% <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
-                XanathusAI
-                GOTO 3500
-            END IF
-        ELSE
-            XanathusAI
-            IF Potion% >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
-                GOTO 3500
-            END IF
-            IF Potion% <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
-                GOTO 3500
-            END IF
-    END IF
-    END IF
-
-    IF ACTION$ = "spit" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            PRINT "You spit in Xanathus' face."
-            PRINT "Xanathus wipes it off and laughs"
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-            GOTO 3500
-    ELSE
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-            PRINT "You spit in Xanathus' face."
-            PRINT "Xanathus wipes it off and laughs"
-            GOTO 3500
-        END IF
-    END IF
-    IF ACTION$ = "help" THEN
-        HELP
-        GOTO 3500
-    END IF
-    IF ACTION$ = "ready weapon" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-        PRINT "You readied your weapon."
-        XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-        GOTO 3600
-        ELSE
-        XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-        PRINT "You readied your weapon."
-        GOTO 3600
-        END IF
-    END IF
-    IF ACTION$ = "run" THEN
-        PRINT "You won't run from Xanathus!."
-        GOTO 3500
-        END IF
-    IF ACTION$ = "kick" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "You XanathusAIm your foot and strike Xanathus in the groin."
-        RANDOMIZE TIMER
-            StunChance% = INT(RND * 50) - STR%
-            IF StunChance% <= 25 THEN
-                StunTime% = INT(RND * 4) + 1
-                PRINT "Xanathus stand there in pXanathusAIn and is stunned for the next "; StunTime%; " turn(s)."
-            END IF
-            IF StunChance% > 25 THEN
-                PRINT "Xanathus evades the kick."
-            END IF
-        END IF
-    END IF
-    IF ACTION$ = "punch" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "You XanathusAIm your punch at the Xanathus' face."
-        RANDOMIZE TIMER
-            StunChance% = INT(RND * 50) - STR%
-            IF StunChance% <= 25 THEN
-                StunTime% = INT(RND * 4) + 1
-                PRINT "Xanathus jumps back in surprise and is stunned for the next "; StunTime%; " turn(s)."
-            END IF
-            IF StunChance% > 25 THEN
-                PRINT "Xanathus ignores the punch."
-            END IF
-        END IF
-    END IF
-    IF ACTION$ = "judge enemy" THEN
-        RANDOMIZE TIMER
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "Xanathus' hitpoints appear to be "; XanathusHP%; "."
-            GOTO 3500
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
-                PRINT "Xanathus' hitpoints appear to be "; XanathusHP% + 10; "."
-                GOTO 3500
-            END IF
-        PRINT "Xanathus' hit points appear to be "; XanathusHP% + 5; "."
-        GOTO 3500
-    END IF
-    END IF
-    IF ACTION$ = "use magic" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
-            END IF
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-        ELSE
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-            MAGIC
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
-            END IF
-            GOTO 3500
-        END IF
-    END IF
-    PRINT "Huh?"
-    GOTO 3500
-    3600
+  3600
     IF StunTime% = 0 THEN XanathusFleeTime% = XanathusFleeTime% - 1
     IF XanathusFleeTime% = 0 THEN
         PRINT "Xanathus flees from you!"
@@ -14615,69 +13975,39 @@ SUB XanathusBattle
     IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTIONA$
-    IF ACTIONA$ = "steal" THEN
-        IF Thief% = 0 THEN
-            COLOR 5
-            PRINT "Only thieves can steal."
-            COLOR 15
-            GOTO 3600
-        END IF
-        IF Thief% = 1 THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                Steal
-                XanathusAI
-                GOTO 3600
-            ELSE
-                XanathusAI
-                Steal
-                GOTO 3600
-            END IF
-        END IF
-    END IF
 
-    IF ACTIONA$ = "throw weapon" THEN
-        IF ROGUE% = 0 THEN
-            COLOR 5
-            PRINT "Only rogues can throw weapons."
-            COLOR 15
-            GOTO 3600
-        END IF
-        IF ROGUE% = 1 THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                XanathusHP% = XanathusHP% - DAMAGEDONE%
-                DAMAGEADDED% = 0
-                    IF XanathusHP% <= 0 THEN
-                        PRINT "Xanathus falls to the wound."
-                        COLOR 14
-                        PRINT "Xanathus> How could this be?"
-                        COLOR 15
-                        PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                        GateKey% = GateKey% + 1
-                        XanathusDead% = 1
-                        GOTO 4000
-                    END IF
-                XanathusAI
-                GOTO 3600
+    SELECT CASE ACTIONA$
+        CASE "steal"
+            IF Expertise% <> CLASS_THIEF THEN
+                COLOR 5
+                PRINT "Only thieves can steal."
+                COLOR 15
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    Steal
+                    XanathusAI
                 ELSE
-                XanathusAI
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                XanathusHP% = XanathusHP% - DAMAGEDONE%
-                DAMAGEADDED% = 0
+                    XanathusAI
+                    Steal
+                END IF
+            END IF
+        CASE "throw weapon"
+            IF Expertise% <> CLASS_ROGUE THEN
+                COLOR 5
+                PRINT "Only rogues can throw weapons."
+                COLOR 15
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    LHO$ = LH$
+                    IF LH$ = "Long Staff" THEN RH$ = ""
+                    IF LH$ = "Short Staff" THEN RH$ = ""
+                    LH$ = ""
+                    WeaponThrown% = 3
+                    DAMAGEADDED% = DAMAGEADDED% * 3
+                    PRINT "You throw your weapon at the "; ENEMY$
+                    DAMAGEDONE% = STR% + DAMAGEADDED%
+                    XanathusHP% = XanathusHP% - DAMAGEDONE%
+                    DAMAGEADDED% = 0
                     IF XanathusHP% <= 0 THEN
                         PRINT "Xanathus falls to the wound."
                         COLOR 14
@@ -14688,430 +14018,320 @@ SUB XanathusBattle
                         XanathusDead% = 1
                         GOTO 4000
                     END IF
-                GOTO 3600
-            END IF
-        END IF
-    END IF
-
-    IF ACTIONA$ = "play music" THEN
-        IF Bard% = 0 THEN
-            COLOR 5
-            PRINT "Only bards can play music."
-            COLOR 15
-            GOTO 3600
-        END IF
-        IF Bard% = 1 THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                BardMusic
-                XanathusAI
-                GOTO 3600
-            ELSE
-                XanathusAI
-                BardMusic
-                GOTO 3600
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
-                GOTO 3600
-                XanathusAI
-            END IF
-            IF Potion% <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
-                XanathusAI
-                GOTO 3600
-            END IF
-        ELSE
-            XanathusAI
-            IF Potion% >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
-                GOTO 3600
-            END IF
-            IF Potion% <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
-                GOTO 3600
-            END IF
-    END IF
-    END IF
-
-    IF ACTIONA$ = "call familiar" THEN
-        PRINT Familiar$; " arrives and takes your place."
-        SLEEP 2
-        PRINT "Xanathus casts a banishment!"
-        PRINT "you're familiar falls to the ground!"
-        FAMILIARHP% = 0
-        GOTO 3600
-        END IF
-
-    IF ACTIONA$ = "use magic" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
+                    XanathusAI
+                ELSE
+                    XanathusAI
+                    LHO$ = LH$
+                    IF LH$ = "Long Staff" THEN RH$ = ""
+                    IF LH$ = "Short Staff" THEN RH$ = ""
+                    LH$ = ""
+                    WeaponThrown% = 3
+                    DAMAGEADDED% = DAMAGEADDED% * 3
+                    PRINT "You throw your weapon at the "; ENEMY$
+                    DAMAGEDONE% = STR% + DAMAGEADDED%
+                    XanathusHP% = XanathusHP% - DAMAGEDONE%
+                    DAMAGEADDED% = 0
+                    IF XanathusHP% <= 0 THEN
+                        PRINT "Xanathus falls to the wound."
+                        COLOR 14
+                        PRINT "Xanathus> How could this be?"
+                        COLOR 15
+                        PRINT "Obtained gate key from Xanathus' body!"
+                        GateKey% = GateKey% + 1
+                        XanathusDead% = 1
+                        GOTO 4000
+                    END IF
                 END IF
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-        ELSE
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-            MAGIC
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
             END IF
-            GOTO 3600
-        END IF
-    END IF
-    IF ACTIONA$ = "spit" THEN
-        PRINT "You spit in Xanathus' face."
-        PRINT "Xanathus wipes it off and laughs."
-        GOTO 3600
-    END IF
-    IF ACTIONA$ = "help" THEN
-        HELP
-        GOTO 3600
-    END IF
-    IF ACTIONA$ = "slash" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-            PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn"
-            XanathusHP% = XanathusHP% - (DAMAGEADDED% + STR% + 2)
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
+        CASE "play music"
+            IF Expertise% <> CLASS_BARD THEN
+                COLOR 5
+                PRINT "Only bards can play music."
                 COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    BardMusic
+                    XanathusAI
+                ELSE
+                    XanathusAI
+                    BardMusic
+                END IF
+            END IF
+        CASE "use potion"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                IF Potion% >= 1 THEN
+                    COLOR 5
+                    PRINT "used potion"
+                    COLOR 15
+                ELSE
+                    COLOR 5
+                    PRINT "you are out of potions"
+                    COLOR 15
+                    XanathusAI
+                END IF
             ELSE
                 XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
+                IF Potion% >= 1 THEN
+                    COLOR 5
+                    PRINT "used potion"
+                    COLOR 15
+                ELSE
+                    COLOR 5
+                    PRINT "you are out of potions"
+                    COLOR 15
+                END IF
             END IF
-            GOTO 3600
-        ELSE
-            XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
+        CASE "call familiar"
+            PRINT Familiar$; " arrives and takes your place."
+            SLEEP 2
+            PRINT "Xanathus casts a banishment!"
+            PRINT "you're familiar falls to the ground!"
+            FAMILIARHP% = 0
+        CASE "use magic"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                MAGIC
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                END IF
+                XanathusAI
+                IF XanathusFleeTime% = 0 THEN
+                    XanathusFlee
+                    GOTO 4001
+                END IF
 
-            PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn."
-            XanathusHP% = XanathusHP% - (STR% + 2 + DAMAGEADDED%)
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
-            ELSE
-                GOTO 3600
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "thrust" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-            PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
-            XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
             ELSE
                 XanathusAI
+                IF XanathusFleeTime% = 0 THEN
+                    XanathusFlee
+                    GOTO 4001
+                END IF
+
+                MAGIC
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                END IF
+            END IF
+        CASE "spit"
+            PRINT "You spit in Xanathus' face."
+            PRINT "Xanathus wipes it off and laughs."
+        CASE "help"
+            HELP
+        CASE "slash"
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn"
+                XanathusHP% = XanathusHP% - (DAMAGEADDED% + STR% + 2)
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                ELSE
+                    XanathusAI
                     IF XanathusFleeTime% = 0 THEN
                         XanathusFlee
                         GOTO 4001
                     END IF
+                END IF
+            ELSE
+                XanathusAI
+                IF XanathusFleeTime% = 0 THEN
+                    XanathusFlee
+                    GOTO 4001
+                END IF
 
+                PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn."
+                XanathusHP% = XanathusHP% - (STR% + 2 + DAMAGEADDED%)
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                END IF
             END IF
-            GOTO 3600
-        ELSE
-            XanathusAI
+        CASE "thrust"
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
+                XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                ELSE
+                    XanathusAI
                     IF XanathusFleeTime% = 0 THEN
                         XanathusFlee
                         GOTO 4001
                     END IF
+                END IF
+            ELSE
+                XanathusAI
+                IF XanathusFleeTime% = 0 THEN
+                    XanathusFlee
+                    GOTO 4001
+                END IF
 
-            PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
-            XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
+                PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
+                XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                END IF
+            END IF
+        CASE "parry"
+            PRINT "You attempt to parry Xanathus' blow."
+            PC% = INT(RND * 100) + 1
+            PARRYCHANCE% = PC% + ShieldSave%
+            IF PARRYCHANCE% >= 50 THEN
+                PRINT "You were successful in parrying Xanathus' blow."
             ELSE
-                GOTO 3600
+                PRINT "You failed to parry Xanathus' blow.  You take 2 damage."
+                HPS% = HPS% - 2
             END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "parry" THEN
-        GOTO 3700
-    END IF
-    IF ACTIONA$ = "punch" THEN
-        GOTO 3800
-    END IF
-    IF ACTIONA$ = "kick" THEN
-        GOTO 3900
-    END IF
-    IF ACTIONA$ = "dodge" THEN
-        GOTO 3950
-    END IF
-    IF ACTIONA$ = "coup de grace" THEN
-        IF XanathusHP% = 3 THEN
-            GOTO 3975
-        END IF
-    END IF
-    IF ACTIONA$ = "use owl spell" THEN
-        IF Owl% = 1 THEN
-            USEOWLSPELL
-            IF XanathusHP% <= 0 THEN
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
-            ELSE
-                GOTO 3600
-            END IF
-        ELSE
-            PRINT "You don't have an owl."
-            GOTO 3600
-        END IF
-    END IF
-    IF ACTIONA$ = "run" THEN
-        PRINT "You won't run from Xanathus!"
-        GOTO 3600
-    END IF
-    IF ACTIONA$ = "judge enemy" THEN
-        RANDOMIZE TIMER
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "Xanathus' hitpoints appear to be "; XanathusHP%; "."
-            GOTO 3600
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
-                PRINT "Xanathus' hitpoints appear to be "; XanathusHP% + 10; "."
-                GOTO 3600
-            END IF
-            PRINT "Xanathus' hit points appear to be "; XanathusHP% + 5; "."
-            GOTO 3600
-        END IF
-    END IF
-    PRINT "Huh?"
-    GOTO 3600
-    3700 PRINT "You attempt to parry Xanathus' blow."
-    RANDOMIZE TIMER
-    PC% = INT(RND * 100) + 1
-    PARRYCHANCE% = PC% + ShieldSave%
-    IF PARRYCHANCE% >= 50 THEN
-        PRINT "You were successful in parrying Xanathus' blow."
-        GOTO 3600
-    ELSE PRINT "You fXanathusAIled to parry Xanathus' blow.  You take 2 damage."
-        HPS% = HPS% - 2
-    END IF
-    3800
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        RANDOMIZE TIMER
-            PRINT "You XanathusAIm your punch at the Xanathus' face."
-            RANDOMIZE TIMER
+        CASE "punch"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "You aim your punch at the Xanathus' face."
                 StunChance% = INT(RND * 50) - STR%
                 IF StunChance% <= 25 THEN
-                StunTime% = INT(RND * 4) + 1
-                PRINT "Xanathus jumps back in surprise and is stunned for the next "; StunTime%; " turn(s)."
+                    StunTime% = INT(RND * 4) + 1
+                    PRINT "Xanathus jumps back in surprise and is stunned for the next "; StunTime%; " turn(s)."
+                ELSE
+                    PRINT "Xanathus ignores the punch."
+                END IF
             END IF
-            IF StunChance% > 25 THEN
-                PRINT "Xanathus ignores the punch."
-            END IF
-        END IF
 
             PRINT "Xanathus is angered by your punch."
             XanathusAI
-                    IF XanathusFleeTime% = 0 THEN
-                        XanathusFlee
-                        GOTO 4001
-                    END IF
-
-            GOTO 3600
-    GOTO 3600
-    3900
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "You XanathusAIm your foot and strike Xanathus in the groin."
-        RANDOMIZE TIMER
-            StunChance% = INT(RND * 50) - STR%
-            IF StunChance% <= 25 THEN
-                StunTime% = INT(RND * 4) + 1
-                PRINT "Xanathus stands there in pXanathusAIn and is stunned for the next "; StunTime%; " turn(s)."
+            IF XanathusFleeTime% = 0 THEN
+                XanathusFlee
+                GOTO 4001
             END IF
-            IF StunChance% > 25 THEN
-                PRINT "Xanathus evades the kick."
+        CASE "kick"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "You aim your foot and strike Xanathus in the groin."
+                StunChance% = INT(RND * 50) - STR%
+                IF StunChance% <= 25 THEN
+                    StunTime% = INT(RND * 4) + 1
+                    PRINT "Xanathus stands there in pXanathusAIn and is stunned for the next "; StunTime%; " turn(s)."
+                ELSE
+                    PRINT "Xanathus evades the kick."
+                END IF
             END IF
-        END IF
-    GOTO 3600
-
-    3950 PRINT "As Xanathus attacks, you attempt to dodge his attack."
-    RANDOMIZE TIMER
-    DC% = INT(RND * 100) + 1
-    DODGECHANCE% = DC% - DEX%
-    IF DODGECHANCE% >= 45 THEN
-        PRINT "You were successfully able to dodge Xanathus' attack."
-        GOTO 3600
-    ELSE PRINT "You were not successful at dodging the Xanathus' attack. You take 2 damage."
-        HPS% = HPS% - 1
-        GOTO 3600
-    END IF
-    3975 IF XanathusHP% <= 3 THEN
-        PRINT "You grasp Xanathus' head, draw back and crush his skull."
+        CASE "dodge"
+            PRINT "As Xanathus attacks, you attempt to dodge his attack."
+            DC% = INT(RND * 100) + 1
+            DODGECHANCE% = DC% - DEX%
+            IF DODGECHANCE% >= 45 THEN
+                PRINT "You were successfully able to dodge Xanathus' attack."
+            ELSE
+                PRINT "You were not successful at dodging the Xanathus' attack. You take 2 damage."
+                HPS% = HPS% - 1
+            END IF
+        CASE "coup de grace"
+            IF XanathusHP% <= 3 THEN
+                PRINT "You grasp Xanathus' head, draw back and crush his skull."
                 PRINT "Xanathus falls to the wound."
                 COLOR 14
                 PRINT "Xanathus> How could this be?"
                 COLOR 15
-                PRINT "ObtXanathusAIned gate key from Xanathus' body!"
+                PRINT "Obtained gate key from Xanathus' body!"
                 GateKey% = GateKey% + 1
                 XanathusDead% = 1
                 GOTO 4000
-    END IF
+            END IF
+        CASE "use owl spell"
+            IF Owl% = 1 THEN
+                USEOWLSPELL
+                IF XanathusHP% <= 0 THEN
+                    PRINT "Xanathus falls to the wound."
+                    COLOR 14
+                    PRINT "Xanathus> How could this be?"
+                    COLOR 15
+                    PRINT "Obtained gate key from Xanathus' body!"
+                    GateKey% = GateKey% + 1
+                    XanathusDead% = 1
+                    GOTO 4000
+                END IF
+            ELSE
+                PRINT "You don't have an owl."
+            END IF
+        CASE "run"
+            PRINT "You won't run from Xanathus!"
+        CASE "judge enemy"
+            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+            IF CORRECTJUDGECHANCE% <= 35 THEN
+                PRINT "Xanathus' hitpoints appear to be "; XanathusHP%; "."
+            ELSE
+                IF CORRECTJUDGECHANCE% >= 65 THEN
+                    PRINT "Xanathus' hitpoints appear to be "; XanathusHP% + 10; "."
+                ELSE
+                    PRINT "Xanathus' hit points appear to be "; XanathusHP% + 5; "."
+                END IF
+            END IF
+        CASE ELSE
+            PRINT "Huh?"
+    END SELECT
 
-    4000 RANDOMIZE TIMER
+    GOTO 3600
+
+  4000
     RANDOMEXPR% = 500
-    PRINT "And you have gXanathusAIned "; RANDOMEXPR%; " experience."
+    PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
     EXPERIENCELVLUP
-    IF Mage% = 1 THEN
+
+    IF Expertise% = CLASS_MAGE THEN
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
-        RANDOMIZE TIMER
-        GOLDDROP% = 150
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STR% = STRO%
-        DEX% = DEXO%
-        ENG% = ENGO%
-        VIT% = VITO%
-        GOTO 4001
     END IF
+    GOLDDROP% = 150
+    PRINT "You picked up"; GOLDDROP%; "gold."
+    Gold& = Gold& + GOLDDROP%
 
-    IF Fighter% = 1 THEN
-        RANDOMIZE TIMER
-        GOLDDROP% = 150
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 4001
+    IF Owl% = 1 THEN
+        OWLSPELL
     END IF
+    SLEEP 10
+    STR% = STRO%
+    DEX% = DEXO%
+    ENG% = ENGO%
+    VIT% = VITO%
 
-    IF ROGUE% = 1 THEN
-        RANDOMIZE TIMER
-        GOLDDROP% = 150
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 4001
-    END IF
-
-    IF Thief% = 1 THEN
-        RANDOMIZE TIMER
-        GOLDDROP% = 150
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 4001
-    END IF
-
-    IF Bard% = 1 THEN
-        RANDOMIZE TIMER
-        GOLDDROP% = 150
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 4001
-    END IF
-    4001 StunTime% = 0
+  4001
+    StunTime% = 0
     PlayerReflect% = 0
     ReturnWeapon
     Ethereal% = 0
@@ -15120,45 +14340,69 @@ SUB XanathusBattle
 END SUB
 
 SUB XanathusFlee
-    RANDOMIZE TIMER
-    FleeArea% = INT(RND * 8) + 1
-    IF FleeArea% = 1 THEN XanathusArea$ = "NW"
-    IF FleeArea% = 2 THEN XanathusArea$ = "N"
-    IF FleeArea% = 3 THEN XanathusArea$ = "NE"
-    IF FleeArea% = 4 THEN XanathusArea$ = "E"
-    IF FleeArea% = 5 THEN XanathusArea$ = "SE"
-    IF FleeArea% = 6 THEN XanathusArea$ = "S"
-    IF FleeArea% = 7 THEN XanathusArea$ = "SW"
-    IF FleeArea% = 8 THEN XanathusArea$ = "W"
+    XanathusArea$ = XanathusFleeAreas(INT(RND * 8))
 END SUB
 
 SUB XanathusTaunt
     'Generates a random string for the Xanathus battle
-    RANDOMIZE TIMER
     RNDSTRING% = INT(RND * 12)
     COLOR 14
-    IF RNDSTRING% = 1 THEN PRINT "Xanathus> ha! you can never defeat me."
-    IF RNDSTRING% = 2 THEN PRINT "Xanathus> You know, i'll never tire from this running."
-    IF RNDSTRING% = 3 THEN PRINT "Xanathus> Awake O Dead, for there can be no rest for ye beneath the earth."
-    IF RNDSTRING% = 4 THEN PRINT "Xanathus> You'll never defeat me."
-    IF RNDSTRING% = 5 THEN PRINT "Xanathus> Bah! the dwarves put up a better fight then you do."
-    IF RNDSTRING% = 6 THEN PRINT "Xanathus> Once you are dead you shall make excellent warriors of undeath!"
+    SELECT CASE RNDSTRING%
+        CASE 1 : PRINT "Xanathus> ha! you can never defeat me."
+        CASE 2 : PRINT "Xanathus> You know, i'll never tire from this running."
+        CASE 3 : PRINT "Xanathus> Awake O Dead, for there can be no rest for ye beneath the earth."
+        CASE 4 : PRINT "Xanathus> You'll never defeat me."
+        CASE 5 : PRINT "Xanathus> Bah! the dwarves put up a better fight then you do."
+        CASE 6 : PRINT "Xanathus> Once you are dead you shall make excellent warriors of undeath!"
+    END SELECT
     COLOR 15
 END SUB
 
 SUB XanathusWorldFlee
-    RANDOMIZE TIMER
-    FleeChance% = INT(RND * 40)
-    IF FleeChance% <= 10 THEN
+    IF INT(RND * 40) <= 10 THEN
         PRINT "Xanathus is moving from the area he was in!"
-        FleeArea% = INT(RND * 8) + 1
-        IF FleeArea% = 1 THEN XanathusArea$ = "NW"
-        IF FleeArea% = 2 THEN XanathusArea$ = "N"
-        IF FleeArea% = 3 THEN XanathusArea$ = "NE"
-        IF FleeArea% = 4 THEN XanathusArea$ = "E"
-        IF FleeArea% = 5 THEN XanathusArea$ = "SE"
-        IF FleeArea% = 6 THEN XanathusArea$ = "S"
-        IF FleeArea% = 7 THEN XanathusArea$ = "SW"
-        IF FleeArea% = 8 THEN XanathusArea$ = "W"
+        XanathusArea$ = XanathusFleeAreas(INT(RND * 8))
     END IF
+END SUB
+
+SUB InitGlobals
+    FOR i = 0 TO 11
+        OwlSpells(i).hasIt = FALSE
+        OwlSpells(i).dmg = 0
+        OwlSpells(i).heal = 0
+        OwlSpells(i).special = 0
+    NEXT i
+    OwlSpells(0).name = "Fireball"
+    OwlSpells(0).dmg = 5
+    OwlSpells(1).name = "Lightning Bolt"
+    OwlSpells(1).dmg = 6
+    OwlSpells(2).name = "Healing"
+    OwlSpells(2).heal = -5
+    OwlSpells(3).name = "Eldritch Storm"
+    OwlSpells(3).dmg = 10
+    OwlSpells(4).name = "Fire Blast"
+    OwlSpells(4).dmg = 7
+    OwlSpells(5).name = "Cure"
+    OwlSpells(5).heal = 10
+    OwlSpells(6).name = "Augment"
+    OwlSpells(6).special = 1
+    OwlSpells(7).name = "Fortune"
+    OwlSpells(7).special = 2
+    OwlSpells(8).name = "Predict"
+    OwlSpells(8).special = 3
+    OwlSpells(9).name = "Reflect"
+    OwlSpells(9).special = 4
+    OwlSpells(10).name = "Cura"
+    OwlSpells(10).heal = 15
+    OwlSpells(11).name = "Fira"
+    OwlSpells(11).dmg = 15
+
+    XanathusFleeAreas(0) = "NW"
+    XanathusFleeAreas(1) = "N"
+    XanathusFleeAreas(2) = "NE"
+    XanathusFleeAreas(3) = "E"
+    XanathusFleeAreas(4) = "SE"
+    XanathusFleeAreas(5) = "S"
+    XanathusFleeAreas(6) = "SW"
+    XanathusFleeAreas(7) = "W"        
 END SUB
