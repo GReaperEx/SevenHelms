@@ -19,18 +19,22 @@ I've updated this program to compile with FreeBasic (http://www.freebasic.net/) 
 
     ```apt-get install libx11-dev libxext-dev libxpm-dev libxrandr-dev libxrender-dev```
 
-2. Install required libraries for FBSound 
-    
-    ```apt-get install libOGG-dev libvorbis-dev libasound2-dev```
-
-3. Run "make" from the root directory 
+2. Run "make" from the root directory 
 
     ``` make ```
 
-4. enjoy the game (be gentle with criticism)
+3. enjoy the game (be gentle with criticism)
 
     ``` ./seven-helms ```
 
 ### Windows Users
 
-1. Try to be as awesome as Linux
+1. Add FreeBasic to your system's path if you haven't already
+
+2. Run from the root directory
+
+    ``` fbc MUD2.BAS -x seven-helms.exe ```
+ 
+3. Enjoy the game
+
+    ``` .\seven-helms ```

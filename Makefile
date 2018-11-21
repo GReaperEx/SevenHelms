@@ -6,4 +6,4 @@ ifeq ($(OS),Windows_NT)
 endif
 
 all:
-	fbc $(SRC) -o %(BIN)
+	fbc $(SRC) -x %(BIN)
