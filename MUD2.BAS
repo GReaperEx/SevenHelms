@@ -143,20 +143,8 @@ DIM SHARED FamiliarHPS%
 DIM SHARED FAMILIARDAMAGE%
 DIM SHARED Owl%
 DIM SHARED OWLSPELLE$
-DIM SHARED fire%
-DIM SHARED LIGHT%
-DIM SHARED HEAL%
-DIM SHARED ELDR%
-DIM SHARED blast%
-DIM SHARED CURE%
-DIM SHARED AUG%
-DIM SHARED FORT%
-DIM SHARED PRED%
 DIM SHARED LEARNOWLSPELL$
 DIM SHARED ALE%
-DIM SHARED Reflect%
-DIM SHARED Cura%
-DIM SHARED Fira%
 DIM SHARED PlayerReflect%
 DIM SHARED FamiliarCalled%
 DIM SHARED MP%
@@ -391,16 +379,15 @@ DIM SHARED OwlSpells(12) AS SpellProps
 
 DIM SHARED XanathusFleeAreas(8) AS STRING
 
-'INITIALIZING Sound
-CLS : PRINT "Loading...Please Wait"
+CLS
+    PRINT "Loading...Please Wait"
     RANDOMIZE TIMER
     InitGlobals
 
     WillsSoundEffectVolume% = 50
     WillsMusicVolume% = 75
 
-    MainMenu
-
+    MainMenu    
 END
 
 REM $STATIC
@@ -425,58 +412,45 @@ SUB A56GetHint
         PRINT "Did you notice that gem on the ground on your way in? something to"
         PRINT "take a closer look at I think..."
     END IF
-    998 PRINT "Vampire> So do you wan't another hint? (50 gold) <Y/N>"
+  998
+    PRINT "Vampire> So do you wan't another hint? (50 gold) <Y/N>"
     INPUT ">", HintChoice$
-        IF HintChoice$ = "y" THEN
-            IF Hint% >= 3 THEN
-                PRINT "Vampire> I think you've had enough hints..."
-                PRINT "the vampire returns your gold"
-                GOTO 998
-            END IF
-            IF Hint% <= 3 THEN
-                IF Hint% = 0 THEN
-                    IF Gold& >= 50 THEN
-                        Gold& = Gold& - 50
-                        Hint% = 1
-                        PRINT "If I we're you I'd examine that text carefully, those who made it would"
-                        PRINT "never make such grammatical errors for no reason."
-                        GOTO 998
-                    END IF
-                END IF
-
-                IF Hint% = 1 THEN
-                    IF Gold& >= 50 THEN
-                        Gold& = Gold& - 50
-                        Hint% = 2
-                        PRINT "Doesn't it seem odd to you how this whole area's design seems to reflect"
-                        PRINT "that symbol...the numerals might have something to do with that..."
-                        GOTO 998
-                    END IF
-                END IF
-
-                IF Hint% = 2 THEN
-                    IF Gold& >= 50 THEN
-                        Gold& = Gold& - 50
-                        Hint% = 3
-                        PRINT "Did you notice that gem on the ground on your way in? something to"
-                        PRINT "take a closer look at I think..."
-                        GOTO 998
-                    END IF
-                END IF
-
-                IF Gold& < 50 THEN
-                    COLOR 14
-                    PRINT "Vampire> What's this? this isn't 50 gold, NO DEAL!"
-                    COLOR 15
-                END IF
-            END IF
+    IF HintChoice$ = "y" THEN
+        IF Hint% >= 3 THEN
+            PRINT "Vampire> I think you've had enough hints..."
+            PRINT "the vampire returns your gold"
+        ELSEIF Gold& >= 50 THEN
+            SELECT CASE Hint%
+                CASE 0
+                    Gold& = Gold& - 50
+                    Hint% = 1
+                    PRINT "If I we're you I'd examine that text carefully, those who made it would"
+                    PRINT "never make such grammatical errors for no reason."
+                CASE 1
+                    Gold& = Gold& - 50
+                    Hint% = 2
+                    PRINT "Doesn't it seem odd to you how this whole area's design seems to reflect"
+                    PRINT "that symbol...the numerals might have something to do with that..."
+                CASE 2
+                    Gold& = Gold& - 50
+                    Hint% = 3
+                    PRINT "Did you notice that gem on the ground on your way in? something to"
+                    PRINT "take a closer look at I think..."
+            END SELECT
+        ELSE
+            COLOR 14
+            PRINT "Vampire> What's this? this isn't 50 gold, NO DEAL!"
+            COLOR 15
         END IF
-        IF HintChoice$ = "n" GOTO 999
+        GOTO 998
+    END IF
+    IF HintChoice$ = "n" GOTO 999
     COLOR 5
     PRINT "Huh?"
     COLOR 15
     GOTO 998
-999 END SUB
+  999
+    END SUB
 
 REM $DYNAMIC
 SUB ACT1
@@ -537,7 +511,6 @@ SUB ACT1
         IF A$ = "help" GOTO 210
 
         IF A$ = "describe" GOTO 209
-        IF A$ = "describe" GOTO 210
 
         IF A$ = "stats" THEN displaystats
         IF A$ = "stats" GOTO 210
@@ -613,34 +586,34 @@ SUB ACT1
         END IF
 
     IF A1ShopEnter% = 0 THEN
-    IF A0CutsceneDone% = 0 THEN
-        COLOR 14
-            PRINT ""
-            PRINT "You hear a creaking noise from the back of the shop, Sir Jacob moves"
-            PRINT "towards the rear of the shop and steps back in surprise as a dwarf"
-            PRINT "turns the corner."
-            PRINT " "
-        SLEEP 2
-            PRINT "Sir Jacob> Just who are you?"
-        SLEEP 2
-            PRINT "Dwarf> That should be the question I should be asking you, human"
-        SLEEP 2
-            PRINT "Sir Jacob> I am Sir Jacob, a paladin, this is my friend, "; Name$
-        SLEEP 2
-            PRINT "Dwarf> They call me Samael in this god forsaken town. As one of the"
-            PRINT "few survivors of this assault on my fair town I have appointed"
-            PRINT "myself as the shopkeeper, and just what may ye be doin here?"
-        SLEEP 2
-            PRINT Name$; "> We came here in search of Necrotalia, a daemon. We were told"
-            PRINT "to come by an Archangel, who appeared to us...quite a while ago."
-        SLEEP 2
-            PRINT "Samael> I see.  Well as one of the last survivors of this town I bid ye"
-            PRINT "welcome and I shall sell to ye just about anything ye see here, or buy"
-            PRINT "items as well."
-        SLEEP 2
-        A0CutsceneDone% = 1
-        COLOR 15
-    END IF
+        IF A0CutsceneDone% = 0 THEN
+            COLOR 14
+                PRINT ""
+                PRINT "You hear a creaking noise from the back of the shop, Sir Jacob moves"
+                PRINT "towards the rear of the shop and steps back in surprise as a dwarf"
+                PRINT "turns the corner."
+                PRINT " "
+            SLEEP 2
+                PRINT "Sir Jacob> Just who are you?"
+            SLEEP 2
+                PRINT "Dwarf> That should be the question I should be asking you, human"
+            SLEEP 2
+                PRINT "Sir Jacob> I am Sir Jacob, a paladin, this is my friend, "; Name$
+            SLEEP 2
+                PRINT "Dwarf> They call me Samael in this god forsaken town. As one of the"
+                PRINT "few survivors of this assault on my fair town I have appointed"
+                PRINT "myself as the shopkeeper, and just what may ye be doin here?"
+            SLEEP 2
+                PRINT Name$; "> We came here in search of Necrotalia, a daemon. We were told"
+                PRINT "to come by an Archangel, who appeared to us...quite a while ago."
+            SLEEP 2
+                PRINT "Samael> I see.  Well as one of the last survivors of this town I bid ye"
+                PRINT "welcome and I shall sell to ye just about anything ye see here, or buy"
+                PRINT "items as well."
+            SLEEP 2
+            A0CutsceneDone% = 1
+            COLOR 15
+        END IF
     END IF
     COLOR 5
     IF A1ShopPotion% = 0 THEN PRINT "There is one usable potion on the ground"
@@ -8611,18 +8584,11 @@ SUB displaystats
     PRINT "Familiar mana points: "; MP%; "/"; MPS%
     IF Owl% = 1 THEN
     PRINT "Spells your familiar knows: "; OWLSPELLE$
-    IF fire% = 1 THEN PRINT "Fireball, ";
-    IF LIGHT% = 1 THEN PRINT "Lightning Bolt, ";
-    IF HEAL% = 1 THEN PRINT "Healing, ";
-    IF ELDR% = 1 THEN PRINT "Eldritch Storm, ";
-    IF blast% = 1 THEN PRINT "Fire Blast, ";
-    IF CURE% = 1 THEN PRINT "Cure, ";
-    IF AUG% = 1 THEN PRINT "Augment, ";
-    IF FORT% = 1 THEN PRINT "Fortune, ";
-    IF PRED% = 1 THEN PRINT "Predict, ";
-    IF Reflect% = 1 THEN PRINT "Reflect, ";
-    IF Cura% = 1 THEN PRINT "Cura, ";
-    IF Fira% = 1 THEN PRINT "Fira, ";
+    FOR i = 0 TO 11
+        IF OwlSpells(i).hasIt THEN
+            PRINT OwlSpells(i).name; ", ";
+        END IF
+    NEXT i
     PRINT ""
     END IF
 END SUB
@@ -8714,303 +8680,7 @@ END SUB
 
 REM $DYNAMIC
 FUNCTION ENEMYHPSBONUS%
-    IF Lvl% >= 1 THEN
-    ENEMYHPSBONUS = 0
-    END IF
-    IF Lvl% >= 2 THEN
-    ENEMYHPSBONUS = 10
-    END IF
-    IF Lvl% >= 3 THEN
-    ENEMYHPSBONUS = 15
-    END IF
-    IF Lvl% >= 4 THEN
-    ENEMYHPSBONUS = 20
-    END IF
-    IF Lvl% >= 5 THEN
-    ENEMYHPSBONUS = 25
-    END IF
-    IF Lvl% >= 6 THEN
-    ENEMYHPSBONUS = 30
-    END IF
-    IF Lvl% >= 7 THEN
-    ENEMYHPSBONUS = 35
-    END IF
-    IF Lvl% >= 8 THEN
-    ENEMYHPSBONUS = 40
-    END IF
-    IF Lvl% >= 9 THEN
-    ENEMYHPSBONUS = 45
-    END IF
-    IF Lvl% >= 10 THEN
-    ENEMYHPSBONUS = 50
-    END IF
-    IF Lvl% >= 11 THEN
-    ENEMYHPSBONUS = 55
-    END IF
-    IF Lvl% >= 12 THEN
-    ENEMYHPSBONUS = 60
-    END IF
-    IF Lvl% >= 13 THEN
-    ENEMYHPSBONUS = 65
-    END IF
-    IF Lvl% >= 14 THEN
-    ENEMYHPSBONUS = 70
-    END IF
-    IF Lvl% >= 15 THEN
-    ENEMYHPSBONUS = 75
-    END IF
-    IF Lvl% >= 16 THEN
-    ENEMYHPSBONUS = 80
-    END IF
-    IF Lvl% >= 17 THEN
-    ENEMYHPSBONUS = 85
-    END IF
-    IF Lvl% >= 18 THEN
-    ENEMYHPSBONUS = 90
-    END IF
-    IF Lvl% >= 19 THEN
-    ENEMYHPSBONUS = 95
-    END IF
-    IF Lvl% >= 20 THEN
-    ENEMYHPSBONUS = 100
-    END IF
-    IF Lvl% >= 21 THEN
-    ENEMYHPSBONUS = 105
-    END IF
-    IF Lvl% >= 22 THEN
-    ENEMYHPSBONUS = 110
-    END IF
-    IF Lvl% >= 23 THEN
-    ENEMYHPSBONUS = 115
-    END IF
-    IF Lvl% >= 24 THEN
-    ENEMYHPSBONUS = 120
-    END IF
-    IF Lvl% >= 25 THEN
-    ENEMYHPSBONUS = 125
-    END IF
-    IF Lvl% >= 26 THEN
-    ENEMYHPSBONUS = 130
-    END IF
-    IF Lvl% >= 27 THEN
-    ENEMYHPSBONUS = 135
-    END IF
-    IF Lvl% >= 28 THEN
-    ENEMYHPSBONUS = 140
-    END IF
-    IF Lvl% >= 29 THEN
-    ENEMYHPSBONUS = 145
-        END IF
-    IF Lvl% >= 30 THEN
-    ENEMYHPSBONUS = 150
-    END IF
-    IF Lvl% >= 31 THEN
-    ENEMYHPSBONUS = 155
-    END IF
-    IF Lvl% >= 32 THEN
-    ENEMYHPSBONUS = 160
-    END IF
-    IF Lvl% >= 33 THEN
-    ENEMYHPSBONUS = 165
-    END IF
-    IF Lvl% >= 34 THEN
-    ENEMYHPSBONUS = 170
-    END IF
-    IF Lvl% >= 35 THEN
-    ENEMYHPSBONUS = 175
-    END IF
-    IF Lvl% >= 36 THEN
-    ENEMYHPSBONUS = 180
-    END IF
-    IF Lvl% >= 37 THEN
-    ENEMYHPSBONUS = 185
-    END IF
-    IF Lvl% >= 38 THEN
-    ENEMYHPSBONUS = 190
-    END IF
-    IF Lvl% >= 39 THEN
-    ENEMYHPSBONUS = 195
-    END IF
-    IF Lvl% >= 40 THEN
-    ENEMYHPSBONUS = 200
-    END IF
-    IF Lvl% >= 41 THEN
-    ENEMYHPSBONUS = 205
-    END IF
-    IF Lvl% >= 42 THEN
-    ENEMYHPSBONUS = 210
-    END IF
-    IF Lvl% >= 43 THEN
-    ENEMYHPSBONUS = 215
-    END IF
-    IF Lvl% >= 44 THEN
-    ENEMYHPSBONUS = 220
-    END IF
-    IF Lvl% >= 45 THEN
-    ENEMYHPSBONUS = 225
-    END IF
-    IF Lvl% >= 46 THEN
-    ENEMYHPSBONUS = 230
-    END IF
-    IF Lvl% >= 47 THEN
-    ENEMYHPSBONUS = 235
-    END IF
-    IF Lvl% >= 48 THEN
-    ENEMYHPSBONUS = 240
-    END IF
-    IF Lvl% >= 49 THEN
-    ENEMYHPSBONUS = 245
-    END IF
-    IF Lvl% >= 50 THEN
-    ENEMYHPSBONUS = 250
-    END IF
-    IF Lvl% >= 51 THEN
-    ENEMYHPSBONUS = 255
-    END IF
-    IF Lvl% >= 52 THEN
-    ENEMYHPSBONUS = 260
-    END IF
-    IF Lvl% >= 53 THEN
-    ENEMYHPSBONUS = 265
-    END IF
-    IF Lvl% >= 54 THEN
-    ENEMYHPSBONUS = 270
-    END IF
-    IF Lvl% >= 55 THEN
-    ENEMYHPSBONUS = 275
-    END IF
-    IF Lvl% >= 56 THEN
-    ENEMYHPSBONUS = 280
-    END IF
-    IF Lvl% >= 57 THEN
-    ENEMYHPSBONUS = 285
-    END IF
-    IF Lvl% >= 58 THEN
-    ENEMYHPSBONUS = 290
-    END IF
-    IF Lvl% >= 59 THEN
-    ENEMYHPSBONUS = 295
-    END IF
-    IF Lvl% >= 60 THEN
-    ENEMYHPSBONUS = 300
-    END IF
-    IF Lvl% >= 61 THEN
-    ENEMYHPSBONUS = 305
-    END IF
-    IF Lvl% >= 62 THEN
-    ENEMYHPSBONUS = 310
-    END IF
-    IF Lvl% >= 63 THEN
-    ENEMYHPSBONUS = 315
-    END IF
-    IF Lvl% >= 64 THEN
-    ENEMYHPSBONUS = 320
-    END IF
-    IF Lvl% >= 65 THEN
-    ENEMYHPSBONUS = 325
-    END IF
-    IF Lvl% >= 66 THEN
-    ENEMYHPSBONUS = 330
-    END IF
-    IF Lvl% >= 67 THEN
-    ENEMYHPSBONUS = 335
-    END IF
-    IF Lvl% >= 68 THEN
-    ENEMYHPSBONUS = 340
-    END IF
-    IF Lvl% >= 69 THEN
-    ENEMYHPSBONUS = 345
-    END IF
-    IF Lvl% >= 70 THEN
-    ENEMYHPSBONUS = 350
-    END IF
-    IF Lvl% >= 71 THEN
-    ENEMYHPSBONUS = 355
-    END IF
-    IF Lvl% >= 72 THEN
-    ENEMYHPSBONUS = 360
-    END IF
-    IF Lvl% >= 73 THEN
-    ENEMYHPSBONUS = 365
-    END IF
-    IF Lvl% >= 74 THEN
-    ENEMYHPSBONUS = 370
-    END IF
-    IF Lvl% >= 75 THEN
-    ENEMYHPSBONUS = 375
-    END IF
-    IF Lvl% >= 76 THEN
-    ENEMYHPSBONUS = 380
-    END IF
-    IF Lvl% >= 77 THEN
-    ENEMYHPSBONUS = 385
-    END IF
-    IF Lvl% >= 78 THEN
-    ENEMYHPSBONUS = 390
-    END IF
-    IF Lvl% >= 79 THEN
-    ENEMYHPSBONUS = 395
-    END IF
-    IF Lvl% >= 80 THEN
-    ENEMYHPSBONUS = 400
-    END IF
-    IF Lvl% >= 81 THEN
-    ENEMYHPSBONUS = 405
-    END IF
-    IF Lvl% >= 82 THEN
-    ENEMYHPSBONUS = 410
-    END IF
-    IF Lvl% >= 83 THEN
-    ENEMYHPSBONUS = 415
-    END IF
-    IF Lvl% >= 84 THEN
-    ENEMYHPSBONUS = 420
-    END IF
-    IF Lvl% >= 85 THEN
-    ENEMYHPSBONUS = 425
-    END IF
-    IF Lvl% >= 86 THEN
-    ENEMYHPSBONUS = 430
-    END IF
-    IF Lvl% >= 87 THEN
-    ENEMYHPSBONUS = 440
-    END IF
-    IF Lvl% >= 88 THEN
-    ENEMYHPSBONUS = 450
-    END IF
-    IF Lvl% >= 89 THEN
-    ENEMYHPSBONUS = 455
-    END IF
-    IF Lvl% >= 90 THEN
-    ENEMYHPSBONUS = 460
-    END IF
-    IF Lvl% >= 91 THEN
-    ENEMYHPSBONUS = 465
-    END IF
-    IF Lvl% >= 92 THEN
-    ENEMYHPSBONUS = 470
-    END IF
-    IF Lvl% >= 93 THEN
-    ENEMYHPSBONUS = 475
-    END IF
-    IF Lvl% >= 94 THEN
-    ENEMYHPSBONUS = 480
-    END IF
-    IF Lvl% >= 95 THEN
-    ENEMYHPSBONUS = 485
-    END IF
-    IF Lvl% >= 96 THEN
-    ENEMYHPSBONUS = 490
-    END IF
-    IF Lvl% >= 97 THEN
-    ENEMYHPSBONUS = 495
-    END IF
-    IF Lvl% >= 98 THEN
-    ENEMYHPSBONUS = 500
-    END IF
-    IF Lvl% >= 99 THEN
-    ENEMYHPSBONUS = 505
-    END IF
+    ENEMYHPSBONUS = (Lvl% - 1)*5
 END FUNCTION
 
 SUB EqArmour
@@ -11001,7 +10671,7 @@ SUB LoadGame
         INPUT #2, FamiliarFlute%
 
         'Familiar Stuff
-        INPUT #2, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, fire%, LIGHT%, HEAL%, ELDR%, blast%, CURE%, AUG%, FORT%, PRED%, LEARNOWLSPELL$, AL%, Reflect%, Cura%, Fira%, FamiliarHPS%
+        INPUT #2, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
 
         'Class stuff
         INPUT #2, Mage%, Fighter%, ROGUE%, Thief%, Bard%
@@ -12627,80 +12297,13 @@ SUB OWLSPELL
         IF OWLSPELLCHANCE% <= 10 THEN
   19999.9 
             WHICHOWLSPELL% = INT(RND * 12) + 1
-            SELECT CASE WHICHOWLSPELL%
-                CASE 1
-                    IF fire% <> 1 THEN
-                        LEARNOWLSPELL$ = "fireball"
-                        fire% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 2
-                    IF LIGHT% <> 1 THEN
-                        LEARNOWLSPELL$ = "lightning bolt"
-                        LIGHT% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 3
-                    IF HEAL% <> 1 THEN
-                        LEARNOWLSPELL$ = "healing"
-                        HEAL% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 4
-                    IF ELDR% <> 1 THEN
-                        LEARNOWLSPELL$ = "eldrich storm"
-                        ELDR% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 5
-                    IF blast% <> 1 THEN
-                        LEARNOWLSPELL$ = "fire blast"
-                        blast% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 6
-                    IF CURE% <> 1 THEN
-                        LEARNOWLSPELL$ = "cure"
-                        CURE% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 7
-                    IF AUG% <> 1 THEN
-                        LEARNOWLSPELL$ = "augment"
-                        AUG% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 8
-                    IF FORT% <> 1 THEN
-                        LEARNOWLSPELL$ = "fortune"
-                        FORT% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 9
-                    IF PRED% <> 1 THEN
-                        LEARNOWLSPELL$ = "predict"
-                        PRED% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 10
-                    IF Reflect% <> 1 Then
-                        LEARNOWLSPELL$ = "reflect"
-                        Reflect% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 11
-                    IF Cura% <> 1 THEN
-                        LEARNOWLSPELL$ = "Cura"
-                        Cura% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-                CASE 12
-                    IF Fira% <> 1 THEN
-                        LEARNOWLSPELL$ = "Fira"
-                        PRED% = 1
-                        ALLE% = ALLE% + 1
-                    END IF
-            END SELECT
+            
+            IF NOT OwlSpells(WHICHOWLSPELL%).hasIt THEN
+                LEARNOWLSPELL$ = OwlSpells(WHICHOWLSPELL%).name
+                OwlSpells(WHICHOWLSPELL%).hasIt = TRUE
+                ALLE% = ALLE% + 1
+            END IF
+            
             PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
             OwlSpells(WHICHOWLSPELL% - 1).hasIt = TRUE
         ELSE
@@ -13437,7 +13040,7 @@ SUB SaveGame
     WRITE #1, FamiliarFlute%
 
     'Familiar Stuff
-    WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, fire%, LIGHT%, HEAL%, ELDR%, blast%, CURE%, AUG%, FORT%, PRED%, LEARNOWLSPELL$, AL%, Reflect%, Cura%, Fira%, FamiliarHPS%
+    WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
 
     'Class stuff
     WRITE #1, Mage%, Fighter%, ROGUE%, Thief%, Bard%
@@ -13501,7 +13104,7 @@ SUB SaveToSavegame
     CLOSE #2
 END SUB
 
-SUB Steal
+SUB _Steal (preText AS STRING)
     StealChance% = INT(RND * 100) - DEX%
     IF StealChance% <= 50 THEN
         SELECT CASE ENEMY$
@@ -13557,85 +13160,20 @@ SUB Steal
                 StealItem$ = "a jade skull"
                 JadeSkull% = JadeSkull% + 1
         END SELECT
-        PRINT "You jump forward and steal "; StealItem$
+        PRINT preText; StealItem$
     END IF
 END SUB
 
+SUB Steal
+    _Steal "You jump forward and steal "
+END SUB
+
 SUB ToadSteal
-    StealChance% = INT(RND * 100)
-    IF StealChance% <= 50 THEN
-        SELECT CASE ENEMY$
-            CASE "Axe Maiden"
-                StealItem$ = "a potion"
-                Potion% = Potion% + 1
-            CASE "Skeleton"
-                StealItem$ = "a buckler"
-                Buckler% = Buckler% + 1
-            CASE "Giant Spider"
-                StealItem$ = "a potion"
-                Potion% = Potion% + 1
-            CASE "Zombie"
-                StealItem$ = "a potion"
-                Potion% = Potion% + 1
-            CASE "Imp"
-                StealItem$ = "a short sword"
-                ShortSword% = ShortSword% + 1
-            CASE "Ghoul"
-                StealItem$ = "nothing"
-            CASE "Ork"
-                StealItem$ = "some leather armour"
-                LeatherArmour% = LeatherArmour% + 1
-            CASE "Corpse"
-                StealItem$ = "another 100 gold coins"
-                Gold& = Gold& + 100
-            CASE "Wight"
-                StealItem$ = "a great battle blade"
-                GreatBattleBlade% = GreatBattleBlade% + 1
-            CASE "Fell Bat"
-                StealItem$ = "a potion"
-                Potion% = Potion% + 1
-            CASE "Wraith"
-                StealItem$ = "nothing"
-            CASE "Dire Wolf"
-                StealItem$ = "a potion"
-                Potion% = Potion% + 1
-            CASE "Lesser Vampire"
-                StealItem$ = "a bastard sword"
-                BastardSword% = BastardSword% + 1
-            CASE "Banshee"
-                StealItem$ = "a long sword"
-                LongSword% = LongSword% + 1
-            CASE "Phantom"
-                StealItem$ = "nothing"
-            CASE "Zombie Dragon"
-                StealItem$ = "some Hard Leather Armour"
-                HardLeatherArmour% = HardLeatherArmour% + 1
-            CASE "Xanathus"
-                StealItem$ = "a long staff"
-                LongStaff% = LongStaff% + 1
-            CASE "Necrotalia"
-                StealItem$ = "a jade skull"
-                JadeSkull% = JadeSkull% + 1
-        END SELECT
-        PRINT "Toad steals "; StealItem$
-    END IF
+    _Steal "Toad steals "
 END SUB
 
 REM $DYNAMIC
 SUB USEOWLSPELL
-    IF fire% = 1  THEN OwlSpells(0).hasIt = TRUE
-    IF LIGHT% = 1 THEN OwlSpells(1).hasIt = TRUE
-    IF HEAL% = 1  THEN OwlSpells(2).hasIt = TRUE
-    IF ELDR% = 1  THEN OwlSpells(3).hasIt = TRUE
-    IF blast% = 1 THEN OwlSpells(4).hasIt = TRUE
-    IF CURE% = 1  THEN OwlSpells(5).hasIt = TRUE
-    IF AUG% = 1   THEN OwlSpells(6).hasIt = TRUE
-    IF FORT% = 1  THEN OwlSpells(7).hasIt = TRUE
-    IF PRED% = 1  THEN OwlSpells(8).hasIt = TRUE
-    IF Reflect% = 1 THEN OwlSpells(9).hasIt = TRUE
-    IF Cura% = 1  THEN OwlSpells(10).hasIt = TRUE
-    IF Fira% = 1  THEN OwlSpells(11).hasIt = TRUE
-
   10000.15
     PRINT "Your owl spell list:"
     FOR i = 0 TO 11
