@@ -14,6 +14,9 @@
 
 '$DYNAMIC
 
+CONST FALSE = 0
+CONST TRUE = 1
+
 DECLARE SUB XanathusWorldFlee ()
 DECLARE SUB XanathusAI ()
 DECLARE SUB XanathusFlee ()
@@ -24,9 +27,6 @@ DECLARE SUB GetSaveLoadPos ()
 DECLARE SUB SaveToSavegame ()
 DECLARE FUNCTION ENEMYHPSBONUS% ()
 DECLARE SUB RANDOMSTRING ()
-DECLARE SUB RemoveArmour ()
-DECLARE SUB RemoveRH ()
-DECLARE SUB RemoveLH ()
 DECLARE SUB displayequip ()
 DECLARE SUB displayinventory ()
 DECLARE SUB displaystats ()
@@ -54,7 +54,6 @@ DECLARE SUB SaveGame ()
 DECLARE SUB jacobstats ()
 DECLARE SUB JACOB2000 ()
 DECLARE SUB EqHead ()
-DECLARE SUB RemoveHelm ()
 DECLARE SUB USEOWLSPELL ()
 DECLARE SUB CLASSBONUS ()
 DECLARE SUB OWLSPELL ()
@@ -117,11 +116,6 @@ DIM SHARED DamageLostHelm%
 DIM SHARED ShieldSave%
 
 DIM SHARED Expertise%
-DIM SHARED Mage%
-DIM SHARED Fighter%
-DIM SHARED ROGUE%
-DIM SHARED Thief%
-DIM SHARED Bard%
 
 DIM SHARED Helm$
 DIM SHARED STRO%
@@ -162,31 +156,6 @@ DIM SHARED RUNE1$
 DIM SHARED RUNE2$
 DIM SHARED RUNE3$
 DIM SHARED RuneError%
-DIM SHARED ken%
-DIM SHARED yoo%
-DIM SHARED tog%
-DIM SHARED wir%
-DIM SHARED gnu%
-DIM SHARED poa%
-DIM SHARED rer%
-DIM SHARED coz%
-DIM SHARED arp%
-DIM SHARED oje%
-DIM SHARED til%
-DIM SHARED roc%
-DIM SHARED wod%
-DIM SHARED sho%
-DIM SHARED vas%
-DIM SHARED dop%
-DIM SHARED rof%
-DIM SHARED poss%
-DIM SHARED uch%
-DIM SHARED dire%
-DIM SHARED fla%
-DIM SHARED pud%
-DIM SHARED cal%
-DIM SHARED das%
-DIM SHARED uss%
 
 ' ENEMY STUFF
 DIM SHARED ENEMYPTS%
@@ -196,101 +165,135 @@ DIM SHARED Undead%
 
 ' SHARING CHARACTER INVENTORY (DO NOT REMOVE)
 
+TYPE InventoryItem
+    name AS STRING
+    value AS SINGLE
+    
+    buyPrice AS INTEGER
+    sellPrice AS INTEGER
+    
+    amount AS INTEGER
+    itemType AS INTEGER
+    equipType AS INTEGER
+END TYPE
+
+CONST ITEM_TYPE_SWORD       = 0
+CONST ITEM_TYPE_SWORD_PLUS  = 1
+CONST ITEM_TYPE_STAFF       = 2
+CONST ITEM_TYPE_SHIELD      = 3
+CONST ITEM_TYPE_ARMOUR      = 4
+CONST ITEM_TYPE_POTION      = 5
+CONST ITEM_TYPE_HELM        = 6
+CONST ITEM_TYPE_RUNE        = 7
+CONST ITEM_TYPE_QITEM       = 8
+
+CONST EQUIP_WEAPON  = 1
+CONST EQUIP_SHIELD = 2
+CONST EQUIP_ARMOUR = 3
+CONST EQUIP_HELM   = 4
+
+DIM SHARED Equipment(5) AS STRING
+
+DIM SHARED Inventory(91) AS InventoryItem
 'Swords
-DIM SHARED ShortSword%
-DIM SHARED LongSword%
-DIM SHARED BastardSword%
-DIM SHARED BattleBlade%
-DIM SHARED GreatSword%
-DIM SHARED GreatBattleBlade%
-DIM SHARED HolySword%
-DIM SHARED SwordPlusOne%
-DIM SHARED SwordPlusTwo%
-DIM SHARED SwordPlusThree%
-DIM SHARED SwordPlusFour%
-DIM SHARED SwordPlusFive%
-DIM SHARED AvengerSwordPlusSeven%
-
+CONST ITEM_SHORT_SWORD              = 0
+CONST ITEM_LONG_SWORD               = 1
+CONST ITEM_BASTARD_SWORD            = 2
+CONST ITEM_BATTLE_BLADE             = 3
+CONST ITEM_GREAT_SWORD              = 4
+CONST ITEM_GREAT_BATTLE_BLADE       = 5
+CONST ITEM_HOLY_SWORD               = 6
+CONST ITEM_SWORD_PLUS_ONE           = 7
+CONST ITEM_SWORD_PLUS_TWO           = 8
+CONST ITEM_SWORD_PLUS_THREE         = 9
+CONST ITEM_SWORD_PLUS_FOUR          = 10
+CONST ITEM_SWORD_PLUS_FIVE          = 11
+CONST ITEM_AVENGER_SWORD_PLUS_SEVEN = 12
 'Staves
-DIM SHARED ShortStaff%
-DIM SHARED LongStaff%
-
+CONST ITEM_SHORT_STAFF = 13
+CONST ITEM_LONG_STAFF  = 14
 'Shields
-DIM SHARED Buckler%
-DIM SHARED SmallShield%
-DIM SHARED LargeShield%
-DIM SHARED HolyShield%
-DIM SHARED ShieldPlusOne%
-DIM SHARED ShieldPlusTwo%
-DIM SHARED ShieldPlusThree%
-DIM SHARED ShieldPlusFour%
-DIM SHARED ShieldPlusFive%
-
+CONST ITEM_BUCKLER           = 15
+CONST ITEM_SMALL_SHIELD      = 16
+CONST ITEM_LARGE_SHIELD      = 17
+CONST ITEM_HOLY_SHIELD       = 18
+CONST ITEM_SHIELD_PLUS_ONE   = 19
+CONST ITEM_SHIELD_PLUS_TWO   = 20
+CONST ITEM_SHIELD_PLUS_THREE = 21
+CONST ITEM_SHIELD_PLUS_FOUR  = 22
+CONST ITEM_SHIELD_PLUS_FIVE  = 23
 'Armour
-DIM SHARED Rags%
-DIM SHARED Surcoat%
-DIM SHARED RobesUpper%
-DIM SHARED RobesLower%
-DIM SHARED QuiltedArmour%
-DIM SHARED LeatherArmour%
-DIM SHARED HardLeatherArmour%
-DIM SHARED StuddedLeather%
-DIM SHARED RingMail%
-DIM SHARED ChainMail%
-DIM SHARED ScaleMail%
-DIM SHARED BandedMail%
-DIM SHARED BreastPlate%
-DIM SHARED BandedPlateMail%
-DIM SHARED FieldPlateMail%
-DIM SHARED FieldPlate%
-DIM SHARED LightPlateMail%
-DIM SHARED LightPlate%
-DIM SHARED GothicPlateMail%
-DIM SHARED GothicPlate%
-DIM SHARED HeavyPlateMail%
-DIM SHARED HeavyPlate%
-DIM SHARED AncientArmour%
-DIM SHARED MythrilMail%
-
+CONST ITEM_RAGS                = 24
+CONST ITEM_SURCOAT             = 25
+CONST ITEM_ROBES_UPPER         = 26
+CONST ITEM_ROBES_LOWER         = 27
+CONST ITEM_QUILTED_ARMOUR      = 28
+CONST ITEM_LEATHER_ARMOUR      = 29
+CONST ITEM_HARD_LEATHER_ARMOUR = 30
+CONST ITEM_STUDDED_LEATHER     = 31
+CONST ITEM_RING_MAIL           = 32
+CONST ITEM_CHAIN_MAIL          = 33
+CONST ITEM_SCALE_MAIL          = 34
+CONST ITEM_BANDED_MAIL         = 35
+CONST ITEM_BREAST_PLATE        = 36
+CONST ITEM_BANDED_PLATE_MAIL   = 37
+CONST ITEM_FIELD_PLATE_MAIL    = 38
+CONST ITEM_FIELD_PLATE         = 39
+CONST ITEM_LIGHT_PLATE_MAIL    = 40
+CONST ITEM_LIGHT_PLATE         = 41
+CONST ITEM_GOTHIC_PLATE_MAIL   = 42
+CONST ITEM_GOTHIC_PLATE        = 43
+CONST ITEM_HEAVY_PLATE_MAIL    = 44
+CONST ITEM_HEAVY_PLATE         = 45
+CONST ITEM_ANCIENT_ARMOUR      = 46
+CONST ITEM_MYTHRIL_MAIL        = 47
 'Potions
-DIM SHARED Potion%
-
+CONST ITEM_POTION = 48
 'Helms
-DIM SHARED Cap%
-DIM SHARED SkullCap%
-DIM SHARED Helm%
-DIM SHARED FullHelm%
-DIM SHARED GreatHelm%
-DIM SHARED GreatHelmHorned%
-DIM SHARED MythrilDwarvenHelm%
-
+CONST ITEM_CAP                  = 49
+CONST ITEM_SKULL_CAP            = 50
+CONST ITEM_HELM                 = 51
+CONST ITEM_FULL_HELM            = 52
+CONST ITEM_GREAT_HELM           = 53
+CONST ITEM_GREAT_HELM_HORNED    = 54
+CONST ITEM_MYTHRIL_DWARVEN_HELM = 55
 'Runes
-DIM SHARED ken$
-DIM SHARED wak$
-DIM SHARED yoo$
-DIM SHARED tog$
-DIM SHARED wir$
-DIM SHARED gnu$
-DIM SHARED poa$
-DIM SHARED rer$
-DIM SHARED coz$
-DIM SHARED arp$
-DIM SHARED oje$
-DIM SHARED til$
-DIM SHARED roc$
-DIM SHARED wod$
-DIM SHARED sho$
-DIM SHARED vas$
-DIM SHARED dop$
-DIM SHARED rof$
-DIM SHARED POS$
-DIM SHARED uch$
-DIM SHARED dire$
-DIM SHARED fla$
-DIM SHARED pud$
-DIM SHARED cal$
-DIM SHARED das$
-DIM SHARED uss$
+CONST RUNE_KEN  = 56
+CONST RUNE_WAK  = 57
+CONST RUNE_YOO  = 58
+CONST RUNE_TOG  = 59
+CONST RUNE_WIR  = 60
+CONST RUNE_GNU  = 61
+CONST RUNE_POA  = 62
+CONST RUNE_RER  = 63
+CONST RUNE_COZ  = 64
+CONST RUNE_ARP  = 65
+CONST RUNE_OJE  = 66
+CONST RUNE_TIL  = 67
+CONST RUNE_ROC  = 68
+CONST RUNE_WOD  = 69
+CONST RUNE_SHO  = 70
+CONST RUNE_VAS  = 71
+CONST RUNE_DOP  = 72
+CONST RUNE_ROF  = 73
+CONST RUNE_POS  = 74
+CONST RUNE_UCH  = 75
+CONST RUNE_DIRE = 76
+CONST RUNE_FLA  = 77
+CONST RUNE_PUD  = 78
+CONST RUNE_CAL  = 79
+CONST RUNE_DAS  = 80
+CONST RUNE_USS  = 81
+'ACT 1 Quest Items
+CONST QITEM_STRANGE_PENDANT = 82
+CONST QITEM_BURNING_SPHERE  = 83
+CONST QITEM_GOLDEN_SKULL    = 84
+CONST QITEM_JADE_SKULL      = 85
+CONST QITEM_CHAOS_STAR      = 86
+CONST QITEM_KEY1            = 87
+CONST QITEM_KEY2            = 88
+CONST QITEM_FAMILIAR_FLUTE  = 89
+CONST QITEM_GATE_KEY        = 90
 
 'END OF INVENTORY SHARING
 
@@ -354,17 +357,6 @@ DIM SHARED AEncampmentUsePillar%
 DIM SHARED A67PillarUse%
 DIM SHARED A67PillarOn%
 DIM SHARED WightLord%
-
-'ACT 1 Quest Items
-DIM SHARED StrangePendant%
-DIM SHARED BurningSphere%
-DIM SHARED GoldenSkull%
-DIM SHARED JadeSkull%
-DIM SHARED ChaosStar%
-DIM SHARED Key1%
-DIM SHARED Key2%
-DIM SHARED FamiliarFlute%
-DIM SHARED GateKey%
 
 TYPE SpellProps
     hasIt AS INTEGER
@@ -534,10 +526,10 @@ SUB ACT1
         IF A$ = "equip HEAD" GOTO 210
 
         IF A$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 GOTO 210
@@ -672,10 +664,10 @@ SUB ACT1
         IF A0$ = "equip HEAD" GOTO 225
 
         IF A0$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 GOTO 225
@@ -689,7 +681,7 @@ SUB ACT1
                 PRINT "Got Potion"
                 COLOR 15
                 A1ShopPotion% = 1
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
                 GOTO 225
                 END IF
             END IF
@@ -771,10 +763,10 @@ SUB ACT1
         IF AEncampment$ = "equip HEAD" GOTO 235
 
         IF AEncampment$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -873,10 +865,10 @@ SUB ACT1
         IF A1$ = "equip HEAD" GOTO 245
 
         IF A1$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -937,10 +929,10 @@ SUB ACT1
         IF A2$ = "equip HEAD" THEN EqHead
         IF A2$ = "equip HEAD" GOTO 255
         IF A2$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1003,10 +995,10 @@ SUB ACT1
         IF A4$ = "equip HEAD" THEN EqHead
         IF A4$ = "equip HEAD" GOTO 265
         IF A4$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1078,10 +1070,10 @@ SUB ACT1
         IF A5$ = "equip HEAD" THEN EqHead
         IF A5$ = "equip HEAD" GOTO 225
         IF A5$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1152,10 +1144,10 @@ SUB ACT1
         IF A6$ = "equip HEAD" GOTO 285
 
         IF A6$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1201,7 +1193,7 @@ SUB ACT1
         IF A3$ = "get long sword" THEN
             IF A3LS% = 0 THEN
                 A3LS% = 1
-                LongSword% = LongSword% + 1
+                Inventory(ITEM_LONG_SWORD).amount = Inventory(ITEM_LONG_SWORD).amount + 1
                 COLOR 5
                 PRINT "Got long sword"
                 COLOR 15
@@ -1257,10 +1249,10 @@ SUB ACT1
         IF A3$ = "equip HEAD" GOTO 295
 
         IF A3$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1325,10 +1317,10 @@ SUB ACT1
         IF A8$ = "equip HEAD" THEN EqHead
         IF A8$ = "equip HEAD" GOTO 305
         IF A8$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1401,10 +1393,10 @@ SUB ACT1
         IF A7$ = "equip HEAD" THEN EqHead
         IF A7$ = "equip HEAD" GOTO 315
         IF A7$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1476,10 +1468,10 @@ SUB ACT1
         IF A9$ = "equip HEAD" THEN EqHead
         IF A9$ = "equip HEAD" GOTO 325
         IF A9$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1546,10 +1538,10 @@ SUB ACT1
         IF A10$ = "equip HEAD" THEN EqHead
         IF A10$ = "equip HEAD" GOTO 335
         IF A10$ = "use potion" THEN
-               IF Potion% >= 1 THEN
+               IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1601,7 +1593,7 @@ SUB ACT1
 
         IF A11$ = "get golden skull" THEN
             IF GoldenSkullTaken% = 0 THEN
-                GoldenSkull% = 1
+                Inventory(QITEM_GOLDEN_SKULL).amount = 1
                 COLOR 5
                 PRINT "Got golden skull"
                 COLOR 15
@@ -1658,10 +1650,10 @@ SUB ACT1
         IF A11$ = "equip HEAD" THEN EqHead
         IF A11$ = "equip HEAD" GOTO 345
         IF A11$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1716,7 +1708,7 @@ SUB ACT1
                 COLOR 5
                 PRINT "Got one Potion"
                 COLOR 15
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
                 GOTO 355
             END IF
         END IF
@@ -1727,7 +1719,7 @@ SUB ACT1
                 COLOR 5
                 PRINT "You pick up the sword and realize it is a Sword +2, rare."
                 COLOR 15
-                SwordPlusTwo% = SwordPlusTwo% + 1
+                Inventory(ITEM_SWORD_PLUS_TWO).amount = Inventory(ITEM_SWORD_PLUS_TWO).amount + 1
                 GOTO 355
             END IF
         END IF
@@ -1738,7 +1730,7 @@ SUB ACT1
                 COLOR 5
                 PRINT "You picked up the shield, it is a Shield +2"
                 COLOR 15
-                ShieldPlusTwo% = ShieldPlusTwo% + 1
+                Inventory(ITEM_SHIELD_PLUS_TWO).amount = Inventory(ITEM_SHIELD_PLUS_TWO).amount + 1
                 GOTO 355
             END IF
         END IF
@@ -1772,10 +1764,10 @@ SUB ACT1
         IF A12$ = "equip HEAD" THEN EqHead
         IF A12$ = "equip HEAD" GOTO 355
         IF A12$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1849,10 +1841,10 @@ SUB ACT1
         IF A13$ = "equip HEAD" GOTO 365
 
         IF A13$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -1898,7 +1890,7 @@ SUB ACT1
                 COLOR 5
                 PRINT "Got a key, type 1"
                 COLOR 15
-                Key1% = Key1% + 1
+                Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount + 1
                 A14Key1% = 1
                 GOTO 375
             END IF
@@ -1934,10 +1926,10 @@ SUB ACT1
         IF A14$ = "equip HEAD" GOTO 375
 
         IF A14$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2003,10 +1995,10 @@ SUB ACT1
         IF A15$ = "equip HEAD" GOTO 385
 
         IF A15$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2072,10 +2064,10 @@ SUB ACT1
         IF A16$ = "equip HEAD" GOTO 395
 
         IF A16$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2144,10 +2136,10 @@ SUB ACT1
         IF A17$ = "equip HEAD" GOTO 505
 
         IF A17$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2239,7 +2231,7 @@ SUB ACT1
                     StrangePendantTaken% = 1
                     COLOR 5
                     PRINT "Got Strange Pendant"
-                    StrangePendant% = StrangePendant% + 1
+                    Inventory(QITEM_STRANGE_PENDANT).amount = Inventory(QITEM_STRANGE_PENDANT).amount + 1
                     COLOR 15
                     GOTO 515
                 END IF
@@ -2247,10 +2239,10 @@ SUB ACT1
         END IF
 
         IF A18$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2314,8 +2306,8 @@ SUB ACT1
             IF A19Lvl1Door% = 1 GOTO 570
         END IF
     IF A19$ = "use key 1" THEN
-        IF Key1% >= 1 THEN
-            Key1% = Key1% - 1
+        IF Inventory(QITEM_KEY1).amount >= 1 THEN
+            Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount - 1
             A19Lvl1Door% = 1
             COLOR 5
             PRINT "You use the key on the east door, the door opens easily."
@@ -2326,8 +2318,8 @@ SUB ACT1
     END IF
 
     IF A19$ = "use key 2" THEN
-        IF Key2% >= 1 THEN
-            Key2% = Key2% - 1
+        IF Inventory(QITEM_KEY2).amount >= 1 THEN
+            Inventory(QITEM_KEY2).amount = Inventory(QITEM_KEY2).amount - 1
             A19Lvl2Door% = 1
             COLOR 5
             PRINT "You use the key on the north door, the door opens."
@@ -2368,10 +2360,10 @@ SUB ACT1
         IF A19$ = "equip HEAD" GOTO 525
 
         IF A19$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2416,8 +2408,8 @@ SUB ACT1
         IF A20$ = "south" GOTO 550
         IF A20$ = "west" GOTO 510
         IF A20$ = "use key 1" THEN
-        IF Key1% >= 1 THEN
-            Key1% = Key1% - 1
+        IF Inventory(QITEM_KEY1).amount >= 1 THEN
+            Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount - 1
             A20Lvl1Door% = 1
             COLOR 5
             PRINT "You use the key on the locked door, the door opens."
@@ -2468,10 +2460,10 @@ SUB ACT1
         IF A20$ = "equip HEAD" GOTO 535
 
         IF A20$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2542,10 +2534,10 @@ SUB ACT1
         IF A21$ = "equip HEAD" GOTO 545
 
         IF A21$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2620,10 +2612,10 @@ SUB ACT1
         IF A22$ = "equip HEAD" GOTO 555
 
         IF A22$ = "use potion" THEN
-              IF Potion% >= 1 THEN
+              IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2693,10 +2685,10 @@ SUB ACT1
         IF A23$ = "equip HEAD" GOTO 565
 
         IF A23$ = "use potion" THEN
-              IF Potion% >= 1 THEN
+              IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2707,7 +2699,7 @@ SUB ACT1
         IF A23$ = "get flute" THEN
             IF A23FamiliarFlute% = 0 THEN
                 A23FamiliarFlute% = 1
-                FamiliarFlute% = FamiliarFlute% + 1
+                Inventory(QITEM_FAMILIAR_FLUTE).amount = Inventory(QITEM_FAMILIAR_FLUTE).amount + 1
                 COLOR 5
                 PRINT "You got the flute, it appears to call familiars."
                 COLOR 15
@@ -2785,10 +2777,10 @@ SUB ACT1
         IF A24$ = "equip HEAD" GOTO 575
 
         IF A24$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2845,10 +2837,10 @@ SUB ACT1
         IF A25$ = "equip HEAD" GOTO 585
 
         IF A25$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2915,10 +2907,10 @@ SUB ACT1
         IF A26$ = "equip HEAD" GOTO 595
 
         IF A26$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -2940,7 +2932,7 @@ SUB ACT1
                 PRINT "You got the chaos star pendant"
                 COLOR 15
                 A26ChaosStar% = 2
-                ChaosStar% = 1
+                Inventory(QITEM_CHAOS_STAR).amount = 1
                 GOTO 595
             END IF
         END IF
@@ -3014,10 +3006,10 @@ SUB ACT1
         IF A27$ = "equip HEAD" GOTO 605
 
         IF A27$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3026,11 +3018,11 @@ SUB ACT1
         END IF
 
         IF A27$ = "use golden skull" THEN
-            IF GoldenSkull% >= 1 THEN
-                GoldenSkull% = 0
+            IF Inventory(QITEM_GOLDEN_SKULL).amount >= 1 THEN
+                Inventory(QITEM_GOLDEN_SKULL).amount = 0
                 A26ChaosStar% = 1
                 A27GoldSocket% = 1
-                Key2% = Key2% + 1
+                Inventory(QITEM_KEY2).amount = Inventory(QITEM_KEY2).amount + 1
                 COLOR 5
                 PRINT "You inserted the gold skull into the gold socket, the skull locks in place."
                 PRINT "a key, type 2 falls out of the skull's eye, you take it."
@@ -3040,8 +3032,8 @@ SUB ACT1
         END IF
 
         IF A27$ = "use jade skull" THEN
-            IF JadeSkull% >= 1 THEN
-                JadeSkull% = 0
+            IF Inventory(QITEM_JADE_SKULL).amount >= 1 THEN
+                Inventory(QITEM_JADE_SKULL).amount = 0
                 A27JadeSocket% = 1
                 COLOR 5
                 PRINT "You have inserted the jade skull into the jade socket, the skull locks in place."
@@ -3060,7 +3052,7 @@ SUB ACT1
         IF A27$ = "get special sword" THEN
             IF A27AvengerSword% = 0 THEN
                 IF A27JadeSocket% = 1 THEN
-                    AvengerSwordPlusSeven% = AvengerSwordPlusSeven% + 1
+                    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount = Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount + 1
                     A27AvengerSword% = 1
                     COLOR 5
                     PRINT "You got the sword, it is an Avenger Sword +7"
@@ -3125,10 +3117,10 @@ SUB ACT1
         IF A28$ = "equip HEAD" GOTO 615
 
         IF A28$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3137,13 +3129,13 @@ SUB ACT1
         END IF
 
         IF A28$ = "use chaos star pendant" THEN
-            IF ChaosStar% >= 1 THEN
+            IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
                 COLOR 5
                 PRINT "You inserted the chaos star pendant into the socket."
                 COLOR 15
                 ChaosStarInsert% = 1
                 A28ChaosStarSocket% = 1
-                ChaosStar% = ChaosStar% - 1
+                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
                 GOTO 615
             END IF
         END IF
@@ -3155,7 +3147,7 @@ SUB ACT1
                 COLOR 15
                 ChaosStarInsert% = 0
                 A28ChaosStarSocket% = 0
-                ChaosStar% = ChaosStar% + 1
+                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
                 GOTO 615
             END IF
         END IF
@@ -3239,10 +3231,10 @@ SUB ACT1
         IF A29$ = "equip HEAD" GOTO 625
 
         IF A29$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3251,12 +3243,12 @@ SUB ACT1
         END IF
 
         IF A29$ = "use chaos star pendant" THEN
-            IF ChaosStar% >= 1 THEN
+            IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
                 COLOR 5
                 PRINT "You inserted the chaos star pendant into the socket."
                 COLOR 15
                 A29StarSocket% = 1
-                ChaosStar% = ChaosStar% - 1
+                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
                 GOTO 625
             END IF
         END IF
@@ -3264,7 +3256,7 @@ SUB ACT1
         IF A29$ = "get chaos star pendant" THEN
             IF A29StarSocket% = 1 THEN
                 A29StarSocket% = 0
-                ChaosStar% = ChaosStar% + 1
+                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
                 COLOR 5
                 PRINT "Got chaos star pendant"
                 COLOR 15
@@ -3326,10 +3318,10 @@ SUB ACT1
         IF A30$ = "equip HEAD" GOTO 635
 
         IF A30$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3384,10 +3376,10 @@ SUB ACT1
         IF A31$ = "equip HEAD" GOTO 645
 
         IF A31$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3466,10 +3458,10 @@ SUB ACT1
         IF A32$ = "equip HEAD" GOTO 655
 
         IF A32$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3480,7 +3472,7 @@ SUB ACT1
         IF A32$ = "get chaos star pendant" THEN
             IF A29StarSocket% = 1 THEN
                 A29StarSocket% = 0
-                ChaosStar% = ChaosStar% + 1
+                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
                 COLOR 5
                 PRINT "Got chaos star pendant"
                 COLOR 15
@@ -3584,10 +3576,10 @@ SUB Act1Pt2
         IF A33$ = "equip HEAD" GOTO 665
 
         IF A33$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3677,10 +3669,10 @@ SUB Act1Pt2
         IF A34$ = "equip HEAD" GOTO 675
 
         IF A34$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3774,10 +3766,10 @@ SUB Act1Pt2
         IF A35$ = "equip HEAD" GOTO 685
 
         IF A35$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3842,10 +3834,10 @@ SUB Act1Pt2
         IF A36$ = "equip HEAD" GOTO 695
 
         IF A36$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3913,10 +3905,10 @@ SUB Act1Pt2
         IF A37$ = "equip HEAD" GOTO 705
 
         IF A37$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -3980,10 +3972,10 @@ SUB Act1Pt2
         IF A38$ = "equip HEAD" GOTO 715
 
         IF A38$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4051,10 +4043,10 @@ SUB Act1Pt2
         IF A39$ = "equip HEAD" GOTO 725
 
         IF A39$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4119,10 +4111,10 @@ SUB Act1Pt2
         IF A40$ = "equip HEAD" GOTO 735
 
         IF A40$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4189,10 +4181,10 @@ SUB Act1Pt2
         IF A41$ = "equip HEAD" GOTO 745
 
         IF A41$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4307,10 +4299,10 @@ SUB Act1Pt2
         IF A42$ = "equip HEAD" GOTO 755
 
         IF A42$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4319,8 +4311,8 @@ SUB Act1Pt2
         END IF
 
         IF A42$ = "use gate key" THEN
-            IF GateKey% >= 1 THEN
-                GateKey% = GateKey% - 1
+            IF Inventory(QITEM_GATE_KEY).amount >= 1 THEN
+                Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount - 1
                 COLOR 5
                 PRINT "You have used the gate key, it unlocks the gate."
                 PRINT "The key turns to dust in your hand."
@@ -4386,10 +4378,10 @@ SUB Act1Pt2
         IF A43$ = "equip HEAD" GOTO 765
 
         IF A43$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4455,10 +4447,10 @@ SUB Act1Pt2
         IF A44$ = "equip HEAD" GOTO 775
 
         IF A44$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                    HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4524,10 +4516,10 @@ SUB Act1Pt2
         IF A45$ = "equip HEAD" GOTO 785
 
         IF A45$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4593,10 +4585,10 @@ SUB Act1Pt2
         IF A46$ = "equip HEAD" GOTO 795
 
         IF A46$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4655,10 +4647,10 @@ SUB Act1Pt2
         IF A47$ = "equip HEAD" GOTO 805
 
         IF A47$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4737,10 +4729,10 @@ SUB Act1Pt2
         IF A48$ = "equip HEAD" GOTO 815
 
         IF A48$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4749,8 +4741,8 @@ SUB Act1Pt2
         END IF
 
         IF A48$ = "use burning sphere" THEN
-            IF BurningSphere% >= 1 THEN
-                BurningSphere% = BurningSphere% - 1
+            IF Inventory(QITEM_BURNING_SPHERE).amount >= 1 THEN
+                Inventory(QITEM_BURNING_SPHERE).amount = Inventory(QITEM_BURNING_SPHERE).amount - 1
                 A48BSphere% = 1
                 COLOR 5
                 PRINT "You inserted the burning sphere into the socket, suddenly the wall explodes"
@@ -4839,10 +4831,10 @@ SUB Act1Pt2
         IF A49$ = "equip HEAD" GOTO 817
 
         IF A49$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4907,10 +4899,10 @@ SUB Act1Pt2
         IF A50$ = "equip HEAD" GOTO 825
 
         IF A50$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -4977,10 +4969,10 @@ SUB Act1Pt2
         IF A51$ = "equip HEAD" GOTO 835
 
         IF A51$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5053,10 +5045,10 @@ SUB Act1Pt2
         IF A52$ = "equip HEAD" GOTO 845
 
         IF A52$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5130,10 +5122,10 @@ SUB Act1Pt2
         IF A50$ = "equip HEAD" GOTO 855
 
         IF A50$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5207,10 +5199,10 @@ SUB Act1Pt2
         IF A54$ = "equip HEAD" GOTO 865
 
         IF A54$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5284,10 +5276,10 @@ SUB Act1Pt2
         IF A55$ = "equip HEAD" GOTO 875
 
         IF A55$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5378,10 +5370,10 @@ SUB Act1Pt2
         IF A56$ = "equip HEAD" GOTO 885
 
         IF A56$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5449,10 +5441,10 @@ SUB Act1Pt2
         IF A57$ = "equip HEAD" GOTO 895
 
         IF A57$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5538,10 +5530,10 @@ SUB Act1Pt2
         IF A58$ = "equip HEAD" GOTO 905
 
         IF A58$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5628,10 +5620,10 @@ SUB Act1Pt2
         IF A59$ = "equip HEAD" GOTO 915
 
         IF A59$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5698,10 +5690,10 @@ SUB Act1Pt2
         IF A60$ = "equip HEAD" GOTO 925
 
         IF A60$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5788,10 +5780,10 @@ SUB Act1Pt2
         IF A61$ = "equip HEAD" GOTO 935
 
         IF A61$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5877,10 +5869,10 @@ SUB Act1Pt2
         IF A62$ = "equip HEAD" GOTO 945
 
         IF A62$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -5947,10 +5939,10 @@ SUB Act1Pt2
         IF A63$ = "equip HEAD" GOTO 955
 
         IF A63$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -6036,10 +6028,10 @@ SUB Act1Pt2
         IF A64$ = "equip HEAD" GOTO 965
 
         IF A64$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -6125,10 +6117,10 @@ SUB Act1Pt2
         IF A65$ = "equip HEAD" GOTO 975
 
         IF A65$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -6215,10 +6207,10 @@ SUB Act1Pt2
         IF A66$ = "equip HEAD" GOTO 985
 
         IF A66$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -6382,10 +6374,10 @@ SUB Act1Pt2
         IF A67$ = "equip HEAD" GOTO 935
 
         IF A67$ = "use potion" THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -6589,7 +6581,7 @@ SUB BATTLE
 
     1 PRINT "What would you like to do?"
     WeaponThrown = -1
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
     IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
     IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     END IF
@@ -6602,7 +6594,7 @@ SUB BATTLE
             COLOR 15
             GOTO 1
         END IF
-        IF FamiliarFlute% = 1 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             FamiliarCall
             IF ENEMYPTS% <= 0 THEN GOTO 2000
@@ -6614,7 +6606,7 @@ SUB BATTLE
             GOTO 1
         END IF
         END IF
-        IF FamiliarFlute% = 0 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
             COLOR 5
             PRINT "You don't have a familiar flute"
             GOTO 1
@@ -6624,14 +6616,14 @@ SUB BATTLE
     END IF
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 20
                 AI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -6640,13 +6632,13 @@ SUB BATTLE
             END IF
         ELSE
             AI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 20
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -6731,7 +6723,7 @@ SUB BATTLE
     END IF
     END IF
     IF ACTION$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -6757,20 +6749,20 @@ SUB BATTLE
     COLOR 15
     GOTO 1
     20 PRINT "What would you like to do?"
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
         IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
         IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     END IF
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
-        IF Thief% = 0 THEN
+        IF Expertise% <> CLASS_THIEF THEN
             COLOR 5
             PRINT "Only thieves can steal."
             COLOR 15
             GOTO 20
         END IF
-        IF Thief% = 1 THEN
+        IF Expertise% = CLASS_THIEF THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 Steal
                 AI
@@ -6784,13 +6776,13 @@ SUB BATTLE
     END IF
 
     IF ACTIONA$ = "throw weapon" THEN
-        IF ROGUE% = 0 THEN
+        IF Expertise% <> CLASS_ROGUE THEN
             COLOR 5
             PRINT "Only rogues can throw weapons."
             COLOR 15
             GOTO 20
         END IF
-        IF ROGUE% = 1 THEN
+        IF Expertise% = CLASS_ROGUE THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 LHO$ = LH$
                 IF LH$ = "Long Staff" THEN RH$ = ""
@@ -6830,13 +6822,13 @@ SUB BATTLE
     END IF
 
     IF ACTIONA$ = "play music" THEN
-        IF Bard% = 0 THEN
+        IF Expertise% <> CLASS_BARD THEN
             COLOR 5
             PRINT "Only bards can play music."
             COLOR 15
             GOTO 20
         END IF
-        IF Bard% = 1 THEN
+        IF Expertise% = CLASS_BARD THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 BardMusic
                 AI
@@ -6855,7 +6847,7 @@ SUB BATTLE
             COLOR 15
             GOTO 20
         END IF
-        IF FamiliarFlute% = 1 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             FamiliarCall
             IF ENEMYPTS% <= 0 THEN GOTO 2000
@@ -6867,7 +6859,7 @@ SUB BATTLE
             IF ENEMYPTS% <= 0 THEN GOTO 2000
             GOTO 20
         END IF
-        IF FamiliarFlute% = 0 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
             COLOR 5
             PRINT "you don't have a familiar flute"
             COLOR 15
@@ -6877,14 +6869,14 @@ SUB BATTLE
     END IF
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 20
                 AI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -6893,13 +6885,13 @@ SUB BATTLE
             END IF
         ELSE
             AI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 20
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -6909,7 +6901,7 @@ SUB BATTLE
     END IF
 
     IF ACTIONA$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -7097,7 +7089,7 @@ SUB BATTLE
     PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
     EXPERIENCELVLUP
-    IF Mage% = 1 THEN
+    IF Expertise% = CLASS_MAGE THEN
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
@@ -7115,7 +7107,7 @@ SUB BATTLE
         GOTO 2001
     END IF
 
-    IF Fighter% = 1 THEN
+    IF Expertise% = CLASS_FIGHTER THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7130,7 +7122,7 @@ SUB BATTLE
         GOTO 2001
     END IF
 
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7145,7 +7137,7 @@ SUB BATTLE
         GOTO 2001
     END IF
 
-    IF Thief% = 1 THEN
+    IF Expertise% = CLASS_THIEF THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7160,7 +7152,7 @@ SUB BATTLE
         GOTO 2001
     END IF
 
-    IF Bard% = 1 THEN
+    IF Expertise% = CLASS_BARD THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -7275,7 +7267,7 @@ SUB BATTLE2
 
     1000 PRINT "What would you like to do?"
     WeaponThrown = -1
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
     IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
     IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     END IF
@@ -7288,7 +7280,7 @@ SUB BATTLE2
             COLOR 15
             GOTO 1000
         END IF
-        IF FamiliarFlute% = 1 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             FamiliarCall
             IF ENEMYPTS% <= 0 THEN GOTO 102000
@@ -7300,7 +7292,7 @@ SUB BATTLE2
             GOTO 1000
         END IF
         END IF
-        IF FamiliarFlute% = 0 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
             COLOR 5
             PRINT "You don't have a familiar flute"
             GOTO 1000
@@ -7310,14 +7302,14 @@ SUB BATTLE2
     END IF
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 1020
                 AI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -7326,13 +7318,13 @@ SUB BATTLE2
             END IF
         ELSE
             AI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 1020
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -7427,7 +7419,7 @@ SUB BATTLE2
     END IF
     END IF
     IF ACTION$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -7507,20 +7499,20 @@ SUB BATTLE2
     PRINT "Huh?"
     GOTO 1000
     1020 PRINT "What would you like to do?"
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
     IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
     IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     END IF
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
-        IF Thief% = 0 THEN
+        IF Expertise% <> CLASS_THIEF THEN
             COLOR 5
             PRINT "Only thieves can steal."
             COLOR 15
             GOTO 1020
         END IF
-        IF Thief% = 1 THEN
+        IF Expertise% = CLASS_THIEF THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 Steal
                 AI
@@ -7534,13 +7526,13 @@ SUB BATTLE2
     END IF
 
     IF ACTIONA$ = "throw weapon" THEN
-        IF ROGUE% = 0 THEN
+        IF Expertise% <> CLASS_ROGUE THEN
             COLOR 5
             PRINT "Only rogues can throw weapons."
             COLOR 15
             GOTO 1020
         END IF
-        IF ROGUE% = 1 THEN
+        IF Expertise% = CLASS_ROGUE THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 LHO$ = LH$
                 IF LH$ = "Long Staff" THEN RH$ = ""
@@ -7610,13 +7602,13 @@ SUB BATTLE2
     END IF
 
     IF ACTIONA$ = "play music" THEN
-        IF Bard% = 0 THEN
+        IF Expertise% <> CLASS_BARD THEN
             COLOR 5
             PRINT "Only bards can play music."
             COLOR 15
             GOTO 1020
         END IF
-        IF Bard% = 1 THEN
+        IF Expertise% = CLASS_BARD THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 BardMusic
                 AI
@@ -7635,7 +7627,7 @@ SUB BATTLE2
             COLOR 15
             GOTO 1020
         END IF
-        IF FamiliarFlute% = 1 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             FamiliarCall
             IF ENEMYPTS% <= 0 THEN GOTO 102000
@@ -7647,7 +7639,7 @@ SUB BATTLE2
             IF ENEMYPTS% <= 0 THEN GOTO 102000
             GOTO 1020
         END IF
-        IF FamiliarFlute% = 0 THEN
+        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
             COLOR 5
             PRINT "you don't have a familiar flute"
             COLOR 15
@@ -7657,14 +7649,14 @@ SUB BATTLE2
     END IF
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 1020
                 AI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -7673,13 +7665,13 @@ SUB BATTLE2
             END IF
         ELSE
             AI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 1020
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -7689,7 +7681,7 @@ SUB BATTLE2
     END IF
 
     IF ACTIONA$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -8011,7 +8003,7 @@ SUB BATTLE2
     PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
     EXPERIENCELVLUP
-    IF Mage% = 1 THEN
+    IF Expertise% = CLASS_MAGE THEN
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
@@ -8029,7 +8021,7 @@ SUB BATTLE2
         GOTO 102001
     END IF
 
-    IF Fighter% = 1 THEN
+    IF Expertise% = CLASS_FIGHTER THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8044,7 +8036,7 @@ SUB BATTLE2
         GOTO 102001
     END IF
 
-    IF ROGUE% = 1 THEN
+    IF Expertise% = CLASS_ROGUE THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8059,7 +8051,7 @@ SUB BATTLE2
         GOTO 102001
     END IF
 
-    IF Thief% = 1 THEN
+    IF Expertise% = CLASS_THIEF THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8074,7 +8066,7 @@ SUB BATTLE2
         GOTO 102001
     END IF
 
-    IF Bard% = 1 THEN
+    IF Expertise% = CLASS_BARD THEN
         GOLDDROP% = INT(RND * 10) + 1
         PRINT "You picked up"; GOLDDROP%; "gold."
         Gold& = Gold& + GOLDDROP%
@@ -8098,7 +8090,6 @@ END SUB
 
 REM $DYNAMIC
 SUB CHARCREATE
-    Fighter% = 0
     ' MAKE THE CHARACTERS HERE
     0 CLS
 
@@ -8128,7 +8119,6 @@ SUB CHARCREATE
     'Fighter Setup
         IF CLASSDECISION$ = "0" THEN
             Class$ = "Fighter"
-            Fighter% = 1
             Expertise% = CLASS_FIGHTER
             GOTO 21.5
         END IF
@@ -8136,7 +8126,6 @@ SUB CHARCREATE
     'Mage Setup
         IF CLASSDECISION$ = "1" THEN
             Class$ = "Mage"
-             Mage% = 1
              Expertise% = CLASS_MAGE
             GOTO 21.5
         END IF
@@ -8144,7 +8133,6 @@ SUB CHARCREATE
     'Rogue Setup
         IF CLASSDECISION$ = "2" THEN
             Class$ = "Rogue"
-            ROGUE% = 1
             Expertise% = CLASS_ROGUE
             GOTO 21.5
         END IF
@@ -8152,7 +8140,6 @@ SUB CHARCREATE
     'Thief Setup
         IF CLASSDECISION$ = "3" THEN
             Class$ = "Thief"
-            Thief% = 1
             Expertise% = CLASS_THIEF
             GOTO 21.5
         END IF
@@ -8160,7 +8147,6 @@ SUB CHARCREATE
     'Bard Setup
         IF CLASSDECISION$ = "4" THEN
             Class$ = "Bard"
-            Bard% = 1
             Expertise% = CLASS_BARD
             GOTO 21.5
         END IF
@@ -8275,99 +8261,23 @@ SUB CHARCREATE
 
 REM $STATIC
 SUB CheckRunes
-    RuneError% = 1
-    COLOR 5
-    IF RUNE1$ = "ken" THEN IF ken% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "wak" THEN IF wak% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "yoo" THEN IF yoo% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "tog" THEN IF tog% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "wir" THEN IF wir% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "gnu" THEN IF gnu% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "poa" THEN IF poa% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "rer" THEN IF rer% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "coz" THEN IF coz% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "arp" THEN IF arp% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "oje" THEN IF oje% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "til" THEN IF til% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "roc" THEN IF roc% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "wod" THEN IF wod% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "sho" THEN IF sho% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "vas" THEN IF vas% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "dop" THEN IF dop% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "rof" THEN IF rof% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "pos" THEN IF poss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "uch" THEN IF uch% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "dire" THEN IF dire% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "fla" THEN IF fla% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "pud" THEN IF pud% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "cal" THEN IF cal% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "das" THEN IF das% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE1$ = "uss" THEN IF uss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-
-    IF RUNE2$ = "ken" THEN IF ken% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "wak" THEN IF wak% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "yoo" THEN IF yoo% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "tog" THEN IF tog% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "wir" THEN IF wir% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "gnu" THEN IF gnu% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "poa" THEN IF poa% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "rer" THEN IF rer% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "coz" THEN IF coz% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "arp" THEN IF arp% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "oje" THEN IF oje% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "til" THEN IF til% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "roc" THEN IF roc% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "wod" THEN IF wod% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "sho" THEN IF sho% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "vas" THEN IF vas% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "dop" THEN IF dop% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "rof" THEN IF rof% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "pos" THEN IF poss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "uch" THEN IF uch% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "dire" THEN IF dire% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "fla" THEN IF fla% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "pud" THEN IF pud% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "cal" THEN IF cal% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "das" THEN IF das% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE2$ = "uss" THEN IF uss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-
-    IF RUNE3$ = "ken" THEN IF ken% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "wak" THEN IF wak% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "yoo" THEN IF yoo% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "tog" THEN IF tog% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "wir" THEN IF wir% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "gnu" THEN IF gnu% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "poa" THEN IF poa% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "rer" THEN IF rer% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "coz" THEN IF coz% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "arp" THEN IF arp% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "oje" THEN IF oje% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "til" THEN IF til% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "roc" THEN IF roc% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "wod" THEN IF wod% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "sho" THEN IF sho% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "vas" THEN IF vas% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "dop" THEN IF dop% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "rof" THEN IF rof% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "pos" THEN IF poss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "uch" THEN IF uch% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "dire" THEN IF dire% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "fla" THEN IF fla% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "pud" THEN IF pud% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "cal" THEN IF cal% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "das" THEN IF das% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-    IF RUNE3$ = "uss" THEN IF uss% = 0 THEN PRINT "You don't have that rune": GOTO 101010
-
     RuneError% = 0
+    COLOR 5
+    
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_RUNE AND Inventory(i).amount < 1 THEN
+            IF Inventory(i).name = RUNE1$ OR Inventory(i).name = RUNE2$ OR Inventory(i).name = RUNE3$ THEN
+                PRINT "You don't have that rune"
+                RuneError% = 1
+                EXIT FOR
+            END IF 
+        END IF
+    NEXT i
+
     COLOR 15
-101010 END SUB
+END SUB
 
 SUB ClearFlags
-    Fighter% = 0
-    Mage% = 0
-    ROGUE% = 0
-    Thief% = 0
-    Bard% = 0
     A12Potions% = 3
     PlayerReflect% = 0
     LadderDown% = 0
@@ -8378,6 +8288,7 @@ SUB ClearFlags
     A1ShopPotion% = 0
     A1EnterPit% = 0
     Quest% = 0
+    Inventory(ITEM_SWORD_PLUS_ONE).buyPrice = 0
     A3LS% = 0
     A3Corpse% = 0
     ThroneSwitch% = 0
@@ -8472,96 +8383,72 @@ SUB displayequip
 END SUB
 
 SUB displayinventory
-    Runes
-
     PRINT Name$; "'s Inventory"
     PRINT ""
     'Act 1 quest items
-
-    IF StrangePendant% >= 1 THEN PRINT "Strange Pendant:"; StrangePendant%
-    IF BurningSphere% >= 1 THEN PRINT "Burning Sphere:"; BurningSphere%
-    IF GoldenSkull% >= 1 THEN PRINT "Golden Skull:"; GoldenSkull%
-    IF JadeSkull% >= 1 THEN PRINT "Jade Skull:"; JadeSkull%
-    IF ChaosStar% >= 1 THEN PRINT "Chaos Star:"; ChaosStar%
-    IF Key1% >= 1 THEN PRINT "Key, type 1 (Key 1):"; Key1%
-    IF Key2% >= 1 THEN PRINT "Key, type 2 (Key 2):"; Key2%
-    IF FamiliarFlute% >= 1 THEN PRINT "Familiar flute:"; FamiliarFlute%
-    IF ChaosStar% >= 1 THEN PRINT "Chaos star pendant:"; ChaosStar%
-    IF GateKey% >= 1 THEN PRINT "Gate key:"; GateKey%
-    IF RustedSword% >= 1 THEN PRINT "Rusted Sword:"; RustedSword%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_QITEM AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Swords
-    IF ShortSword% >= 1 THEN PRINT "Short Sword:"; ShortSword%
-    IF LongSword% >= 1 THEN PRINT "Long Sword:"; LongSword%
-    IF BattleBlade% >= 1 THEN PRINT "Battle Blade:"; BattleBlade%
-    IF BastardSword% >= 1 THEN PRINT "Bastard Sword:"; BastardSword%
-    IF GreatSword% >= 1 THEN PRINT "Great Sword:"; GreatSword%
-    IF GreatBattleBlade% >= 1 THEN PRINT "Great Battle Blade:"; GreatBattleBlade%
-    IF HolySword% >= 1 THEN PRINT "Holy Sword:"; HolySword%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_SWORD AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Sword +
-    IF SwordPlusOne% >= 1 THEN PRINT "Sword +1:"; SwordPlusOne%
-    IF SwordPlusTwo% >= 1 THEN PRINT "Sword +2:"; SwordPlusTwo%
-    IF SwordPlusThree% >= 1 THEN PRINT "Sword +3:"; SwordPlusThree%
-    IF SwordPlusFour% >= 1 THEN PRINT "Sword +4:"; SwordPlusThree%
-    IF SwordPlusFive% >= 1 THEN PRINT "Sword +5:"; SwordPlusFive%
-    IF AvengerSwordPlusSeven% >= 1 THEN PRINT "Avenger Sword +7:"; AvengerSwordPlusSeven%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_SWORD_PLUS AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Shields
-    IF Buckler% >= 1 THEN PRINT "Buckler:"; Buckler%
-    IF SmallShield% >= 1 THEN PRINT "Small Shield:"; SmallShield%
-    IF LargeShield% >= 1 THEN PRINT "Large Shield:"; LargeShield%
-    IF HolyShield% >= 1 THEN PRINT "Holy Shield:"; HolyShield%
-    IF ShieldPlusOne% >= 1 THEN PRINT "Shield +1:"; ShieldPlusOne%
-    IF ShieldPlusTwo% >= 1 THEN PRINT "Shield +2:"; ShieldPlusTwo%
-    IF ShieldPlusThree% >= 1 THEN PRINT "Shield +3:"; ShieldPlusThree%
-    IF ShieldPlusFour% >= 1 THEN PRINT "Shield +4:"; ShieldPlusFour%
-    IF ShieldPlusFive% >= 1 THEN PRINT "Shield +5:"; ShieldPlusFive%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_SHIELD AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Armour
-    IF Rags% >= 1 THEN PRINT "Rags:"; Rags%
-    IF Surcoat% >= 1 THEN PRINT "Surcoat:"; Surcoat%
-    IF RobesUpper% >= 1 THEN PRINT "Robes (upper):"; RobesUpper%
-    IF RobesLower% >= 1 THEN PRINT "Robes (lower):"; RobesLower%
-    IF QuiltedArmour% >= 1 THEN PRINT "Quilted Armour:"; QuiltedArmour%
-    IF LeatherArmour% >= 1 THEN PRINT "Leather Armour:"; LeatherArmour%
-    IF HardLeatherArmour% >= 1 THEN PRINT "Hard Leather Armour:"; HardLeatherArmour%
-    IF StuddedLeather% >= 1 THEN PRINT "Studded Leather Armour:"; StuddedLeather%
-    IF RingMail% >= 1 THEN PRINT "Ring Mail:"; RingMail%
-    IF ChainMail% >= 1 THEN PRINT "Chain Mail:"; ChainMail%
-    IF ScaleMail% >= 1 THEN PRINT "Scale Mail:"; ScaleMail%
-    IF BandedMail% >= 1 THEN PRINT "Banded Mail:"; BandedMail%
-    IF BreastPlate% >= 1 THEN PRINT "Breast Plate:"; BreastPlate%
-    IF BandedPlateMail% >= 1 THEN PRINT "Banded Plate Mail:"; BandedPlateMail%
-    IF FieldPlateMail% >= 1 THEN PRINT "Field Plate Mail:"; FieldPlateMail%
-    IF FieldPlate% >= 1 THEN PRINT "Field Plate:"; FieldPlate%
-    IF LightPlateMail% >= 1 THEN PRINT "Light Plate Mail:"; LightPlateMail%
-    IF LightPlate% >= 1 THEN PRINT "Light Plate:"; LightPlate%
-    IF GothicPlateMail% >= 1 THEN PRINT "Gothic Plate Mail:"; GothicPlateMail%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_ARMOUR AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Staves
-    IF ShortStaff% >= 1 THEN PRINT "Short Staff:"; ShortStaff%
-    IF LongStaff% >= 1 THEN PRINT "Long Staff:"; LongStaff%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_STAFF AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Helms
-    IF Cap% >= 1 THEN PRINT "Cap:"; Cap%
-    IF SkullCap% >= 1 THEN PRINT "Skull Cap:"; SkullCap%
-    IF Helm% >= 1 THEN PRINT "Helm:"; Helm%
-    IF FullHelm% >= 1 THEN PRINT "Full Helm:"; FullHelm%
-    IF GreatHelm% >= 1 THEN PRINT "Great Helm:"; GreatHelm%
-    IF GreatHelmHorned% >= 1 THEN PRINT "Horned Great Helm:"; GreatHelmHorned%
-    IF MythrilDwarvenHelm% >= 1 THEN PRINT "Mythril Dwarven Helm:"; MythrilDwarvenHelm%
-    'HealingPotion%
-    IF Potion% >= 1 THEN PRINT "Potion:"; Potion%
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_HELM AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
+    
+    'Potions
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_POTION AND Inventory(i).amount > 0 THEN
+            PRINT Inventory(i).name; ":"; Inventory(i).amount
+        END IF
+    NEXT i
 
     'Runes
-    IF Mage% = 1 THEN PRINT "Your Runes:"; RUNE$
+    IF Expertise% = CLASS_MAGE THEN PRINT "Your Runes:"; RUNE$
 
     'Cash
     PRINT "Your gold:"; Gold&
 
     'Flutes
-    IF FamiliarFlute% = 1 THEN PRINT "Familiar Flute:"; FamiliarFlute%; "for "; Familiar$
+    IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN PRINT "Familiar Flute:"; Inventory(QITEM_FAMILIAR_FLUTE).amount; "for "; Familiar$
 END SUB
 
 SUB displaystats
@@ -8683,1045 +8570,72 @@ FUNCTION ENEMYHPSBONUS%
     ENEMYHPSBONUS = (Lvl% - 1)*5
 END FUNCTION
 
-SUB EqArmour
+SUB UnequipItem (equipType AS INTEGER)
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = equipType AND Inventory(i).name = Equipment(equipType) THEN
+            Inventory(i).amount = Inventory(i).amount + 1
+            Equipment(equipType) = ""
+        END IF
+    NEXT i
+END SUB
+
+SUB EquipItem (equipType AS INTEGER)
+    DIM typeNames(5) AS STRING
+    typeNames(1) = "Weapon"
+    typeNames(2) = "Shield"
+    typeNames(3) = "Armour"
+    typeNames(4) = "Helm"
+    
     COLOR 5
-    PRINT "Equip what Armour?"
+    PRINT "Equip what "; typeNames(equipType); "?"
     COLOR 15
-    INPUT "Armour Name>", ArmourName$
-
-    'Rags
-        IF ArmourName$ = "rags" THEN
-            IF Rags% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Rags"
+    PRINT typeNames(equipType); " Name>";
+    INPUT itemName$
+    
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = equipType AND LCASE$(Inventory(i).name) = LCASE$(itemName$) THEN
+            IF Inventory(i).amount >= 1 THEN
+                UnequipItem equipType
+                IF Inventory(i).itemType = ITEM_TYPE_STAFF THEN
+                    UnequipItem EQUIP_SHIELD
                 END IF
-
-            IF Rags% <= 0 THEN
+                Equipment(equipType) = Inventory(i).name
+                
+                SELECT CASE equipType
+                    CASE EQUIP_WEAPON
+                        DAMAGEADDED% = Inventory(i).value
+                    CASE EQUIP_SHIELD
+                        ShieldSave% = Inventory(i).value
+                    CASE EQUIP_ARMOUR
+                        DamageLostArmour% = Inventory(i).value
+                    CASE EQUIP_HELM
+                        DamageLostHelm% = Inventory(i).value
+                END SELECT
+                Inventory(i).amount = Inventory(i).amount - 1
+            ELSE
                 COLOR 5
                 PRINT "You don't have that"
                 COLOR 15
-                GOTO 27
-                END IF
-
-            Rags% = Rags% - 1
-        COLOR 5
-        PRINT "Equipped Rags"
-        COLOR 15
-        DamageLostArmour% = 1
-        GOTO 27
+            END IF
         END IF
+    NEXT i
+END SUB
 
-    'Robes (Upper)
-        IF ArmourName$ = "upper robes" THEN
-            IF RobesUpper% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Upper Robes"
-                END IF
-
-            IF RobesUpper% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            RobesUpper% = RobesUpper% - 1
-        COLOR 5
-        PRINT "Equipped Upper Robes"
-        COLOR 15
-        DamageLostArmour% = .5
-        GOTO 27
-        END IF
-
-    'Robes (Lower) [Used in conjunction with Robes (Upper)]
-        IF ArmourName$ = "lower robes" THEN
-            IF RobesLower% >= 1 THEN
-                RemoveArmour
-                Armour$ = "RobesLower"
-                END IF
-
-            IF RobesLower% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            RobesLower% = RobesLower% - 1
-        COLOR 5
-        PRINT "Equipped Lower Robes"
-        COLOR 15
-        DamageLostArmour% = .5
-        GOTO 27
-        END IF
-
-    'Surcoat
-        IF ArmourName$ = "surcoat" THEN
-            IF Surcoat% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Surcoat"
-                END IF
-
-            IF Surcoat% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            Surcoat% = Surcoat% - 1
-        COLOR 5
-        PRINT "Equipped Surcoat"
-        COLOR 15
-        DamageLostArmour% = 1
-        GOTO 27
-        END IF
-
-    'Quilted Armour
-        IF ArmourName$ = "quilted armour" THEN
-            IF QuiltedArmour% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Quilted Armour"
-                END IF
-
-            IF QuiltedArmour% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            QuiltedArmour% = QuiltedArmour% - 1
-        COLOR 5
-        PRINT "Equipped Quilted Armour"
-        COLOR 15
-        DamageLostArmour% = 2
-        GOTO 27
-        END IF
-
-    'Leather Armour
-        IF ArmourName$ = "leather armour" THEN
-            IF LeatherArmour% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Leather Armour"
-                END IF
-
-            IF LeatherArmour% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            LeatherArmour% = LeatherArmour% - 1
-        COLOR 5
-        PRINT "Equipped Leather Armour"
-        COLOR 15
-        DamageLostArmour% = 3
-        GOTO 27
-        END IF
-
-    'Hard Leather Armour
-        IF ArmourName$ = "hard leather armour" THEN
-            IF HardLeatherArmour% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Hard Leather Armour"
-                END IF
-
-            IF HardLeatherArmour% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            HardLeatherArmour% = HardLeatherArmour% - 1
-        COLOR 5
-        PRINT "Equipped Hard Leather Armour"
-        COLOR 15
-        DamageLostArmour% = 4
-        GOTO 27
-        END IF
-
-    'Studded Leather Armour
-        IF ArmourName$ = "studded leather armour" THEN
-            IF StuddedLeather% >= 1 THEN
-                RemoveArmour
-                Armour$ = "Studded Leather Armour"
-                END IF
-
-            IF StuddedLeather% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 27
-                END IF
-
-            StuddedLeather% = StuddedLeather% - 1
-        COLOR 5
-        PRINT "Equipped Studded Leather Armour"
-        COLOR 15
-        DamageLostArmour% = 5
-        GOTO 27
-        END IF
-27 END SUB
+SUB EqArmour
+    EquipItem EQUIP_ARMOUR
+END SUB
 
 SUB EqHead
-    COLOR 5
-    PRINT "Equip what Helm?"
-    COLOR 15
-    INPUT "Helm Name>", HelmName$
-
-    'Cap
-        IF HelmName$ = "cap" THEN
-            IF Cap% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Cap"
-                END IF
-
-            IF Cap% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            Cap% = Cap% - 1
-        COLOR 5
-        PRINT "Equipped Cap"
-        COLOR 15
-        DamageLostHelm% = 1
-        GOTO 1510
-        END IF
-
-    'Skull Cap
-        IF HelmName$ = "skull cap" THEN
-            IF SkullCap% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Skull Cap"
-                END IF
-
-            IF SkullCap% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            SkullCap% = SkullCap% - 1
-        COLOR 5
-        PRINT "Equipped Skull Cap"
-        COLOR 15
-        DamageLostHelm% = 2
-        GOTO 1510
-        END IF
-
-    'Helm
-        IF HelmName$ = "helm" THEN
-            IF Helm% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Helm"
-                END IF
-
-            IF Helm% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            Helm% = Helm% - 1
-        COLOR 5
-        PRINT "Equipped Helm"
-        COLOR 15
-        DamageLostHelm% = 3
-        GOTO 1510
-        END IF
-
-    'Full Helm
-        IF HelmName$ = "full helm" THEN
-            IF FullHelm% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Full Helm"
-                END IF
-
-            IF FullHelm% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            FullHelm% = FullHelm% - 1
-        COLOR 5
-        PRINT "Equipped Full Helm"
-        COLOR 15
-        DamageLostHelm% = 4
-        GOTO 1510
-        END IF
-
-    'Great Helm
-        IF HelmName$ = "great helm" THEN
-            IF GreatHelm% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Great Helm"
-                END IF
-
-            IF GreatHelm% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            GreatHelm% = GreatHelm% - 1
-        COLOR 5
-        PRINT "Equipped Great Helm"
-        COLOR 15
-        DamageLostHelm% = 5
-        GOTO 1510
-        END IF
-
-    'Horned Great Helm
-        IF HelmName$ = "horned great helm" THEN
-            IF GreatHelmHorned% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Horned Great Helm"
-                END IF
-
-            IF GreatHelmHorned% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            GreatHelmHorned% = GreatHelmHorned% - 1
-        COLOR 5
-        PRINT "Equipped Horned Great Helm"
-        COLOR 15
-        DamageLostHelm% = 6
-        GOTO 1510
-        END IF
-
-    'Mythril Dwarven Helm
-        IF HelmName$ = "mythril dwarven helm" THEN
-            IF MythrilDwarvenHelm% >= 1 THEN
-                RemoveHelm
-                Helm$ = "Mythril Dwarven Helm"
-                END IF
-
-            IF MythrilDwarvenHelm% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
-                GOTO 1510
-                END IF
-
-            MythrilDwarvenHelm% = MythrilDwarvenHelm% - 1
-        COLOR 5
-        PRINT "Equipped Mythril Dwarven Helm"
-        COLOR 15
-        DamageLostHelm% = 10
-        GOTO 1510
-        END IF
-1510 END SUB
+    EquipItem EQUIP_HELM
+END SUB
 
 SUB EQlh
-    COLOR 5
-    PRINT "Equip what in the Left Hand?"
-    COLOR 15
-    INPUT "Weapon Name>", LeftHand$
-
-        IF LeftHand$ = "short sword" THEN
-            IF ShortSword% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                RemoveLH
-                    LH$ = "Short Sword"
-                    RH$ = ""
-            END IF
-
-            IF ShortSword% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            ShortSword% = ShortSword% - 1
-        COLOR 5
-        PRINT "Equipped left hand with short sword"
-        COLOR 15
-        DAMAGEADDED% = 1
-        GOTO 400
-        END IF
-
-    'Long Sword
-        IF LeftHand$ = "long sword" THEN
-            IF LongSword% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                RemoveLH
-                    LH$ = "Long Sword"
-                    RH$ = ""
-            END IF
-
-            IF LongSword% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            LongSword% = LongSword% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Long Sword"
-            COLOR 15
-        DAMAGEADDED% = 2
-        GOTO 400
-        END IF
-
-    'Bastard Sword
-        IF LeftHand$ = "bastard sword" THEN
-            IF BastardSword% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                RemoveLH
-                    LH$ = "Bastard Sword"
-                    RH$ = ""
-            END IF
-
-            IF BastardSword% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            BastardSword% = BastardSword% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Bastard Sword"
-            COLOR 15
-        DAMAGEADDED% = 3
-        GOTO 400
-        END IF
-
-    'Battle Blade
-        IF LeftHand$ = "battle blade" THEN
-            IF BattleBlade% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                RemoveLH
-                    LH$ = "Battle Blade"
-                    RH$ = ""
-            END IF
-
-            IF BattleBlade% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            BattleBlade% = BattleBlade% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Battle Blade"
-            COLOR 15
-        DAMAGEADDED% = 4
-        GOTO 400
-        END IF
-
-    ' Great Sword
-
-        IF LeftHand$ = "great sword" THEN
-            IF GreatSword% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                RemoveLH
-                    LH$ = "Great Battle Blade"
-                    RH$ = ""
-            END IF
-
-            IF GreatSword% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            GreatSword% = GreatSword% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Great Sword"
-            COLOR 15
-        DAMAGEADDED% = 5
-        GOTO 400
-        END IF
-
-    'Great Battle Blade
-        IF LeftHand$ = "great battle blade" THEN
-            IF GreatBattleBlade% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-            LH$ = "Great Battle Blade"
-            RH$ = ""
-            END IF
-
-            IF GreatBattleBlade% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            GreatBattleBlade% = GreatBattleBlade% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Great Battle Blade"
-            COLOR 15
-        DAMAGEADDED% = 6
-        GOTO 400
-        END IF
-
-    'Holy Sword
-        IF LeftHand$ = "holy sword" THEN
-            IF HolySword% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Holy Sword"
-                    RH$ = ""
-            END IF
-
-            IF HolySword% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            HolySword% = HolySword% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Holy Sword"
-            COLOR 15
-        DAMAGEADDED% = 7
-        GOTO 400
-        END IF
-
-    'Sword +1
-        IF LeftHand$ = "sword +1" THEN
-            IF SwordPlusOne% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Sword +1"
-                    RH$ = ""
-            END IF
-
-            IF SwordPlusOne% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            SwordPlusOne% = SwordPlusOne% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Sword +1"
-            COLOR 15
-        DAMAGEADDED% = 8
-        GOTO 400
-        END IF
-
-    'Sword +2
-        IF LeftHand$ = "sword +2" THEN
-            IF SwordPlusTwo% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Sword +2"
-                    RH$ = ""
-            END IF
-
-            IF SwordPlusTwo% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            SwordPlusTwo% = SwordPlusTwo% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Sword +2"
-            COLOR 15
-        DAMAGEADDED% = 9
-        GOTO 400
-        END IF
-
-    'Sword +3
-        IF LeftHand$ = "sword +3" THEN
-            IF SwordPlusThree% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Sword +3"
-                    RH$ = ""
-            END IF
-
-            IF SwordPlusThree% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            SwordPlusThree% = SwordPlusThree% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Sword +3"
-            COLOR 15
-        DAMAGEADDED% = 10
-        GOTO 400
-        END IF
-
-    'Sword +4
-        IF LeftHand$ = "sword +4" THEN
-            IF SwordPlusFour% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Sword +4"
-                    RH$ = ""
-            END IF
-
-            IF SwordPlusFour% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            SwordPlusFour% = SwordPlusFour% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Sword +4"
-            COLOR 15
-        DAMAGEADDED% = 11
-        GOTO 400
-        END IF
-
-    'Sword +5
-        IF LeftHand$ = "sword +5" THEN
-            IF SwordPlusFive% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-                    LH$ = "Sword +5"
-                    RH$ = ""
-            END IF
-
-            IF SwordPlusFive% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            SwordPlusFive% = SwordPlusFive% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Sword +5"
-            COLOR 15
-        DAMAGEADDED% = 12
-        GOTO 400
-        END IF
-
-    'Avenger Sword +7
-        IF LeftHand$ = "avenger sword +7" THEN
-            IF AvengerSwordPlusSeven% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-            RemoveLH
-            LH$ = "Avenger Sword +7"
-            RH$ = ""
-            END IF
-
-            IF AvengerSwordPlusSeven% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            AvengerSwordPlusSeven% = AvengerSwordPlusSeven% - 1
-            COLOR 5
-            PRINT "Equipped left hand with an Avenger Sword +7"
-            COLOR 15
-        DAMAGEADDED% = 15
-        GOTO 400
-        END IF
-
-    'Staves
-
-        IF LeftHand$ = "short staff" THEN
-            IF ShortStaff% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                    LH$ = "Short Staff"
-                    RH$ = "Short Staff"
-                END IF
-
-            IF ShortStaff% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            ShortStaff% = ShortStaff% - 1
-        COLOR 5
-        PRINT "Equipped left hand with short staff"
-        COLOR 15
-        DAMAGEADDED% = 2
-        GOTO 400
-        END IF
-
-    'Long Staff
-        IF LeftHand$ = "long staff" THEN
-            IF LongStaff% >= 1 THEN
-                IF LH$ = "Short Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                IF LH$ = "Long Staff" THEN
-                    RemoveLH
-                    RemoveRH
-                END IF
-                LH$ = "Long Staff"
-                RH$ = "Long Staff"
-            END IF
-
-            IF LongStaff% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 400
-                END IF
-
-            LongStaff% = LongStaff% - 1
-            COLOR 5
-            PRINT "Equipped left hand with a Long Staff"
-            COLOR 15
-        DAMAGEADDED% = 4
-        GOTO 400
-        END IF
-
-    'WHEW WHAT A LIST
-
-    COLOR 5
-    PRINT "I do not understand what item that is, please try again."
-    COLOR 15
-400 END SUB
+    EquipItem EQUIP_WEAPON
+END SUB
 
 SUB EQrh
-    COLOR 5
-    IF RH$ = "Short Staff" THEN
-    RemoveLH
-    RemoveRH
-    GOTO 0.9
-    END IF
-    IF RH$ = "Long Staff" THEN
-    RemoveLH
-    RemoveRH
-    GOTO 0.9
-    END IF
-    0.9 PRINT "Equip what in the Right Hand?"
-    COLOR 15
-    INPUT "Shield Name>", RightHand$
-
-    'Buckler
-        IF RightHand$ = "buckler" THEN
-            IF Buckler% >= 1 THEN
-                RemoveRH
-                RH$ = "Buckler"
-                END IF
-
-            IF Buckler% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            Buckler% = Buckler% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a buckler"
-        COLOR 15
-        ShieldSave% = 1
-        GOTO 410
-        END IF
-
-    'Small Shield
-        IF RightHand$ = "small shield" THEN
-            IF SmallShield% >= 1 THEN
-                RemoveRH
-                RH$ = "Small Shield"
-                END IF
-
-            IF SmallShield% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            SmallShield% = SmallShield% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Small Shield"
-        COLOR 15
-        ShieldSave% = 2
-        GOTO 410
-        END IF
-
-    'Large Shield
-        IF RightHand$ = "large shield" THEN
-            IF LargeShield% >= 1 THEN
-                RemoveRH
-                RH$ = "Large Shield"
-                END IF
-
-            IF LargeShield% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            LargeShield% = LargeShield% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Large Shield"
-        COLOR 15
-        ShieldSave% = 3
-        GOTO 410
-        END IF
-
-    'Holy Shield
-        IF RightHand$ = "holy shield" THEN
-            IF HolyShield% >= 1 THEN
-                RemoveRH
-                RH$ = "Holy Shield"
-                END IF
-
-            IF HolyShield% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            HolyShield% = HolyShield% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Holy Shield"
-        COLOR 15
-        ShieldSave% = 4
-        GOTO 410
-        END IF
-
-    'Shield +1
-        IF RightHand$ = "shield +1" THEN
-            IF ShieldPlusOne% >= 1 THEN
-                RemoveRH
-                RH$ = "Shield +1"
-                END IF
-
-            IF ShieldPlusOne% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            ShieldPlusOne% = ShieldPlusOne% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Shield +1"
-        COLOR 15
-        ShieldSave% = 5
-        GOTO 410
-        END IF
-
-    'Shield +2
-        IF RightHand$ = "shield +2" THEN
-            IF ShieldPlusTwo% >= 1 THEN
-                RemoveRH
-                RH$ = "Shield +2"
-                END IF
-
-            IF ShieldPlusTwo% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            ShieldPlusTwo% = ShieldPlusTwo% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Shield +2"
-        COLOR 15
-        ShieldSave% = 6
-        GOTO 410
-        END IF
-
-    'Shield +3
-        IF RightHand$ = "shield +3" THEN
-            IF ShieldPlusThree% >= 1 THEN
-                RemoveRH
-                RH$ = "Shield +3"
-                END IF
-
-            IF ShieldPlusThree% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            ShieldPlusThree% = ShieldPlusThree% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Shield +3"
-        COLOR 15
-        ShieldSave% = 7
-        GOTO 410
-        END IF
-
-    'Shield +4
-        IF RightHand$ = "shield +4" THEN
-            IF ShieldPlusFour% >= 1 THEN
-                RemoveRH
-                RH$ = "Shield +4"
-                END IF
-
-            IF ShieldPlusFour% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            ShieldPlusFour% = ShieldPlusFour% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Shield +4"
-        COLOR 15
-        ShieldSave% = 8
-        GOTO 410
-        END IF
-
-    'Shield +5
-        IF RightHand$ = "shield +5" THEN
-            IF ShieldPlusFive% >= 1 THEN
-                RemoveRH
-                RH$ = "Shield +5"
-                END IF
-
-            IF ShieldPlusFive% <= 0 THEN
-                COLOR 5
-                PRINT "You don't have one of those"
-                COLOR 15
-                GOTO 410
-                END IF
-
-            ShieldPlusFive% = ShieldPlusFive% - 1
-        COLOR 5
-        PRINT "Equipped right hand with a Shield +5"
-        COLOR 15
-        ShieldSave% = 9
-        GOTO 410
-        END IF
-    COLOR 5
-    PRINT "I don't understand what that shield is.... please try again"
-    COLOR 15
-    GOTO 410
-410 END SUB
+    EquipItem EQUIP_SHIELD
+END SUB
 
 REM $STATIC
 SUB ExamineSymbol
@@ -9747,7 +8661,7 @@ REM $DYNAMIC
 SUB EXPERIENCELVLUP
     reqExp% = 0
     IF Lvl% <= 5 THEN
-        reqExp% = 1000*2^(Lvl-1)
+        reqExp% = 1000*(2^(Lvl%-1))
     ELSE
         reqExp% = 18000 + 1000*(Lvl% - 6)
     END IF
@@ -10187,11 +9101,12 @@ SUB FamiliarCall
 
 SUB GameIntro
     Quest% = 1
+    Inventory(ITEM_SWORD_PLUS_ONE).buyPrice = 100
     A12Potions% = 3
 
     Name$ = "young warrior"
     Class$ = "Fighter"
-    Fighter% = 1
+    Expertise% = CLASS_FIGHTER
     LH$ = "Short Sword"
     HP% = 30
     HPS% = 30
@@ -10644,42 +9559,67 @@ SUB LoadGame
         INPUT #2, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
 
         'Act 1 items, triggers, helmsburg
-        INPUT #2, HelmsburgBttl%, StrangePendant%, BurningSphere%, GoldenSkull%, ChaosStar%, Key1%, Key2%, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%,  _
-    A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, FamiliarFlute%, ChaosStar%, A27AvengerSword, A28ChaosStarSocket%, JadeSkull%, WightLord%
+        INPUT #2, HelmsburgBttl%, Inventory(QITEM_STRANGE_PENDANT).amount, Inventory(QITEM_BURNING_SPHERE).amount, Inventory(QITEM_GOLDEN_SKULL).amount, Inventory(QITEM_CHAOS_STAR).amount, Inventory(QITEM_KEY1).amount, Inventory(QITEM_KEY2).amount, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%,  _
+    A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, Inventory(QITEM_FAMILIAR_FLUTE).amount, Inventory(QITEM_CHAOS_STAR).amount, A27AvengerSword, A28ChaosStarSocket%, Inventory(QITEM_JADE_SKULL).amount, WightLord%
 
         'Weapon Inventory
-        INPUT #2, ShortSword%, LongSword%, BastardSword%, BattleBlade%, GreatSword%, GreatBattleBlade%, HolySword%, SwordPlusOne%, SwordPlusTwo%, SwordPlusThree%, SwordPlusFour%, SwordPlusFive%, AvengerSwordPlusSeven%, ShortStaff%, LongStaff%
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).equipType = EQUIP_WEAPON THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
 
         'Helms
-        INPUT #2, Cap%, SkullCap%, Helm%, FullHelm%, GreatHelm%, GreatHelmHorned%, MythrilDwarvenHelm%
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).equipType = EQUIP_HELM THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
 
         'Shield Inventory
-        INPUT #2, Buckler%, SmallShield%, LargeShield%, HolyShield%, ShieldPlusOne%, ShieldPlusTwo%, ShieldPlusThree%, ShieldPlusFour%, ShieldPlusFive%
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).equipType = EQUIP_SHIELD THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
 
         'Armour Inventory
-        INPUT #2, Rags%, Surcoat%, RobesUpper%, RobesLower%, QuiltedArmour%, LeatherArmour%, HardLeatherArmour%, StuddedLeatherArmour%, RingMail%, ChainMail%, ScaleMail%, BandedMail%, BreastPlate%, BandedPlateMail%, FieldPlateMail%, FieldPlate%,  _
-    LightPlateMail%, LightPlate%, GothicPlateMail%, GothicPlate%, HeavyPlateMail%, HeavyPlate%, AncientArmour%, MythrilMail%
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).equipType = EQUIP_ARMOUR THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
 
         'Potion Inventory
-        INPUT #2, Potion%
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).itemType = ITEM_TYPE_POTION THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
 
         'Act1Pt2 SUB Triggers, Quest Items
-        INPUT #2, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, GateKey% _
+        INPUT #2, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, Inventory(QITEM_GATE_KEY).amount _
     , A67PillarOn%
 
         'Familiar Flute
-        INPUT #2, FamiliarFlute%
+        INPUT #2, Inventory(QITEM_FAMILIAR_FLUTE).amount
 
         'Familiar Stuff
         INPUT #2, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
 
         'Class stuff
-        INPUT #2, Mage%, Fighter%, ROGUE%, Thief%, Bard%
+        INPUT #2, Expertise%
 
         'All The runestuff
-        INPUT #2, ken$, wak$, yoo$, tog$, wir$, gnu$, poa$, rer$, coz$, arp$, oje$, til$, roc$, wod$, sho$, vas$, dop$, rof$, POS$, uch$, dire$, fla$, pud$, cal$, das$, uss$
-        INPUT #2, ken%, wak%, yoo%, tog%, wir%, gnu%, poa%, rer%, coz%, arp%, oje%, til%, roc%, wod%, sho%, vas%, dop%, rof%, poss%, uch%, dire%, fla%, pud%, cal%, das%, uss%
-
+        FOR i = 0 TO 26
+            INPUT #2, dummy$
+        NEXT i
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
+                INPUT #2, Inventory(i).amount
+            END IF
+        NEXT i
+        
         CLOSE #2
 
     IF SavePos% = 0 THEN
@@ -10709,7 +9649,6 @@ SUB LoadGame
 
 REM $DYNAMIC
 SUB MAGIC
-    Runes
     2999 COLOR 15
     PRINT "Your collected runes are: "; RUNE$
     PRINT "COMBINE YOUR RUNES:"
@@ -11618,14 +10557,14 @@ SUB NecrotaliaBattle
 
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 35000
                 AI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -11634,13 +10573,13 @@ SUB NecrotaliaBattle
             END IF
         ELSE
             AI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 35000
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -11708,7 +10647,7 @@ SUB NecrotaliaBattle
     END IF
     END IF
     IF ACTION$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -11751,13 +10690,13 @@ SUB NecrotaliaBattle
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
-        IF Thief% = 0 THEN
+        IF Expertise% <> CLASS_THIEF THEN
             COLOR 5
             PRINT "Only thieves can steal."
             COLOR 15
             GOTO 36000
         END IF
-        IF Thief% = 1 THEN
+        IF Expertise% = CLASS_THIEF THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 Steal
                 NecrotaliaAI
@@ -11771,13 +10710,13 @@ SUB NecrotaliaBattle
     END IF
 
     IF ACTIONA$ = "throw weapon" THEN
-        IF ROGUE% = 0 THEN
+        IF Expertise% <> CLASS_ROGUE THEN
             COLOR 5
             PRINT "Only rogues can throw weapons."
             COLOR 15
             GOTO 36000
         END IF
-        IF ROGUE% = 1 THEN
+        IF Expertise% = CLASS_ROGUE THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 LHO$ = LH$
                 IF LH$ = "Long Staff" THEN RH$ = ""
@@ -11826,13 +10765,13 @@ SUB NecrotaliaBattle
     END IF
 
     IF ACTIONA$ = "play music" THEN
-        IF Bard% = 0 THEN
+        IF Expertise% <> CLASS_BARD THEN
             COLOR 5
             PRINT "Only bards can play music."
             COLOR 15
             GOTO 36000
         END IF
-        IF Bard% = 1 THEN
+        IF Expertise% = CLASS_BARD THEN
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 BardMusic
                 NecrotaliaAI
@@ -11846,14 +10785,14 @@ SUB NecrotaliaBattle
     END IF
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 36000
                 NecrotaliaAI
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -11862,13 +10801,13 @@ SUB NecrotaliaBattle
             END IF
         ELSE
             NecrotaliaAI
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 COLOR 5
                 PRINT "used potion"
                 COLOR 15
                 GOTO 36000
             END IF
-            IF Potion% <= 0 THEN
+            IF Inventory(ITEM_POTION).amount <= 0 THEN
                 COLOR 5
                 PRINT "you are out of potions"
                 COLOR 15
@@ -11887,7 +10826,7 @@ SUB NecrotaliaBattle
         END IF
 
     IF ACTIONA$ = "use magic" THEN
-        IF Mage% = 0 THEN
+        IF Expertise% <> CLASS_MAGE THEN
             COLOR 5
             PRINT "Only mages can use magic!"
             COLOR 15
@@ -12123,10 +11062,10 @@ SUB NecrotaliaFight
         CASE "equip RH"     : EQrh
         CASE "equip ARMOUR" : EqArmour
         CASE "use potion"
-            IF Potion% >= 1 THEN
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
-                Potion% = Potion% - 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
                 COLOR 5
                 PRINT "Used potion"
                 COLOR 15
@@ -12206,39 +11145,39 @@ SUB Options
   1.1
     PRINT "What is your choice? <1-3>"
     INPUT ">", Optionse$
-        IF Optionse$ = "1" THEN GOTO 1.2
-        IF Optionse$ = "2" THEN GOTO 1.3
-        IF Optionse$ = "3" THEN GOTO 1.7
+    SELECT CASE Optionse$
+        CASE "1"
+            CLS
+            PRINT "Difficulty level:"
+            PRINT "<E>asy"
+            PRINT "<M>edium"
+            PRINT "<H>ard"
+          1.25
+            PRINT "What is your choice?"
+            INPUT ">", Difficulty$
+                IF Difficulty$ = "e" THEN
+                    Diff% = 0
+                    GOTO 1.05
+                END IF
+                IF Difficulty$ = "m" THEN
+                    Diff% = 1
+                    GOTO 1.05
+                END IF
+                IF Difficulty$ = "h" THEN
+                    Diff% = 2
+                    GOTO 1.05
+                END IF
+            COLOR 5
+            PRINT "Huh?"
+            COLOR 15
+            GOTO 1.25
+        CASE "2" : GOTO 1.3
+        CASE "3" : GOTO 1.7
+    END SELECT
     COLOR 5
     PRINT "Huh?"
     COLOR 15
     GOTO 1.1
-
-  1.2
-    CLS
-    PRINT "Difficulty level:"
-    PRINT "<E>asy"
-    PRINT "<M>edium"
-    PRINT "<H>ard"
-  1.25
-    PRINT "What is your choice?"
-    INPUT ">", Difficulty$
-        IF Difficulty$ = "e" THEN
-            Diff% = 0
-            GOTO 1.05
-        END IF
-        IF Difficulty$ = "m" THEN
-            Diff% = 1
-            GOTO 1.05
-        END IF
-        IF Difficulty$ = "h" THEN
-            Diff% = 2
-            GOTO 1.05
-        END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
-    GOTO 1.25
 
   1.3 
     CLS
@@ -12295,572 +11234,143 @@ SUB OWLSPELL
     IF ALLE% <> 9 THEN
         OWLSPELLCHANCE% = INT(RND * 100) + 1
         IF OWLSPELLCHANCE% <= 10 THEN
-  19999.9 
+          19999.9
             WHICHOWLSPELL% = INT(RND * 12) + 1
             
             IF NOT OwlSpells(WHICHOWLSPELL%).hasIt THEN
                 LEARNOWLSPELL$ = OwlSpells(WHICHOWLSPELL%).name
                 OwlSpells(WHICHOWLSPELL%).hasIt = TRUE
                 ALLE% = ALLE% + 1
+                
+                PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
+            ELSE
+                GOTO 19999.9
             END IF
-            
-            PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
-            OwlSpells(WHICHOWLSPELL% - 1).hasIt = TRUE
-        ELSE
-            GOTO 9900
         END IF
-        GOTO 19999.9
     END IF
-  9900
 END SUB
 
 REM $DYNAMIC
 SUB PurchaseSamael
-    IF StrangePendant% >= 1 THEN
+    IF Inventory(QITEM_STRANGE_PENDANT).amount >= 1 THEN
         COLOR 5
         PRINT "Samael>Oh! you have found my pendant! thank you...here is a gift."
         COLOR 2
         PRINT "Got Holy Sword"
         PRINT "Got Burning Sphere"
         COLOR 15
-        StrangePendant% = StrangePendant% - 1
-        HolySword% = HolySword% + 1
-        BurningSphere% = BurningSphere% + 1
+        Inventory(QITEM_STRANGE_PENDANT).amount = Inventory(QITEM_STRANGE_PENDANT).amount - 1
+        Inventory(ITEM_HOLY_SWORD).amount = Inventory(ITEM_HOLY_SWORD).amount + 1
+        Inventory(QITEM_BURNING_SPHERE).amount = Inventory(QITEM_BURNING_SPHERE).amount + 1
         Quest% = 0
-        END IF
+        Inventory(ITEM_SWORD_PLUS_ONE).buyPrice = 0
+    END IF
 
-    430 COLOR 2
+  430
+    COLOR 2
     PRINT "talk"
     PRINT "buy"
     PRINT "sell"
     PRINT "leave"
     COLOR 15
-    431 INPUT ">", A2S$
-        IF A2S$ = "talk" GOTO 445
-        IF A2S$ = "buy" GOTO 450
-        IF A2S$ = "sell" GOTO 460
-        IF A2S$ = "leave" GOTO 470
-    PRINT "huh?"
-    GOTO 431
+  431
+    INPUT ">", A2S$
+    SELECT CASE A2S$
+        CASE "talk"
+            COLOR 5
+            IF Quest% = 1 THEN
+                PRINT "Samael>Yknow, I went down into that labryinth once before...nearly got myself"
+                PRINT "killed doin it too.  Anyways when I was doon there I dropped mi pendant if you"
+                PRINT "go down there and find it I will give ye a nice rare sword in exchange. I'll"
+                PRINT "tell ye somethin tho, I dropped the pendant somewhere on the second level."
+            ELSE
+                PRINT "Samael> I see ye haven't gotten yerself killed yet, well good fer ye lad."
+            END IF
+            COLOR 15
+        CASE "buy"
+            COLOR 5
+            PRINT "Samael>Good, here's what I got fer ya."
+            COLOR 15
+            PRINT "Item                 Cost"
+            PRINT "-------------------------"
+            FOR i = 0 TO UBOUND(Inventory)
+                IF Inventory(i).buyPrice <> 0 THEN
+                    PRINT Inventory(i).name; SPACE$(20 - LEN(Inventory(i).name));
+                    PRINT USING "####"; Inventory(i).buyPrice
+                END IF
+            NEXT i
+            
+            PRINT ""
+            PRINT "Gold="; Gold&
 
-    445 IF Quest% = 1 THEN
-    COLOR 5
-    PRINT "Samael>Yknow, I went down into that labryinth once before...nearly got myself"
-    PRINT "killed doin it too.  Anyways when I was doon there I dropped mi pendant if you"
-    PRINT "go down there and find it I will give ye a nice rare sword in exchange. I'll"
-    PRINT "tell ye somethin tho, I dropped the pendant somewhere on the second level."
-    COLOR 15
-    GOTO 431
-    END IF
-
-    COLOR 5
-    PRINT "Samael> I see ye haven't gotten yerself killed yet, well good fer ye lad."
-    COLOR 15
-    GOTO 431
-
-    COLOR 15
-    450 COLOR 5
-    PRINT "Samael>Good, here's what I got fer ya."
-    COLOR 15
-        PRINT "Item                 Cost"
-        PRINT "-------------------------"
-        PRINT "Potion                10"
-        PRINT "Short Sword           10"
-        PRINT "Long Sword            25"
-        PRINT "Bastard Sword         45"
-        PRINT "Buckler               15"
-        PRINT "Small Shield          25"
-        PRINT "Large Shield          40"
-        PRINT "Leather Armour        50"
-        PRINT "Hard Leather Armour   65"
-        PRINT "Short Staff           25"
-        PRINT "Long Staff            50"
-        PRINT "Cap                    5"
-        PRINT "Skull Cap             10"
-        PRINT "Helm                  15"
-        IF Quest% = 1 THEN PRINT "Sword +1             100"
-        PRINT ""
-        PRINT "Gold="; Gold&
-
-        INPUT "item name>", Purchase$
-
-        IF Purchase$ = "potion" THEN
-            IF Gold& >= 10 THEN
-                Gold& = Gold& - 10
-                Potion% = Potion% + 1
-                PRINT "Got potion"
-                GOTO 430
+            INPUT "item name>", Purchase$
+            
+            Purchase$ = LCASE$(Purchase$)
+            FOR i = 0 TO UBOUND(Inventory)
+                IF Inventory(i).buyPrice <> 0 AND LCASE$(Inventory(i).name) = Purchase$ THEN
+                    foundIt% = TRUE
+                    
+                    IF Gold& >= Inventory(i).buyPrice THEN
+                        Gold& = Gold& - Inventory(i).buyPrice
+                        Inventory(i).amount = Inventory(i).amount + 1
+                        PRINT "Got "; Purchase
+                    ELSE
+                        PRINT "You don't have enough gold for that"
+                    END IF
+                    
+                    EXIT FOR
                 END IF
-            IF Gold& <= 10 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
+            NEXT i
+            
+            IF NOT foundIt% THEN PRINT "Samael> ooook...I don't quite understande ye, try again."
+        CASE "sell"
+            displayinventory
+            PRINT "What do you wish to sell?"
+            INPUT "Item Name>", Sell$
+            
+            Sell$ = LCASE$(Sell$)
+            FOR i = 0 TO UBOUND(Inventory)
+                IF Inventory(i).sellPrice <> 0 AND Inventory(i).amount > 0 AND LCASE$(Inventory(i).name) = Sell$ THEN
+                    foundIt% = TRUE
+                    
+                    PRINT "Samael> Okay I can give ye "; Inventory(i).sellPrice; " gold fer each of em"
+                    PRINT "        how many do ye want to sell me?"
+                    PRINT "Quantity:"; Inventory(i).amount
+                    INPUT "Sell how many?", amount%
+                    
+                    IF Inventory(i).amount < amount% THEN
+                        PRINT "You don't have that many. Anyways, I'll take everything ye got."
+                        amount% = Inventory(i).amount
+                    END IF
+                    
+                    Gold& = Gold& + (Inventory(i).sellPrice * amount%)
+                    Inventory(i).amount = Inventory(i).amount - amount%
+                    
+                    EXIT FOR
                 END IF
-        END IF
-
-        IF Purchase$ = "short sword" THEN
-            IF Gold& >= 10 THEN
-                Gold& = Gold& - 10
-                ShortSword% = ShortSword% + 1
-                PRINT "Got short sword"
-                GOTO 430
-                END IF
-            IF Gold& <= 10 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "long sword" THEN
-            IF Gold& >= 25 THEN
-                Gold& = Gold& - 25
-                LongSword% = LongSword% + 1
-                PRINT "Got long sword"
-                GOTO 430
-                END IF
-            IF Gold& <= 25 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "bastard sword" THEN
-            IF Gold& >= 45 THEN
-                Gold& = Gold& - 45
-                BastardSword% = BastardSword% + 1
-                PRINT "Got bastard sword"
-                GOTO 430
-                END IF
-            IF Gold& <= 45 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "buckler" THEN
-            IF Gold& >= 15 THEN
-                Gold& = Gold& - 15
-                Buckler% = Buckler% + 1
-                PRINT "Got buckler"
-                GOTO 430
-                END IF
-            IF Gold& <= 15 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "small shield" THEN
-            IF Gold& >= 25 THEN
-                Gold& = Gold& - 25
-                SmallShield% = SmallShield% + 1
-                PRINT "Got small shield"
-                GOTO 430
-                END IF
-            IF Gold& <= 25 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "large shield" THEN
-            IF Gold& >= 40 THEN
-                Gold& = Gold& - 40
-                LargeShield% = LargeShield% + 1
-                PRINT "Got large shield"
-                GOTO 430
-                END IF
-            IF Gold& <= 40 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-           END IF
-
-        IF Purchase$ = "leather armour" THEN
-            IF Gold& >= 50 THEN
-                Gold& = Gold& - 50
-                LeatherArmour% = LeatherArmour% + 1
-                PRINT "Got leather armour"
-                GOTO 430
-                END IF
-            IF Gold& <= 50 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-           END IF
-
-        IF Purchase$ = "hard leather armour" THEN
-            IF Gold& >= 65 THEN
-                Gold& = Gold& - 65
-                HardLeatherArmour% = HardLeatherArmour% + 1
-                PRINT "Got hard leather armour"
-                GOTO 430
-                END IF
-            IF Gold& <= 65 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-           END IF
-
-        IF Purchase$ = "sword +1" THEN
-           IF Quest% = 1 THEN
-            IF Gold& >= 100 THEN
-                Gold& = Gold& - 100
-                SwordPlusOne% = SwordPlusOne% + 1
-                PRINT "Got sword +1"
-                GOTO 430
-                END IF
-            IF Gold& <= 100 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-           END IF
-        END IF
-
-        IF Purchase$ = "short staff" THEN
-           IF Gold& >= 25 THEN
-                Gold& = Gold& - 25
-                ShortStaff% = ShortStaff% + 1
-                PRINT "Got short staff"
-                GOTO 430
-                END IF
-            IF Gold& <= 25 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-           END IF
-
-        IF Purchase$ = "long staff" THEN
-           IF Gold& >= 50 THEN
-                Gold& = Gold& - 50
-                LongStaff% = LongStaff% + 1
-                PRINT "Got long staff"
-                GOTO 430
-                END IF
-            IF Gold& <= 25 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "cap" THEN
-            IF Gold& >= 5 THEN
-                Gold& = Gold& - 5
-                Cap% = Cap% + 1
-                PRINT "Got cap"
-                GOTO 430
-                END IF
-            IF Gold& < 4 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "skull cap" THEN
-            IF Gold& >= 10 THEN
-                Gold& = Gold& - 10
-                SkullCap% = SckullCap% + 1
-                PRINT "Got skull cap"
-                GOTO 430
-                END IF
-            IF Gold& < 10 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
-        IF Purchase$ = "helm" THEN
-            IF Gold& >= 15 THEN
-                Gold& = Gold& - 15
-                Helm% = Helm% + 1
-                PRINT "Got helm"
-                GOTO 430
-                END IF
-            IF Gold& < 15 THEN
-                PRINT "You don't have enough gold for that"
-                GOTO 430
-                END IF
-        END IF
-
+            NEXT i
+            
+            IF NOT foundIt% THEN PRINT "Samael> ooook...I don't quite understande ye, try again."
+        CASE "leave"
+            RETURN
+        CASE ELSE
+            PRINT "huh?"
+            GOTO 431
+    END SELECT
     GOTO 430
-
-  460
-    displayinventory
-    PRINT "What do you wish to sell?"
-    INPUT "Item Name>", Sell$
-    IF Sell$ = "potion" THEN
-        IF Potion% > 0 THEN
-            PRINT "Samael> Okay I can give ye 5 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; Potion%
-            INPUT "Sell how many?", Ptn%
-            IF Ptn% >= Potion% THEN
-                Gold& = Gold& + (5 * Ptn%)
-                Potion% = Potion% - Ptn%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "short sword" THEN
-        IF ShortSword% > 0 THEN
-            PRINT "Samael> Okay I can give ye 5 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; ShortSword%
-            INPUT "Sell how many?", SS%
-            IF SS% >= ShortSword% THEN
-                Gold& = Gold& + (5 * SS%)
-                ShortSword% = ShortSword% - SS%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "long sword" THEN
-        IF LongSword% > 0 THEN
-            PRINT "Samael> Okay I can give ye 15 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; LongSword%
-            INPUT "Sell how many?", LS%
-            IF LS% >= LongSword% THEN
-                Gold& = Gold& + (15 * LS%)
-                LongSword% = LongSword% - LS%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "bastard sword" THEN
-        IF BastardSword% > 0 THEN
-            PRINT "Samael> Okay I can give ye 22 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; BastardSword%
-            INPUT "Sell how many?", BS%
-            IF BS% >= BastardSword% THEN
-                Gold& = Gold& + (22 * BS%)
-                BastardSword% = BastardSword% - BS%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "leather armour" THEN
-        IF LeatherArmour% > 0 THEN
-            PRINT "Samael> Okay I can give ye 25 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; LeatherArmour%
-            INPUT "Sell how many?", LA%
-            IF LA% >= LeatherArmour% THEN
-                Gold& = Gold& + (25 * LA%)
-                LeatherArmour% = LeatherArmour% - LA%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "hard leather armour" THEN
-        IF HardLeatherArmour% > 0 THEN
-            PRINT "Samael> Okay I can give ye 32 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; HardLeatherArmour%
-            INPUT "Sell how many?", HL%
-            IF HL% >= HardLeatherArmour% THEN
-                Gold& = Gold& + (32 * HL%)
-                HardLeatherArmour% = HardLeatherArmour% - HL%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "short staff" THEN
-        IF ShortStaff% > 0 THEN
-            PRINT "Samael> Okay I can give ye 12 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; ShortStaff%
-            INPUT "Sell how many?", SST%
-            IF SST% >= ShortStaff% THEN
-                Gold& = Gold& + (12 * SST%)
-                ShortStaff% = ShortStaff% - SST%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "long staff" THEN
-        IF LongStaff% > 0 THEN
-            PRINT "Samael> Okay I can give ye 25 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; LongStaff%
-            INPUT "Sell how many?", LST%
-            IF LST% >= LongStaff% THEN
-                Gold& = Gold& + (25 * LST%)
-                LongStaff% = LongStaff% - LST%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "cap" THEN
-        IF Cap% > 0 THEN
-            PRINT "Samael> Okay I can give ye 2 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; Cap%
-            INPUT "Sell how many?", CA%
-            IF CA% >= Cap% THEN
-                Gold& = Gold& + (2 * CA%)
-                Cap% = Cap% - CA%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "skull cap" THEN
-        IF SkullCap% > 0 THEN
-            PRINT "Samael> Okay I can give ye 7 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; SkullCap%
-            INPUT "Sell how many?", SC%
-            IF SC% >= SkullCap% THEN
-                Gold& = Gold& + (7 * SC%)
-                SkullCap% = SkullCap% - SC%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "helm" THEN
-        IF Helm% > 0 THEN
-            PRINT "Samael> Okay I can give ye 10 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; Helm%
-            INPUT "Sell how many?", he%
-            IF he% >= Helm% THEN
-                Gold& = Gold& + (10 * he%)
-                Helm% = Helm% - he%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "sword +1" THEN
-        IF SwordPlusOne% > 0 THEN
-            PRINT "Samael> Okay I can give ye 50 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; SwordPlusOne%
-            INPUT "Sell how many?", SO%
-            IF SO% >= SwordPlusOne% THEN
-                Gold& = Gold& + (50 * SO%)
-                SwordPlusOne% = SwordPlusOne% - SO%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "sword +2" THEN
-        IF SwordPlusTwo% > 0 THEN
-            PRINT "Samael> Okay I can give ye 100 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; SwordPlusTwo%
-            INPUT "Sell how many?", ST%
-            IF ST% >= SwordPlusTwo% THEN
-                Gold& = Gold& + (100 * ST%)
-                SwordPlusTwo% = SwordPlusTwo% - ST%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "avenger sword +7" THEN
-        IF AvengerSwordPlusSeven% > 0 THEN
-            PRINT "Samael> Okay I can give ye 1000 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; AvengerSwordPlusSeven%
-            INPUT "Sell how many?", SSE%
-            IF SSE% >= AvengerSwordPlusSeven% THEN
-                Gold& = Gold& + (1000 * SSE%)
-                AvengerSwordPlusSeven% = AvengerSwordPlusSeven% - SSE%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "buckler" THEN
-        IF Buckler% > 0 THEN
-            PRINT "Samael> Okay I can give ye 7 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; Buckler%
-            INPUT "Sell how many?", B%
-            IF B% >= Buckler% THEN
-                Gold& = Gold& + (7 * B%)
-                Buckler% = Buckler% - B%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "small shield" THEN
-        IF SmallShield% > 0 THEN
-            PRINT "Samael> Okay I can give ye 12 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; SmallShield%
-            INPUT "Sell how many?", SMS%
-            IF SMS% >= SmallShield% THEN
-                Gold& = Gold& + (12 * SMS%)
-                SmallShield% = SmallShield% - SMS%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    IF Sell$ = "large shield" THEN
-        IF LargeShield% > 0 THEN
-            PRINT "Samael> Okay I can give ye 20 gold fer each of em"
-            PRINT "        how many do ye want to sell me?"
-            PRINT "Quantity:"; LargeShield%
-            INPUT "Sell how many?", LSH%
-            IF LSH% >= LargeShield% THEN
-                Gold& = Gold& + (20 * LSH%)
-                LargeShield% = LargeShield% - LSH%
-                GOTO 430
-            END IF
-        END IF
-    END IF
-
-    PRINT "Samael> ooook...I don't quite understande ye, try again."
-    GOTO 430
-  470
 END SUB
 
 SUB RANDOMRUNEDROP
-    Runes
     RRD% = INT(RND * 26) + 1
-    SELECT CASE RRD%
-        CASE 1  : RANDOMRUNE$ = ken$ : ken% = 1
-        CASE 2  : RANDOMRUNE$ = wak$ : wak% = 1
-        CASE 3  : RANDOMRUNE$ = yoo$ : yoo% = 1
-        CASE 4  : RANDOMRUNE$ = tog$ : tog% = 1
-        CASE 5  : RANDOMRUNE$ = wir$ : wir% = 1
-        CASE 6  : RANDOMRUNE$ = gnu$ : gnu% = 1
-        CASE 7  : RANDOMRUNE$ = poa$ : poa% = 1
-        CASE 8  : RANDOMRUNE$ = rer$ : rer% = 1
-        CASE 9  : RANDOMRUNE$ = coz$ : coz% = 1
-        CASE 10 : RANDOMRUNE$ = arp$ : arp% = 1
-        CASE 11 : RANDOMRUNE$ = oje$ : oje% = 1
-        CASE 12 : RANDOMRUNE$ = til$ : til% = 1
-        CASE 13 : RANDOMRUNE$ = roc$ : roc% = 1
-        CASE 14 : RANDOMRUNE$ = wod$ : wod% = 1
-        CASE 15 : RANDOMRUNE$ = sho$ : sho% = 1
-        CASE 16 : RANDOMRUNE$ = vas$ : vas% = 1
-        CASE 17 : RANDOMRUNE$ = dop$ : dop% = 1
-        CASE 18 : RANDOMRUNE$ = rof$ : rof% = 1
-        CASE 19 : RANDOMRUNE$ = POS$ : poss% = 1
-        CASE 20 : RANDOMRUNE$ = uch$ : uch% = 1
-        CASE 21 : RANDOMRUNE$ = dire$: dire% = 1
-        CASE 22 : RANDOMRUNE$ = fla$ : fla% = 1
-        CASE 23 : RANDOMRUNE$ = pud$ : pud% = 1
-        CASE 24 : RANDOMRUNE$ = cal$ : cal% = 1
-        CASE 25 : RANDOMRUNE$ = das$ : das% = 1
-        CASE 26 : RANDOMRUNE$ = uss$ : uss% = 1
-    END SELECT
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
+            RRD% = RRD% - 1
+            IF RRD% = 0 THEN
+                RANDOMRUNE$ = Inventory(i).name
+                Inventory(i).amount = 1
+            END IF
+        END IF
+    NEXT i
 END SUB
 
 SUB RANDOMSTRING
@@ -12876,71 +11386,6 @@ SUB RANDOMSTRING
         CASE 6 : PRINT "You hear a low moaning sound nearby."
         CASE 7 : PRINT "A woman's high pitched shriek pierces the silence."
         CASE 8 : PRINT "You look down at a gruesome corpse and shudder."
-    END SELECT
-END SUB
-
-SUB RemoveArmour
-    SELECT CASE Armour$
-        CASE "Rags"                : Rags% = Rags% + 1
-        CASE "Robes (Upper)"       : RobesUpper% = RobesUpper% + 1
-        CASE "Robes (Lower)"       : RobesLower% = RobesLower% + 1
-        CASE "Surcoat"             : Surcoat% = Surcoat% + 1
-        CASE "Quilted Armour"      : QuiltedArmour% = QuiltedArmour% + 1
-        CASE "Leather Armour"      : LeatherArmour% = LeatherArmour% + 1
-        CASE "Hard Leather Armour" : HardLeatherArmour% = HardLeatherArmour% + 1
-    END SELECT
-END SUB
-
-SUB RemoveHelm
-    SELECT CASE Helm$
-        CASE "Cap"                  : Cap% = Cap% + 1
-        CASE "Skull Cap"            : SkullCap% = SkullCap% + 1
-        CASE "Helm"                 : Helm% = Helm% + 1
-        CASE "Full Helm"            : FullHelm% = FullHelm% + 1
-        CASE "Great Helm"           : GreatHelm% = GreatHelm% + 1
-        CASE "Horned Great Helm"    : GreatHelmHorned% = GreatHelmHorned% + 1
-        CASE "Mythril Dwarven Helm" : MythrilDwarvenHelm% = MythrilDwarvenHelm% + 1
-    END SELECT
-END SUB
-
-SUB RemoveLH
-    SELECT CASE LH$
-        'Swords
-        CASE "Short Sword"        : ShortSword% = ShortSword% + 1
-        CASE "Long Sword"         : LongSword% = LongSword% + 1
-        CASE "Bastard Sword"      : BastardSword% = BastardSword% + 1
-        CASE "Battle Blade"       : BattleBlade% = BattleBlade% + 1
-        CASE "Greatsword"         : GreatSword% = GreatSword% + 1
-        CASE "Great Battle Blade" : GreatBattleBlade% = GreatBattleBlade% + 1
-        CASE "Holy Sword"         : HolySword% = HolySword% + 1
-        CASE "Sword +1"           : SwordPlusOne% = SwordPlusOne% + 1
-        CASE "Sword +2"           : SwordPlusTwo% = SwordPlusTwo% + 1
-        CASE "Sword +3"           : SwordPlusThree% = SwordPlusThree% + 1
-        CASE "Sword +4"           : SwordPlusFour% = SwordPlusFour% + 1
-        CASE "Sword +5"           : SwordPlusFive% = SwordPlusFive% + 1
-        CASE "Avenger Sword +7"   : AvengerSwordPlusSeven% = AvengerSwordPlusSeven% + 1
-        'Staves
-        CASE "Shord Staff"        : ShortStaff% = ShortStaff% + 1
-        CASE "Long Staff"         : LongStaff% = LongStaff% + 1
-    END SELECT
-END SUB
-
-REM $DYNAMIC
-SUB RemoveRH
-    SELECT CASE RH$
-        'Shields
-        CASE "Buckler"      : Buckler% = Buckler% + 1
-        CASE "Small Shield" : SmallShield% = SmallShield% + 1
-        CASE "Large Shield" : LargeShield% = LargeShield% + 1
-        CASE "Holy Shield"  : HolyShield% = HolyShield% + 1
-        CASE "Shield +1"    : ShieldPlusOne% = ShieldPlusOne% + 1
-        CASE "Shield +2"    : ShieldPlusTwo% = ShieldPlusTwo% + 1
-        CASE "Shield +3"    : ShieldPlusThree% = ShieldPlusThree% + 1
-        CASE "Shield +4"    : ShieldPlusFour% = ShieldPlusFour% + 1
-        CASE "Shield +5"    : ShieldPlusFive% = ShieldPlusFive% + 1
-        'Staves
-        CASE "Short Staff"  : ShortStaff% = ShortStaff% + 1
-        CASE "Long Staff"   : LongStaff% = LongStaff% + 1
     END SELECT
 END SUB
 
@@ -12965,36 +11410,6 @@ SUB ReturnWeapon
     END SELECT
 END SUB
 
-REM $DYNAMIC
-SUB Runes
-    ken$ = "ken "
-    wak$ = "wak "
-    yoo$ = "yoo "
-    tog$ = "tog "
-    wir$ = "wir "
-    gnu$ = "gnu "
-    poa$ = "poa "
-    rer$ = "rer "
-    coz$ = "coz "
-    arp$ = "arp "
-    oje$ = "oje "
-    til$ = "til "
-    roc$ = "roc "
-    wod$ = "wod "
-    sho$ = "sho "
-    vas$ = "vas "
-    dop$ = "dop "
-    rof$ = "rof "
-    POS$ = "pos "
-    uch$ = "uch "
-    dire$ = "dir "
-    fla$ = "fla "
-    pud$ = "pud "
-    cal$ = "cal "
-    das$ = "das "
-    uss$ = "uss "
-END SUB
-
 REM $STATIC
 SUB SaveGame
     Operation$ = "Save"
@@ -13016,38 +11431,125 @@ SUB SaveGame
     WRITE #1, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
 
     'Act 1 items, triggers, helmsburg
-    WRITE #1, HelmsburgBttl%, StrangePendant%, BurningSphere%, GoldenSkull%, ChaosStar%, Key1%, Key2%, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%, A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, FamiliarFlute%, ChaosStar%, A27AvengerSword, A28ChaosStarSocket%, JadeSkull%, WightLord%
+    WRITE #1, HelmsburgBttl%, Inventory(QITEM_STRANGE_PENDANT).amount, Inventory(QITEM_BURNING_SPHERE).amount, Inventory(QITEM_GOLDEN_SKULL).amount, Inventory(QITEM_CHAOS_STAR).amount, Inventory(QITEM_KEY1).amount, Inventory(QITEM_KEY2).amount, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%, A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, Inventory(QITEM_FAMILIAR_FLUTE).amount, Inventory(QITEM_CHAOS_STAR).amount, A27AvengerSword, A28ChaosStarSocket%, Inventory(QITEM_JADE_SKULL).amount, WightLord%
 
     'Weapon Inventory
-    WRITE #1, ShortSword%, LongSword%, BastardSword%, BattleBlade%, GreatSword%, GreatBattleBlade%, HolySword%, SwordPlusOne%, SwordPlusTwo%, SwordPlusThree%, SwordPlusFour%, SwordPlusFive%, AvengerSwordPlusSeven%, ShortStaff%, LongStaff%
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_WEAPON THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
 
     'Helms
-    WRITE #1, Cap%, SkullCap%, Helm%, FullHelm%, GreatHelm%, GreatHelmHorned%, MythrilDwarvenHelm%
-
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_HELM THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
+    
     'Shield Inventory
-    WRITE #1, Buckler%, SmallShield%, LargeShield%, HolyShield%, ShieldPlusOne%, ShieldPlusTwo%, ShieldPlusThree%, ShieldPlusFour%, ShieldPlusFive%
-
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_SHIELD THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
+    
     'Armour Inventory
-    WRITE #1, Rags%, Surcoat%, RobesUpper%, RobesLower%, QuiltedArmour%, LeatherArmour%, HardLeatherArmour%, StuddedLeatherArmour%, RingMail%, ChainMail%, ScaleMail%, BandedMail%, BreastPlate%, BandedPlateMail%, FieldPlateMail%, FieldPlate%, LightPlateMail%, LightPlate%, GothicPlateMail%, GothicPlate%, HeavyPlateMail%, HeavyPlate%, AncientArmour%, MythrilMail%
-
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_ARMOUR THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
+    
     'Potion Inventory
-    WRITE #1, Potion%
-
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_POTION THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
+    
     'Act1Pt2 SUB Triggers, Quest Items
-    WRITE #1, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, GateKey%, A67PillarOn%
+    WRITE #1, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, Inventory(QITEM_GATE_KEY).amount, A67PillarOn%
 
     'Familiar Flute
-    WRITE #1, FamiliarFlute%
+    WRITE #1, Inventory(QITEM_FAMILIAR_FLUTE).amount
 
     'Familiar Stuff
-    WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
+    WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$,
+    
+    FOR i = 0 TO 8
+        WRITE #1, OwlSpells(i).hasIt,
+    NEXT i
+    WRITE #1, LEARNOWLSPELL$, AL%,
+    FOR i = 9 TO 11
+        WRITE #1, OwlSpells(i).hasIt,
+    NEXT i
+    WRITE #1, FamiliarHPS%
 
     'Class stuff
-    WRITE #1, Mage%, Fighter%, ROGUE%, Thief%, Bard%
+    WRITE #1, Expertise%
 
     'All The runestuff
-    WRITE #1, ken$, wak$, yoo$, tog$, wir$, gnu$, poa$, rer$, coz$, arp$, oje$, til$, roc$, wod$, sho$, vas$, dop$, rof$, POS$, uch$, dire$, fla$, pud$, cal$, das$, uss$
-    WRITE #1, ken%, wak%, yoo%, tog%, wir%, gnu%, poa%, rer%, coz%, arp%, oje%, til%, roc%, wod%, sho%, vas%, dop%, rof%, poss%, uch%, dire%, fla%, pud%, cal%, das%, uss%
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
+            IF firstTaken% THEN
+                PRINT #1, "," + CHR$(34); Inventory(i).name; CHR$(34);
+            ELSE
+                PRINT #1, CHR$(34); Inventory(i).name; CHR$(34);
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
+    
+    firstTaken% = FALSE
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
+            IF firstTaken% THEN
+                PRINT #1, ","; Inventory(i).amount;
+            ELSE
+                PRINT #1, Inventory(i).amount;
+                firstTaken% = TRUE
+            END IF
+        END IF
+    NEXT i
+    PRINT #1, ""
 
     CLOSE #1
 
@@ -13110,55 +11612,55 @@ SUB _Steal (preText AS STRING)
         SELECT CASE ENEMY$
             CASE "Axe Maiden"
                 StealItem$ = "a potion"
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
             CASE "Skeleton"
                 StealItem$ = "a buckler"
-                Buckler% = Buckler% + 1
+                Inventory(ITEM_BUCKLER).amount = Inventory(ITEM_BUCKLER).amount + 1
             CASE "Giant Spider"
                 StealItem$ = "a potion"
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
             CASE "Zombie"
                 StealItem$ = "a potion"
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
             CASE "Imp"
                 StealItem$ = "a short sword"
-                ShortSword% = ShortSword% + 1
+                Inventory(ITEM_SHORT_SWORD).amount = Inventory(ITEM_SHORT_SWORD).amount + 1
             CASE "Ghoul"
                 StealItem$ = "nothing"
             CASE "Ork"
                 StealItem$ = "some leather armour"
-                LeatherArmour% = LeatherArmour% + 1
+                Inventory(ITEM_LEATHER_ARMOUR).amount = Inventory(ITEM_LEATHER_ARMOUR).amount + 1
             CASE "Corpse"
                 StealItem$ = "another 100 gold coins"
                 Gold& = Gold& + 100
             CASE "Wight"
                 StealItem$ = "a great battle blade"
-                GreatBattleBlade% = GreatBattleBlade% + 1
+                Inventory(ITEM_GREAT_BATTLE_BLADE).amount = Inventory(ITEM_GREAT_BATTLE_BLADE).amount + 1
             CASE "Fell Bat"
                 StealItem$ = "a potion"
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
             CASE "Wraith"
                 StealItem$ = "nothing"
             CASE "Dire Wolf"
                 StealItem$ = "a potion"
-                Potion% = Potion% + 1
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
             CASE "Lesser Vampire"
                 StealItem$ = "a bastard sword"
-                BastardSword% = BastardSword% + 1
+                Inventory(ITEM_BASTARD_SWORD).amount = Inventory(ITEM_BASTARD_SWORD).amount + 1
             CASE "Banshee"
                 StealItem$ = "a long sword"
-                LongSword% = LongSword% + 1
+                Inventory(ITEM_LONG_SWORD).amount = Inventory(ITEM_LONG_SWORD).amount + 1
             CASE "Phantom"
                 StealItem$ = "nothing"
             CASE "Zombie Dragon"
                 StealItem$ = "some Hard Leather Armour"
-                HardLeatherArmour% = HardLeatherArmour% + 1
+                Inventory(ITEM_HARD_LEATHER_ARMOUR).amount = Inventory(ITEM_HARD_LEATHER_ARMOUR).amount + 1
             CASE "Xanathus"
                 StealItem$ = "a long staff"
-                LongStaff% = LongStaff% + 1
+                Inventory(ITEM_LONG_STAFF).amount = Inventory(ITEM_LONG_STAFF).amount + 1
             CASE "Necrotalia"
                 StealItem$ = "a jade skull"
-                JadeSkull% = JadeSkull% + 1
+                Inventory(QITEM_JADE_SKULL).amount = Inventory(QITEM_JADE_SKULL).amount + 1
         END SELECT
         PRINT preText; StealItem$
     END IF
@@ -13174,71 +11676,71 @@ END SUB
 
 REM $DYNAMIC
 SUB USEOWLSPELL
-  10000.15
+    index% = -1
+    
+  spellLoop:
+    loopDone = TRUE
+    
     PRINT "Your owl spell list:"
-    FOR i = 0 TO 11
+    FOR i = LBOUND(OwlSpells) TO UBOUND(OwlSpells)
         IF OwlSpells(i).hasIt THEN PRINT OwlSpells(i).name
     NEXT i
     INPUT "Which spell do you wish to use?", USEOWL$
 
-    index% = -1
-
     SELECT CASE USEOWL$
-        CASE "fireball"       : index = 0
-        CASE "lightning bolt" : index = 1
-        CASE "healing"        : index = 2
-        CASE "eldrich storm"  : index = 3
-        CASE "fire blast"     : index = 4
-        CASE "cure"           : index = 5
-        CASE "augment"        : index = 6
-        CASE "fortune"        : index = 7
-        CASE "predict"        : index = 8
-        CASE "reflect"        : index = 9
-        CASE "cura"           : index = 10
-        CASE "fira"           : index = 11
+        CASE "fireball"       : index% = 0
+        CASE "lightning bolt" : index% = 1
+        CASE "healing"        : index% = 2
+        CASE "eldrich storm"  : index% = 3
+        CASE "fire blast"     : index% = 4
+        CASE "cure"           : index% = 5
+        CASE "augment"        : index% = 6
+        CASE "fortune"        : index% = 7
+        CASE "predict"        : index% = 8
+        CASE "reflect"        : index% = 9
+        CASE "cura"           : index% = 10
+        CASE "fira"           : index% = 11
         CASE ELSE
             PRINT "Huh?"
-            GOTO 10000.15
+            GOTO spellLoop
     END SELECT
 
-    IF NOT OwlSpells(index).hasIt THEN
+    IF NOT OwlSpells(index%).hasIt THEN
         PRINT Familiar$; " doesn't have that spell"
         SLEEP 3
-        GOTO 10000.15
+        GOTO spellLoop
     END IF
 
-    ENEMYPTS% = ENEMYPTS% - OwlSpells(index).dmg
+    ENEMYPTS% = ENEMYPTS% - OwlSpells(index%).dmg
     IF ENEMYPTS% <= 0 THEN
         PRINT "The "; ENEMY$; " has died!"
-        GOTO 10000.1
-    END IF
-
-    IF OwlSpells(index).heal < 0 THEN
-        HP% = HP% - OwlSpells(index).heal
-        IF HP% > HPS% THEN HP% = HPS%
     ELSE
-        FAMILIARHP% = FAMILIARHP% + OwlSpells(index).heal
-        IF FAMILIARHP% > FamiliarHPS% THEN FAMILIARHP% = FamiliarHPS%
+        IF OwlSpells(index%).heal < 0 THEN
+            HP% = HP% - OwlSpells(index%).heal
+            IF HP% > HPS% THEN HP% = HPS%
+        ELSE
+            FAMILIARHP% = FAMILIARHP% + OwlSpells(index%).heal
+            IF FAMILIARHP% > FamiliarHPS% THEN FAMILIARHP% = FamiliarHPS%
+        END IF
+
+        PRINT Familiar$; " used the "; OwlSpells(index%).name; " spell!"
+
+        SELECT CASE OwlSpells(index%).special
+            CASE 1
+                STR% = STR% + 5
+                DEX% = DEX% + 5
+                VIT% = VIT% + 5
+                ENG% = ENG% + 5
+            CASE 2
+                Golden& = Gold&
+                GOLDADDED% = Golden& * .1
+                Gold& = Gold& + GOLDADDED%
+            CASE 3
+                PRINT "You were successful at dodging the "; ENEMY$; "'s attack!"
+            CASE 4
+                PlayerReflect% = 1
+        END SELECT
     END IF
-
-    PRINT Familiar$; " used the "; OwlSpells(index).name; " spell!"
-
-    SELECT CASE OwlSpells(index).special
-        CASE 1
-            STR% = STR% + 5
-            DEX% = DEX% + 5
-            VIT% = VIT% + 5
-            ENG% = ENG% + 5
-        CASE 2
-            Golden& = Gold&
-            GOLDADDED% = Golden& * .1
-            Gold& = Gold& + GOLDADDED%
-        CASE 3
-            PRINT "You were successful at dodging the "; ENEMY$; "'s attack!"
-        CASE 4
-            PlayerReflect% = 1
-    END SELECT
-  10000.1
 END SUB
 
 SUB WorldHelp
@@ -13304,7 +11806,6 @@ SUB XanathusAI
                     HPS% = HPS% - ArrowDamage%
                     IF HPS% <= 0 THEN
                         PRINT "You have died."
-
                     END IF
                 END IF
             CASE 3
@@ -13324,7 +11825,6 @@ SUB XanathusAI
                     HPS% = HPS% - ArrowDamage%
                     IF HPS% <= 0 THEN
                         PRINT "You have died."
-
                     END IF
                 END IF
             CASE 4
@@ -13347,8 +11847,6 @@ SUB XanathusAI
                         SLEEP 3
                     END IF
                 END IF
-            CASE ELSE
-                PRINT "Error: No AI protocol chosen"
         END SELECT
     END IF
 END SUB
@@ -13370,42 +11868,45 @@ SUB XanathusBattle
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
-  3600
-    IF StunTime% = 0 THEN XanathusFleeTime% = XanathusFleeTime% - 1
-    IF XanathusFleeTime% = 0 THEN
-        PRINT "Xanathus flees from you!"
-        XanathusFlee
-        GOTO 4001
-    END IF
+    DO
+        IF StunTime% = 0 THEN XanathusFleeTime% = XanathusFleeTime% - 1
+        IF XanathusFleeTime% = 0 THEN
+            PRINT "Xanathus flees from you!"
+            XanathusFlee
+            GOTO 4001
+        END IF
 
-    PRINT "What would you like to do?"
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
-    PRINT "Hitpoints: "; HPS%; "/"; HP%
-    INPUT ">", ACTIONA$
+        PRINT "What would you like to do?"
+        IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
+        IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
+        PRINT "Hitpoints: "; HPS%; "/"; HP%
+        INPUT ">", ACTIONA$
 
-    SELECT CASE ACTIONA$
-        CASE "steal"
-            IF Expertise% <> CLASS_THIEF THEN
-                COLOR 5
-                PRINT "Only thieves can steal."
-                COLOR 15
-            ELSE
-                IF COMBATSPEED% >= ENEMYSPEED% THEN
-                    Steal
-                    XanathusAI
+        SELECT CASE ACTIONA$
+            CASE "steal"
+                IF Expertise% <> CLASS_THIEF THEN
+                    COLOR 5
+                    PRINT "Only thieves can steal."
+                    COLOR 15
                 ELSE
-                    XanathusAI
-                    Steal
+                    IF COMBATSPEED% >= ENEMYSPEED% THEN
+                        Steal
+                        XanathusAI
+                    ELSE
+                        XanathusAI
+                        Steal
+                    END IF
                 END IF
-            END IF
-        CASE "throw weapon"
-            IF Expertise% <> CLASS_ROGUE THEN
-                COLOR 5
-                PRINT "Only rogues can throw weapons."
-                COLOR 15
-            ELSE
-                IF COMBATSPEED% >= ENEMYSPEED% THEN
+            CASE "throw weapon"
+                IF Expertise% <> CLASS_ROGUE THEN
+                    COLOR 5
+                    PRINT "Only rogues can throw weapons."
+                    COLOR 15
+                ELSE
+                    IF COMBATSPEED% < ENEMYSPEED% THEN
+                        XanathusAI
+                    END IF
+                    
                     LHO$ = LH$
                     IF LH$ = "Long Staff" THEN RH$ = ""
                     IF LH$ = "Short Staff" THEN RH$ = ""
@@ -13422,81 +11923,60 @@ SUB XanathusBattle
                         PRINT "Xanathus> How could this be?"
                         COLOR 15
                         PRINT "Obtained gate key from Xanathus' body!"
-                        GateKey% = GateKey% + 1
+                        Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                         XanathusDead% = 1
                         GOTO 4000
                     END IF
-                    XanathusAI
-                ELSE
-                    XanathusAI
-                    LHO$ = LH$
-                    IF LH$ = "Long Staff" THEN RH$ = ""
-                    IF LH$ = "Short Staff" THEN RH$ = ""
-                    LH$ = ""
-                    WeaponThrown% = 3
-                    DAMAGEADDED% = DAMAGEADDED% * 3
-                    PRINT "You throw your weapon at the "; ENEMY$
-                    DAMAGEDONE% = STR% + DAMAGEADDED%
-                    XanathusHP% = XanathusHP% - DAMAGEDONE%
-                    DAMAGEADDED% = 0
-                    IF XanathusHP% <= 0 THEN
-                        PRINT "Xanathus falls to the wound."
-                        COLOR 14
-                        PRINT "Xanathus> How could this be?"
-                        COLOR 15
-                        PRINT "Obtained gate key from Xanathus' body!"
-                        GateKey% = GateKey% + 1
-                        XanathusDead% = 1
-                        GOTO 4000
+                    
+                    IF COMBATSPEED% >= ENEMYSPEED% THEN
+                        XanathusAI
                     END IF
                 END IF
-            END IF
-        CASE "play music"
-            IF Expertise% <> CLASS_BARD THEN
+            CASE "play music"
+                IF Expertise% <> CLASS_BARD THEN
+                    COLOR 5
+                    PRINT "Only bards can play music."
+                    COLOR 15
+                ELSE
+                    IF COMBATSPEED% >= ENEMYSPEED% THEN
+                        BardMusic
+                        XanathusAI
+                    ELSE
+                        XanathusAI
+                        BardMusic
+                    END IF
+                END IF
+            CASE "use potion"
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    XanathusAI
+                END IF
+                
                 COLOR 5
-                PRINT "Only bards can play music."
+                IF Inventory(ITEM_POTION).amount >= 1 THEN
+                    PRINT "used potion"
+                ELSE
+                    PRINT "you are out of potions"
+                END IF
                 COLOR 15
-            ELSE
+                
                 IF COMBATSPEED% >= ENEMYSPEED% THEN
-                    BardMusic
-                    XanathusAI
-                ELSE
-                    XanathusAI
-                    BardMusic
-                END IF
-            END IF
-        CASE "use potion"
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                IF Potion% >= 1 THEN
-                    COLOR 5
-                    PRINT "used potion"
-                    COLOR 15
-                ELSE
-                    COLOR 5
-                    PRINT "you are out of potions"
-                    COLOR 15
                     XanathusAI
                 END IF
-            ELSE
-                XanathusAI
-                IF Potion% >= 1 THEN
-                    COLOR 5
-                    PRINT "used potion"
-                    COLOR 15
-                ELSE
-                    COLOR 5
-                    PRINT "you are out of potions"
-                    COLOR 15
+            CASE "call familiar"
+                PRINT Familiar$; " arrives and takes your place."
+                SLEEP 2
+                PRINT "Xanathus casts a banishment!"
+                PRINT "you're familiar falls to the ground!"
+                FAMILIARHP% = 0
+            CASE "use magic"
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    XanathusAI
+                    IF XanathusFleeTime% = 0 THEN
+                        XanathusFlee
+                        GOTO 4001
+                    END IF
                 END IF
-            END IF
-        CASE "call familiar"
-            PRINT Familiar$; " arrives and takes your place."
-            SLEEP 2
-            PRINT "Xanathus casts a banishment!"
-            PRINT "you're familiar falls to the ground!"
-            FAMILIARHP% = 0
-        CASE "use magic"
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                
                 MAGIC
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
@@ -13504,43 +11984,31 @@ SUB XanathusBattle
                     PRINT "Xanathus> How could this be?"
                     COLOR 15
                     PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
+                    Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
                     GOTO 4000
+                ELSEIF COMBATSPEED% >= ENEMYSPEED% THEN
+                    XanathusAI
+                    IF XanathusFleeTime% = 0 THEN
+                        XanathusFlee
+                        GOTO 4001
+                    END IF
                 END IF
-                XanathusAI
-                IF XanathusFleeTime% = 0 THEN
-                    XanathusFlee
-                    GOTO 4001
+            CASE "spit"
+                PRINT "You spit in Xanathus' face."
+                PRINT "Xanathus wipes it off and laughs."
+            CASE "help"
+                HELP
+            CASE "slash"
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    XanathusAI
+                    IF XanathusFleeTime% = 0 THEN
+                        XanathusFlee
+                        GOTO 4001
+                    END IF
                 END IF
-
-            ELSE
-                XanathusAI
-                IF XanathusFleeTime% = 0 THEN
-                    XanathusFlee
-                    GOTO 4001
-                END IF
-
-                MAGIC
-                IF XanathusHP% <= 0 THEN
-                    PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
-                    PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
-                    XanathusDead% = 1
-                    GOTO 4000
-                END IF
-            END IF
-        CASE "spit"
-            PRINT "You spit in Xanathus' face."
-            PRINT "Xanathus wipes it off and laughs."
-        CASE "help"
-            HELP
-        CASE "slash"
-            IF COMBATSPEED% > ENEMYSPEED% THEN
-                PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn"
+                
+                PRINT "You slashed Xanathus in the chest, he staggers back in pain"
                 XanathusHP% = XanathusHP% - (DAMAGEADDED% + STR% + 2)
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
@@ -13548,39 +12016,26 @@ SUB XanathusBattle
                     PRINT "Xanathus> How could this be?"
                     COLOR 15
                     PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
+                    Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
                     GOTO 4000
-                ELSE
+                ELSEIF COMBATSPEED% >= ENEMYSPEED% THEN
                     XanathusAI
                     IF XanathusFleeTime% = 0 THEN
                         XanathusFlee
                         GOTO 4001
                     END IF
                 END IF
-            ELSE
-                XanathusAI
-                IF XanathusFleeTime% = 0 THEN
-                    XanathusFlee
-                    GOTO 4001
+            CASE "thrust"
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    XanathusAI
+                    IF XanathusFleeTime% = 0 THEN
+                        XanathusFlee
+                        GOTO 4001
+                    END IF
                 END IF
-
-                PRINT "You slashed Xanathus in the chest, he staggers back in pXanathusAIn."
-                XanathusHP% = XanathusHP% - (STR% + 2 + DAMAGEADDED%)
-                IF XanathusHP% <= 0 THEN
-                    PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
-                    PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
-                    XanathusDead% = 1
-                    GOTO 4000
-                END IF
-            END IF
-        CASE "thrust"
-            IF COMBATSPEED% > ENEMYSPEED% THEN
-                PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
+                
+                PRINT "You lunge forward and pierce Xanathus, he staggers back in pain."
                 XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
@@ -13588,131 +12043,110 @@ SUB XanathusBattle
                     PRINT "Xanathus> How could this be?"
                     COLOR 15
                     PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
+                    Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
                     GOTO 4000
-                ELSE
+                ELSEIF COMBATSPEED% >= ENEMYSPEED% THEN
                     XanathusAI
                     IF XanathusFleeTime% = 0 THEN
                         XanathusFlee
                         GOTO 4001
                     END IF
                 END IF
-            ELSE
+            CASE "parry"
+                PRINT "You attempt to parry Xanathus' blow."
+                PC% = INT(RND * 100) + 1
+                PARRYCHANCE% = PC% + ShieldSave%
+                IF PARRYCHANCE% >= 50 THEN
+                    PRINT "You were successful in parrying Xanathus' blow."
+                ELSE
+                    PRINT "You failed to parry Xanathus' blow.  You take 2 damage."
+                    HPS% = HPS% - 2
+                END IF
+            CASE "punch"
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    PRINT "You aim your punch at the Xanathus' face."
+                    StunChance% = INT(RND * 50) - STR%
+                    IF StunChance% <= 25 THEN
+                        StunTime% = INT(RND * 4) + 1
+                        PRINT "Xanathus jumps back in surprise and is stunned for the next "; StunTime%; " turn(s)."
+                    ELSE
+                        PRINT "Xanathus ignores the punch."
+                    END IF
+                END IF
+
+                PRINT "Xanathus is angered by your punch."
                 XanathusAI
                 IF XanathusFleeTime% = 0 THEN
                     XanathusFlee
                     GOTO 4001
                 END IF
-
-                PRINT "You lunge forward and pierce Xanathus, he staggers back in pXanathusAIn."
-                XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
-                IF XanathusHP% <= 0 THEN
+            CASE "kick"
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    PRINT "You aim your foot and strike Xanathus in the groin."
+                    StunChance% = INT(RND * 50) - STR%
+                    IF StunChance% <= 25 THEN
+                        StunTime% = INT(RND * 4) + 1
+                        PRINT "Xanathus stands there in pain and is stunned for the next "; StunTime%; " turn(s)."
+                    ELSE
+                        PRINT "Xanathus evades the kick."
+                    END IF
+                END IF
+            CASE "dodge"
+                PRINT "As Xanathus attacks, you attempt to dodge his attack."
+                DC% = INT(RND * 100) + 1
+                DODGECHANCE% = DC% - DEX%
+                IF DODGECHANCE% >= 45 THEN
+                    PRINT "You were successfully able to dodge Xanathus' attack."
+                ELSE
+                    PRINT "You were not successful at dodging the Xanathus' attack. You take 2 damage."
+                    HPS% = HPS% - 1
+                END IF
+            CASE "coup de grace"
+                IF XanathusHP% <= 3 THEN
+                    PRINT "You grasp Xanathus' head, draw back and crush his skull."
                     PRINT "Xanathus falls to the wound."
                     COLOR 14
                     PRINT "Xanathus> How could this be?"
                     COLOR 15
                     PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
+                    Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
                     GOTO 4000
                 END IF
-            END IF
-        CASE "parry"
-            PRINT "You attempt to parry Xanathus' blow."
-            PC% = INT(RND * 100) + 1
-            PARRYCHANCE% = PC% + ShieldSave%
-            IF PARRYCHANCE% >= 50 THEN
-                PRINT "You were successful in parrying Xanathus' blow."
-            ELSE
-                PRINT "You failed to parry Xanathus' blow.  You take 2 damage."
-                HPS% = HPS% - 2
-            END IF
-        CASE "punch"
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                PRINT "You aim your punch at the Xanathus' face."
-                StunChance% = INT(RND * 50) - STR%
-                IF StunChance% <= 25 THEN
-                    StunTime% = INT(RND * 4) + 1
-                    PRINT "Xanathus jumps back in surprise and is stunned for the next "; StunTime%; " turn(s)."
+            CASE "use owl spell"
+                IF Owl% = 1 THEN
+                    USEOWLSPELL
+                    IF XanathusHP% <= 0 THEN
+                        PRINT "Xanathus falls to the wound."
+                        COLOR 14
+                        PRINT "Xanathus> How could this be?"
+                        COLOR 15
+                        PRINT "Obtained gate key from Xanathus' body!"
+                        Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
+                        XanathusDead% = 1
+                        GOTO 4000
+                    END IF
                 ELSE
-                    PRINT "Xanathus ignores the punch."
+                    PRINT "You don't have an owl."
                 END IF
-            END IF
-
-            PRINT "Xanathus is angered by your punch."
-            XanathusAI
-            IF XanathusFleeTime% = 0 THEN
-                XanathusFlee
-                GOTO 4001
-            END IF
-        CASE "kick"
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                PRINT "You aim your foot and strike Xanathus in the groin."
-                StunChance% = INT(RND * 50) - STR%
-                IF StunChance% <= 25 THEN
-                    StunTime% = INT(RND * 4) + 1
-                    PRINT "Xanathus stands there in pXanathusAIn and is stunned for the next "; StunTime%; " turn(s)."
+            CASE "run"
+                PRINT "You won't run from Xanathus!"
+            CASE "judge enemy"
+                CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+                IF CORRECTJUDGECHANCE% <= 35 THEN
+                    PRINT "Xanathus' hitpoints appear to be "; XanathusHP%; "."
                 ELSE
-                    PRINT "Xanathus evades the kick."
+                    IF CORRECTJUDGECHANCE% >= 65 THEN
+                        PRINT "Xanathus' hitpoints appear to be "; XanathusHP% + 10; "."
+                    ELSE
+                        PRINT "Xanathus' hit points appear to be "; XanathusHP% + 5; "."
+                    END IF
                 END IF
-            END IF
-        CASE "dodge"
-            PRINT "As Xanathus attacks, you attempt to dodge his attack."
-            DC% = INT(RND * 100) + 1
-            DODGECHANCE% = DC% - DEX%
-            IF DODGECHANCE% >= 45 THEN
-                PRINT "You were successfully able to dodge Xanathus' attack."
-            ELSE
-                PRINT "You were not successful at dodging the Xanathus' attack. You take 2 damage."
-                HPS% = HPS% - 1
-            END IF
-        CASE "coup de grace"
-            IF XanathusHP% <= 3 THEN
-                PRINT "You grasp Xanathus' head, draw back and crush his skull."
-                PRINT "Xanathus falls to the wound."
-                COLOR 14
-                PRINT "Xanathus> How could this be?"
-                COLOR 15
-                PRINT "Obtained gate key from Xanathus' body!"
-                GateKey% = GateKey% + 1
-                XanathusDead% = 1
-                GOTO 4000
-            END IF
-        CASE "use owl spell"
-            IF Owl% = 1 THEN
-                USEOWLSPELL
-                IF XanathusHP% <= 0 THEN
-                    PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
-                    PRINT "Obtained gate key from Xanathus' body!"
-                    GateKey% = GateKey% + 1
-                    XanathusDead% = 1
-                    GOTO 4000
-                END IF
-            ELSE
-                PRINT "You don't have an owl."
-            END IF
-        CASE "run"
-            PRINT "You won't run from Xanathus!"
-        CASE "judge enemy"
-            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-            IF CORRECTJUDGECHANCE% <= 35 THEN
-                PRINT "Xanathus' hitpoints appear to be "; XanathusHP%; "."
-            ELSE
-                IF CORRECTJUDGECHANCE% >= 65 THEN
-                    PRINT "Xanathus' hitpoints appear to be "; XanathusHP% + 10; "."
-                ELSE
-                    PRINT "Xanathus' hit points appear to be "; XanathusHP% + 5; "."
-                END IF
-            END IF
-        CASE ELSE
-            PRINT "Huh?"
-    END SELECT
-
-    GOTO 3600
+            CASE ELSE
+                PRINT "Huh?"
+        END SELECT
+    LOOP WHILE TRUE
 
   4000
     RANDOMEXPR% = 500
@@ -13774,7 +12208,318 @@ SUB XanathusWorldFlee
 END SUB
 
 SUB InitGlobals
-    FOR i = 0 TO 11
+    FOR i = 0 TO UBOUND(Inventory)
+        Inventory(i).value = 0
+        Inventory(i).buyPrice = 0
+        Inventory(i).sellPrice = 0
+        Inventory(i).amount = 0
+        Inventory(i).equipType = 0
+    NEXT i
+    'Item Names
+    Inventory(QITEM_STRANGE_PENDANT).name = "Strange Pendant"
+    Inventory(QITEM_BURNING_SPHERE).name = "Burning Sphere"
+    Inventory(QITEM_GOLDEN_SKULL).name = "Golden Skull"
+    Inventory(QITEM_JADE_SKULL).name = "Jade Skull"
+    Inventory(QITEM_CHAOS_STAR).name = "Chaos Star"
+    Inventory(QITEM_KEY1).name = "Key, type 1 (Key 1)"
+    Inventory(QITEM_KEY2).name = "Key, type 2 (Key 2)"
+    Inventory(QITEM_FAMILIAR_FLUTE).name = "Familiar flute"
+    Inventory(QITEM_CHAOS_STAR).name = "Chaos star pendant"
+    Inventory(QITEM_GATE_KEY).name = "Gate key"
+    Inventory(QITEM_RUSTED_SWORD).name = "Rusted Sword"
+    Inventory(ITEM_SHORT_SWORD).name = "Short Sword"
+    Inventory(ITEM_LONG_SWORD).name = "Long Sword"
+    Inventory(ITEM_BATTLE_BLADE).name = "Battle Blade"
+    Inventory(ITEM_BASTARD_SWORD).name = "Bastard Sword"
+    Inventory(ITEM_GREAT_SWORD).name = "Great Sword"
+    Inventory(ITEM_GREAT_BATTLE_BLADE).name = "Great Battle Blade"
+    Inventory(ITEM_HOLY_SWORD).name = "Holy Sword"
+    Inventory(ITEM_SWORD_PLUS_ONE).name = "Sword +1"
+    Inventory(ITEM_SWORD_PLUS_TWO).name = "Sword +2"
+    Inventory(ITEM_SWORD_PLUS_THREE).name = "Sword +3"
+    Inventory(ITEM_SWORD_PLUS_FOUR).name = "Sword +4"
+    Inventory(ITEM_SWORD_PLUS_FIVE).name = "Sword +5"
+    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).name = "Avenger Sword +7"
+    Inventory(ITEM_BUCKLER).name = "Buckler"
+    Inventory(ITEM_SMALL_SHIELD).name = "Small Shield"
+    Inventory(ITEM_LARGE_SHIELD).name = "Large Shield"
+    Inventory(ITEM_HOLY_SHIELD).name = "Holy Shield"
+    Inventory(ITEM_SHIELD_PLUS_ONE).name = "Shield +1"
+    Inventory(ITEM_SHIELD_PLUS_TWO).name = "Shield +2"
+    Inventory(ITEM_SHIELD_PLUS_THREE).name = "Shield +3"
+    Inventory(ITEM_SHIELD_PLUS_FOUR).name = "Shield +4"
+    Inventory(ITEM_SHIELD_PLUS_FIVE).name = "Shield +5"
+    Inventory(ITEM_RAGS).name = "Rags"
+    Inventory(ITEM_SURCOAT).name = "Surcoat"
+    Inventory(ITEM_ROBES_UPPER).name = "Robes (upper)"
+    Inventory(ITEM_ROBES_LOWER).name = "Robes (lower)"
+    Inventory(ITEM_QUILTED_ARMOUR).name = "Quilted Armour"
+    Inventory(ITEM_LEATHER_ARMOUR).name = "Leather Armour"
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).name = "Hard Leather Armour"
+    Inventory(ITEM_STUDDED_LEATHER).name = "Studded Leather Armour"
+    Inventory(ITEM_RING_MAIL).name = "Ring Mail"
+    Inventory(ITEM_CHAIN_MAIL).name = "Chain Mail"
+    Inventory(ITEM_SCALE_MAIL).name = "Scale Mail"
+    Inventory(ITEM_BANDED_MAIL).name = "Banded Mail"
+    Inventory(ITEM_BREAST_PLATE).name = "Breast Plate"
+    Inventory(ITEM_BANDED_PLATE_MAIL).name = "Banded Plate Mail"
+    Inventory(ITEM_FIELD_PLATE_MAIL).name = "Field Plate Mail"
+    Inventory(ITEM_FIELD_PLATE).name = "Field Plate"
+    Inventory(ITEM_LIGHT_PLATE_MAIL).name = "Light Plate Mail"
+    Inventory(ITEM_LIGHT_PLATE).name = "Light Plate"
+    Inventory(ITEM_GOTHIC_PLATE_MAIL).name = "Gothic Plate Mail"
+    Inventory(ITEM_SHORT_STAFF).name = "Short Staff"
+    Inventory(ITEM_LONG_STAFF).name = "Long Staff"
+    Inventory(ITEM_CAP).name = "Cap"
+    Inventory(ITEM_SKULL_CAP).name = "Skull Cap"
+    Inventory(ITEM_HELM).name = "Helm"
+    Inventory(ITEM_FULL_HELM).name = "Full Helm"
+    Inventory(ITEM_GREAT_HELM).name = "Great Helm"
+    Inventory(ITEM_GREAT_HELM_HORNED).name = "Horned Great Helm"
+    Inventory(ITEM_MYTHRIL_DWARVEN_HELM).name = "Mythril Dwarven Helm"
+    Inventory(ITEM_POTION).name = "Potion"
+    Inventory(RUNE_KEN).name = "ken"
+    Inventory(RUNE_WAK).name = "wak"
+    Inventory(RUNE_YOO).name = "yoo"
+    Inventory(RUNE_TOG).name = "tog"
+    Inventory(RUNE_WIR).name = "wir"
+    Inventory(RUNE_GNU).name = "gnu"
+    Inventory(RUNE_POA).name = "poa"
+    Inventory(RUNE_RER).name = "rer"
+    Inventory(RUNE_COZ).name = "coz"
+    Inventory(RUNE_ARP).name = "arp"
+    Inventory(RUNE_OJE).name = "oje"
+    Inventory(RUNE_TIL).name = "til"
+    Inventory(RUNE_ROC).name = "roc"
+    Inventory(RUNE_WOD).name = "wod"
+    Inventory(RUNE_SHO).name = "sho"
+    Inventory(RUNE_VAS).name = "vas"
+    Inventory(RUNE_DOP).name = "dop"
+    Inventory(RUNE_ROF).name = "rof"
+    Inventory(RUNE_POS).name = "pos"
+    Inventory(RUNE_UCH).name = "uch"
+    Inventory(RUNE_DIRE).name = "dir"
+    Inventory(RUNE_FLA).name = "fla"
+    Inventory(RUNE_PUD).name = "pud"
+    Inventory(RUNE_CAL).name = "cal"
+    Inventory(RUNE_DAS).name = "das"
+    Inventory(RUNE_USS).name = "uss"
+    'Item types
+    Inventory(QITEM_STRANGE_PENDANT).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_BURNING_SPHERE).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_GOLDEN_SKULL).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_JADE_SKULL).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_CHAOS_STAR).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_KEY1).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_KEY2).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_FAMILIAR_FLUTE).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_CHAOS_STAR).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_GATE_KEY).itemType = ITEM_TYPE_QITEM
+    Inventory(QITEM_RUSTED_SWORD).itemType = ITEM_TYPE_QITEM
+    Inventory(ITEM_SHORT_SWORD).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_LONG_SWORD).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_BATTLE_BLADE).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_BASTARD_SWORD).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_GREAT_SWORD).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_GREAT_BATTLE_BLADE).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_HOLY_SWORD).itemType = ITEM_TYPE_SWORD
+    Inventory(ITEM_SWORD_PLUS_ONE).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_SWORD_PLUS_TWO).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_SWORD_PLUS_THREE).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_SWORD_PLUS_FOUR).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_SWORD_PLUS_FIVE).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).itemType = ITEM_TYPE_SWORD_PLUS
+    Inventory(ITEM_BUCKLER).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SMALL_SHIELD).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_LARGE_SHIELD).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_HOLY_SHIELD).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_ONE).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_TWO).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_THREE).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_FOUR).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_FIVE).itemType = ITEM_TYPE_SHIELD
+    Inventory(ITEM_RAGS).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_SURCOAT).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_ROBES_UPPER).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_ROBES_LOWER).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_QUILTED_ARMOUR).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_LEATHER_ARMOUR).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_STUDDED_LEATHER).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_RING_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_CHAIN_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_SCALE_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_BANDED_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_BREAST_PLATE).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_BANDED_PLATE_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_FIELD_PLATE_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_FIELD_PLATE).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_LIGHT_PLATE_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_LIGHT_PLATE).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_GOTHIC_PLATE_MAIL).itemType = ITEM_TYPE_ARMOUR
+    Inventory(ITEM_SHORT_STAFF).itemType = ITEM_TYPE_STAFF
+    Inventory(ITEM_LONG_STAFF).itemType = ITEM_TYPE_STAFF
+    Inventory(ITEM_CAP).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_SKULL_CAP).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_HELM).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_FULL_HELM).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_GREAT_HELM).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_GREAT_HELM_HORNED).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_MYTHRIL_DWARVEN_HELM).itemType = ITEM_TYPE_HELM
+    Inventory(ITEM_POTION).itemType = ITEM_TYPE_POTION
+    Inventory(RUNE_KEN).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_WAK).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_YOO).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_TOG).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_WIR).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_GNU).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_POA).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_RER).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_COZ).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_ARP).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_OJE).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_TIL).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_ROC).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_WOD).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_SHO).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_VAS).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_DOP).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_ROF).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_POS).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_UCH).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_DIRE).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_FLA).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_PUD).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_CAL).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_DAS).itemType = ITEM_TYPE_RUNE
+    Inventory(RUNE_USS).itemType = ITEM_TYPE_RUNE
+    'Equip types
+    Inventory(ITEM_SHORT_SWORD).equipType = EQUIP_WEAPON
+    Inventory(ITEM_LONG_SWORD).equipType = EQUIP_WEAPON
+    Inventory(ITEM_BATTLE_BLADE).equipType = EQUIP_WEAPON
+    Inventory(ITEM_BASTARD_SWORD).equipType = EQUIP_WEAPON
+    Inventory(ITEM_GREAT_SWORD).equipType = EQUIP_WEAPON
+    Inventory(ITEM_GREAT_BATTLE_BLADE).equipType = EQUIP_WEAPON
+    Inventory(ITEM_HOLY_SWORD).equipType = EQUIP_WEAPON
+    Inventory(ITEM_SWORD_PLUS_ONE).equipType = EQUIP_WEAPON
+    Inventory(ITEM_SWORD_PLUS_TWO).equipType = EQUIP_WEAPON
+    Inventory(ITEM_SWORD_PLUS_THREE).equipType = EQUIP_WEAPON
+    Inventory(ITEM_SWORD_PLUS_FOUR).equipType = EQUIP_WEAPON
+    Inventory(ITEM_SWORD_PLUS_FIVE).equipType = EQUIP_WEAPON
+    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).equipType = EQUIP_WEAPON
+    Inventory(ITEM_BUCKLER).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SMALL_SHIELD).equipType = EQUIP_SHIELD
+    Inventory(ITEM_LARGE_SHIELD).equipType = EQUIP_SHIELD
+    Inventory(ITEM_HOLY_SHIELD).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_ONE).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_TWO).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_THREE).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_FOUR).equipType = EQUIP_SHIELD
+    Inventory(ITEM_SHIELD_PLUS_FIVE).equipType = EQUIP_SHIELD
+    Inventory(ITEM_RAGS).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_SURCOAT).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_ROBES_UPPER).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_ROBES_LOWER).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_QUILTED_ARMOUR).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_LEATHER_ARMOUR).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_STUDDED_LEATHER).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_RING_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_CHAIN_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_SCALE_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_BANDED_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_BREAST_PLATE).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_BANDED_PLATE_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_FIELD_PLATE_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_FIELD_PLATE).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_LIGHT_PLATE_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_LIGHT_PLATE).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_GOTHIC_PLATE_MAIL).equipType = EQUIP_ARMOUR
+    Inventory(ITEM_SHORT_STAFF).equipType = EQUIP_WEAPON
+    Inventory(ITEM_LONG_STAFF).equipType = EQUIP_WEAPON
+    Inventory(ITEM_CAP).equipType = EQUIP_HELM
+    Inventory(ITEM_SKULL_CAP).equipType = EQUIP_HELM
+    Inventory(ITEM_HELM).equipType = EQUIP_HELM
+    Inventory(ITEM_FULL_HELM).equipType = EQUIP_HELM
+    Inventory(ITEM_GREAT_HELM).equipType = EQUIP_HELM
+    Inventory(ITEM_GREAT_HELM_HORNED).equipType = EQUIP_HELM
+    Inventory(ITEM_MYTHRIL_DWARVEN_HELM).equipType = EQUIP_HELM
+    'Item values
+    Inventory(ITEM_RAGS).value = 1
+    Inventory(ITEM_ROBES_UPPER).value = .5
+    Inventory(ITEM_ROBES_LOWER).value = .5
+    Inventory(ITEM_SURCOAT).value = 1
+    Inventory(ITEM_QUILTED_ARMOUR).value = 2
+    Inventory(ITEM_LEATHER_ARMOUR).value = 3
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).value = 4
+    Inventory(ITEM_STUDDED_LEATHER).value = 5
+    Inventory(ITEM_CAP).value = 1
+    Inventory(ITEM_SKULL_CAP).value = 2
+    Inventory(ITEM_HELM).value = 3
+    Inventory(ITEM_FULL_HELM).value = 4
+    Inventory(ITEM_GREAT_HELM).value = 5
+    Inventory(ITEM_GREAT_HELM_HORNED).value = 6
+    Inventory(ITEM_MYTHRIL_DWARVEN_HELM).value = 10
+    Inventory(ITEM_SHORT_SWORD).value = 1
+    Inventory(ITEM_LONG_SWORD).value = 2
+    Inventory(ITEM_BASTARD_SWORD).value = 3
+    Inventory(ITEM_BATTLE_BLADE).value = 4
+    Inventory(ITEM_GREAT_SWORD).value = 5
+    Inventory(ITEM_GREAT_BATTLE_BLADE).value = 6
+    Inventory(ITEM_HOLY_SWORD).value = 7
+    Inventory(ITEM_SWORD_PLUS_ONE).value = 8
+    Inventory(ITEM_SWORD_PLUS_TWO).value = 9
+    Inventory(ITEM_SWORD_PLUS_THREE).value = 10
+    Inventory(ITEM_SWORD_PLUS_FOUR).value = 11
+    Inventory(ITEM_SWORD_PLUS_FIVE).value = 12
+    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).value = 15
+    Inventory(ITEM_SHORT_STAFF).value = 2
+    Inventory(ITEM_LONG_STAFF).value = 4
+    Inventory(ITEM_BUCKLER).value = 1
+    Inventory(ITEM_SMALL_SHIELD).value = 2
+    Inventory(ITEM_LARGE_SHIELD).value = 3
+    Inventory(ITEM_HOLY_SHIELD).value = 4
+    Inventory(ITEM_SHIELD_PLUS_ONE).value = 5
+    Inventory(ITEM_SHIELD_PLUS_TWO).value = 6
+    Inventory(ITEM_SHIELD_PLUS_THREE).value = 7
+    Inventory(ITEM_SHIELD_PLUS_FOUR).value = 8
+    Inventory(ITEM_SHIELD_PLUS_FIVE).value = 9
+    'Item buying prices
+    Inventory(ITEM_POTION).buyPrice = 10
+    Inventory(ITEM_SHORT_SWORD).buyPrice = 10
+    Inventory(ITEM_LONG_SWORD).buyPrice = 25
+    Inventory(ITEM_BASTARD_SWORD).buyPrice = 45
+    Inventory(ITEM_BUCKLER).buyPrice = 15
+    Inventory(ITEM_SMALL_SHIELD).buyPrice = 25
+    Inventory(ITEM_LARGE_SHIELD).buyPrice = 40
+    Inventory(ITEM_LEATHER_ARMOUR).buyPrice = 50
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).buyPrice = 65
+    Inventory(ITEM_SWORD_PLUS_ONE).buyPrice = 100
+    Inventory(ITEM_SHORT_STAFF).buyPrice = 25
+    Inventory(ITEM_LONG_STAFF).buyPrice = 50
+    Inventory(ITEM_CAP).buyPrice = 5
+    Inventory(ITEM_SKULL_CAP).buyPrice = 10
+    Inventory(ITEM_HELM).buyPrice = 15
+    'Item selling prices
+    Inventory(ITEM_POTION).sellPrice = 5
+    Inventory(ITEM_SHORT_SWORD).sellPrice = 5
+    Inventory(ITEM_LONG_SWORD).sellPrice = 15
+    Inventory(ITEM_BASTARD_SWORD).sellPrice = 22
+    Inventory(ITEM_LEATHER_ARMOUR).sellPrice = 25
+    Inventory(ITEM_HARD_LEATHER_ARMOUR).sellPrice = 32
+    Inventory(ITEM_SHORT_STAFF).sellPrice = 12
+    Inventory(ITEM_LONG).sellPrice = 25
+    Inventory(ITEM_CAP).sellPrice = 2
+    Inventory(ITEM_SKULL_CAP).sellPrice = 7
+    Inventory(ITEM_HELM).sellPrice = 10
+    Inventory(ITEM_SWORD_PLUS_ONE).sellPrice = 50
+    Inventory(ITEM_SWORD_PLUS_TWO).sellPrice = 100
+    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).sellPrice = 1000
+    Inventory(ITEM_BUCKLER).sellPrice = 7
+    Inventory(ITEM_SMALL_SHIELD).sellPrice = 12
+    Inventory(ITEM_LARGE_SHIELD).sellPrice = 20
+    
+    FOR i = 0 TO UBOUND(OwlSpells)
         OwlSpells(i).hasIt = FALSE
         OwlSpells(i).dmg = 0
         OwlSpells(i).heal = 0
