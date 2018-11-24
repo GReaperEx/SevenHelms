@@ -3,9 +3,9 @@
 '21-25 Character creation
 '26 EqArmour
 '27-199 ?
-'200-390 Act 1 - Encampment, Labrynth Lvl 1
+'200-390 Act 1 - Encampment, labyrinth Lvl 1
 '400-499 Equip LH, Equip RH, Equip Armour, PurchaseSamael
-'500-699 Act 1 -Labrynth Lvl 2, Labrynth Lvl 3
+'500-699 Act 1 -labyrinth Lvl 2, labyrinth Lvl 3
 '700-899 ?
 '900-1999 ?
 '2000+ BATTLE
@@ -73,7 +73,7 @@ DECLARE SUB EndGame ()
 DECLARE SUB GemPuzzle ()
 DECLARE SUB SoundTest ()
 DECLARE SUB GameIntro ()
-DECLARE SUB CheckRunes ()
+DECLARE SUB CheckRunes (rune$)
 DECLARE SUB ClearFlags ()
 DECLARE SUB Options ()
 DECLARE SUB BardMusic ()
@@ -95,6 +95,15 @@ DIM SHARED Protocol%
 DIM SHARED WillsSoundEffectVolume%
 DIM SHARED WillsMusicVolume%
 DIM SHARED Diff%
+
+TYPE SaveInfo
+    playerName  AS STRING
+    playerClass AS STRING
+    savePoint   AS INTEGER
+END TYPE
+
+DIM SHARED SaveSlots(0 TO 9) AS SaveInfo
+DIM SHARED slotsInUse%
 
 ' SHARING CHARACTER VALUES
 DIM SHARED JustLoaded%
@@ -168,10 +177,10 @@ DIM SHARED Undead%
 TYPE InventoryItem
     name AS STRING
     value AS SINGLE
-    
+
     buyPrice AS INTEGER
     sellPrice AS INTEGER
-    
+
     amount AS INTEGER
     itemType AS INTEGER
     equipType AS INTEGER
@@ -192,9 +201,9 @@ CONST EQUIP_SHIELD = 2
 CONST EQUIP_ARMOUR = 3
 CONST EQUIP_HELM   = 4
 
-DIM SHARED Equipment(5) AS STRING
+DIM SHARED Equipment(0 TO 4) AS STRING
 
-DIM SHARED Inventory(91) AS InventoryItem
+DIM SHARED Inventory(0 TO 90) AS InventoryItem
 'Swords
 CONST ITEM_SHORT_SWORD              = 0
 CONST ITEM_LONG_SWORD               = 1
@@ -343,16 +352,20 @@ DIM SHARED XanathusFleeTime%
 DIM SHARED A48BSphere%
 DIM SHARED A56VampFight%
 DIM SHARED Hint%
+
+DIM SHARED GemClicks(0 TO 7) AS INTEGER
+CONST GEM_ORANGE = 0
+CONST GEM_BLACK  = 1
+CONST GEM_GREEN  = 2
+CONST GEM_BLOOD  = 3
+CONST GEM_BLUE   = 4
+CONST GEM_WHITE  = 5
+CONST GEM_RED    = 6
+CONST GEM_JADE   = 7
+
 DIM SHARED GemNum%
-DIM SHARED OGemClick%
-DIM SHARED BGemClick%
-DIM SHARED GGemClick%
-DIM SHARED BloodGemClick%
-DIM SHARED BlueGemClick%
-DIM SHARED WGemClick%
-DIM SHARED RGemClick%
-DIM SHARED JGemClick%
 DIM SHARED GemPuzzleDone%
+
 DIM SHARED AEncampmentUsePillar%
 DIM SHARED A67PillarUse%
 DIM SHARED A67PillarOn%
@@ -367,11 +380,11 @@ TYPE SpellProps
 
     special AS INTEGER
 END TYPE
-DIM SHARED OwlSpells(12) AS SpellProps
+DIM SHARED OwlSpells(0 TO 11) AS SpellProps
 
-DIM SHARED XanathusFleeAreas(8) AS STRING
+DIM SHARED XanathusFleeAreas(0 TO 7) AS STRING
 
-CLS
+SCREEN 12
     PRINT "Loading...Please Wait"
     RANDOMIZE TIMER
     InitGlobals
@@ -4784,7 +4797,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     818             INPUT ">", OGEM$
                 IF OGEM$ = "y" THEN
-                    OGemClick% = 1
+                    GemClicks(GEM_ORANGE) = 1
                     GemPuzzle
                     GOTO 817
                 END IF
@@ -5483,7 +5496,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     907             INPUT ">", GGEM$
                 IF GGEM$ = "y" THEN
-                    GGemClick% = 1
+                    GemClicks(GEM_GREEN) = 1
                     GemPuzzle
                     GOTO 905
                 END IF
@@ -5572,7 +5585,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     917             INPUT ">", RGEM$
                 IF RGEM$ = "y" THEN
-                    RGemClick% = 1
+                    GemClicks(GEM_RED) = 1
                     GemPuzzle
                     GOTO 915
                 END IF
@@ -5732,7 +5745,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     937             INPUT ">", BGEM$
                 IF BGEM$ = "y" THEN
-                    BGemClick% = 1
+                    GemClicks(GEM_BLACK) = 1
                     GemPuzzle
                     GOTO 935
                 END IF
@@ -5821,7 +5834,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     947             INPUT ">", JGEM$
                 IF JGEM$ = "y" THEN
-                    JGemClick% = 1
+                    GemClicks(GEM_JADE) = 1
                     GemPuzzle
                     GOTO 945
                 END IF
@@ -5980,7 +5993,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     967             INPUT ">", BLOODGEM$
                 IF BLOODGEM$ = "y" THEN
-                    BloodGemClick% = 1
+                    GemClicks(GEM_BLOOD) = 1
                     GemPuzzle
                     GOTO 965
                 END IF
@@ -6069,7 +6082,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     977             INPUT ">", WGEM$
                 IF WGEM$ = "y" THEN
-                    WGemClick% = 1
+                    GemClicks(GEM_WHITE) = 1
                     GemPuzzle
                     GOTO 975
                 END IF
@@ -6159,7 +6172,7 @@ SUB Act1Pt2
             PRINT "There is a button below do you wish to press it? <Y/N>"
     987             INPUT ">", BlueGEM$
                 IF BlueGEM$ = "y" THEN
-                    BlueGemClick% = 1
+                    GemClicks(GEM_BLUE) = 1
                     GemPuzzle
                     GOTO 985
                 END IF
@@ -6224,7 +6237,7 @@ SUB Act1Pt2
     GOTO 985
 
     ''''''''''''''''''''''''''''''''''''''''''''''
-    ''''Start of Necrotalia's Labrynth Level 3''''
+    ''''Start of Necrotalia's labyrinth Level 3''''
     ''''''''''''''''''''''''''''''''''''''''''''''
     ''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -8260,13 +8273,13 @@ SUB CHARCREATE
 25 END SUB
 
 REM $STATIC
-SUB CheckRunes
+SUB CheckRunes (rune$)
     RuneError% = 0
     COLOR 5
-    
+
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).itemType = ITEM_TYPE_RUNE AND Inventory(i).amount < 1 THEN
-            IF Inventory(i).name = RUNE1$ OR Inventory(i).name = RUNE2$ OR Inventory(i).name = RUNE3$ THEN
+            IF Inventory(i).name = rune$ THEN
                 PRINT "You don't have that rune"
                 RuneError% = 1
                 EXIT FOR
@@ -8323,14 +8336,14 @@ SUB ClearFlags
     A56VampFight% = 0
     Hint% = 0
     GemNum% = 0
-    OGemClick% = 0
-    BGemClick% = 0
-    GGemClick% = 0
-    BloodGemClick% = 0
-    BlueGemClick% = 0
-    WGemClick% = 0
-    RGemClick% = 0
-    JGemClick% = 0
+    GemClicks(GEM_ORANGE) = 0
+    GemClicks(GEM_BLACK) = 0
+    GemClicks(GEM_GREEN) = 0
+    GemClicks(GEM_BLOOD) = 0
+    GemClicks(GEM_BLUE) = 0
+    GemClicks(GEM_WHITE) = 0
+    GemClicks(GEM_RED) = 0
+    GemClicks(GEM_JADE) = 0
     GemPuzzleDone% = 0
     AEncampmentUsePillar% = 0
     A67PillarUse% = 0
@@ -8356,20 +8369,6 @@ SUB Credits
 
     SLEEP 10
 END SUB
-
-SUB DemoBlankInput
-    LOCATE 22, 3: PRINT "                                                                          "
-END SUB
-
-FUNCTION DemoInput% (Prompt AS STRING, BoundA AS LONG, BoundB AS LONG)
-    DIM Result AS INTEGER
-    DO
-      DemoBlankInput
-      LOCATE 22, 3: PRINT Prompt
-      LOCATE 22, 3 + LEN(Prompt): INPUT "", Result
-    LOOP UNTIL Result > BoundA - 1 AND Result < BoundB + 1
-    DemoInput% = Result
-END FUNCTION
 
 SUB displayequip
     PRINT ""
@@ -8433,7 +8432,7 @@ SUB displayinventory
             PRINT Inventory(i).name; ":"; Inventory(i).amount
         END IF
     NEXT i
-    
+
     'Potions
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).itemType = ITEM_TYPE_POTION AND Inventory(i).amount > 0 THEN
@@ -8442,7 +8441,21 @@ SUB displayinventory
     NEXT i
 
     'Runes
-    IF Expertise% = CLASS_MAGE THEN PRINT "Your Runes:"; RUNE$
+    IF Expertise% = CLASS_MAGE THEN
+        PRINT "Your Runes: ";
+        printedFirst% = FALSE
+        FOR i = 0 TO UBOUND(Inventory)
+            IF Inventory(i).itemType = ITEM_TYPE_RUNE AND Inventory(i).amount > 0 THEN
+                IF printedFirst% THEN
+                    PRINT ", "; Inventory(i).name;
+                ELSE
+                    PRINT Inventory(i).name;
+                    printedFirst% = TRUE
+                END IF
+            END IF
+        NEXT i
+    END IF
+    PRINT ""
 
     'Cash
     PRINT "Your gold:"; Gold&
@@ -8585,13 +8598,13 @@ SUB EquipItem (equipType AS INTEGER)
     typeNames(2) = "Shield"
     typeNames(3) = "Armour"
     typeNames(4) = "Helm"
-    
+
     COLOR 5
     PRINT "Equip what "; typeNames(equipType); "?"
     COLOR 15
     PRINT typeNames(equipType); " Name>";
     INPUT itemName$
-    
+
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).equipType = equipType AND LCASE$(Inventory(i).name) = LCASE$(itemName$) THEN
             IF Inventory(i).amount >= 1 THEN
@@ -8600,7 +8613,7 @@ SUB EquipItem (equipType AS INTEGER)
                     UnequipItem EQUIP_SHIELD
                 END IF
                 Equipment(equipType) = Inventory(i).name
-                
+
                 SELECT CASE equipType
                     CASE EQUIP_WEAPON
                         DAMAGEADDED% = Inventory(i).value
@@ -9254,261 +9267,113 @@ END SUB
 
 SUB GemPuzzle
     COLOR 5
-    IF OGemClick% = 1 THEN
-        OGemClick% = 0
-        IF GemNum% = 0 THEN
-            GemNum% = 1
-            PRINT "You press the button, it click easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
 
-    IF BGemClick% = 1 THEN
-        BGemClick% = 0
-        IF GemNum% = 1 THEN
-            GemNum% = 2
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
+    FOR i = 0 TO UBOUND(GemClicks)
+        IF GemClicks(i) = 1 THEN
+            IF GemNum% = i THEN
+                PRINT "You press the button, it clicks easily."
+                GemNum% = GemNum% + 1
+                IF GemNum% = 8 THEN
+                    PRINT "You hear a grinding noise coming from the main hall."
+                END IF
+            ELSE
+                PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
+            END IF
         END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
+    NEXT i
 
-    IF GGemClick% = 1 THEN
-        GGemClick% = 0
-        IF GemNum% = 2 THEN
-            GemNum% = 3
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    IF BloodGemClick% = 1 THEN
-        BloodGemClick% = 0
-        IF GemNum% = 3 THEN
-            GemNum% = 4
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    IF BlueGemClick% = 1 THEN
-        BlueGemClick% = 0
-        IF GemNum% = 4 THEN
-            GemNum% = 5
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    IF WGemClick% = 1 THEN
-        WGemClick% = 0
-        IF GemNum% = 5 THEN
-            GemNum% = 6
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    IF RGemClick% = 1 THEN
-        RGemClick% = 0
-        IF GemNum% = 6 THEN
-            GemNum% = 7
-            PRINT "You press the button, it clicks easily."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    IF JGemClick% = 1 THEN
-        JGemClick% = 0
-        IF GemNum% = 7 THEN
-            GemNum% = 8
-            GemPuzzleDone% = 1
-            A56VampFight% = 3
-            PRINT "You press the button, it clicks easily."
-            PRINT "You hear a grinding noise coming from the main hall."
-            GOTO 5000
-        END IF
-        PRINT "You attempt to press the button, it doesn't seem to be able to be pushed."
-        GOTO 5000
-    END IF
-
-    5000 COLOR 15
+    COLOR 15
 END SUB
 
 SUB GetSaveLoadPos
     OPEN "sgame.sav" FOR INPUT AS #1
-    INPUT #1, FirstName$, FClass$, Fpos%
-    INPUT #1, SName$, SClass$, Spos%
-    INPUT #1, TName$, TClass$, Tpos%
-    INPUT #1, QName$, QClass$, Qpos%
-    INPUT #1, PName$, PClass$, Ppos%
+
+    slotsInUse% = 0
+    IF LOF(1) <> 0 THEN
+        DO
+            INPUT #1, SaveSlots(slotsInUse%).playerName, SaveSlots(slotsInUse%).playerClass, SaveSlots(slotsInUse%).savePoint
+            IF SaveSlots(slotsInUse%).playerName <> "" THEN
+                slotsInUse% = slotsInUse% + 1
+            END IF
+        LOOP UNTIL EOF(1) OR slotsInUse% > UBOUND(SaveSlots)
+    END IF
     CLOSE #1
-    IF Fpos% = 0 THEN FSav$ = "Act 1: Surface Encampment"
-    IF Fpos% = 1 THEN FSav$ = "Act 1: Underground Level 3"
-    IF Fpos% = 2 THEN FSav$ = "Act 1: Necrotalia's Labrynth, Level 2"
-    IF Spos% = 0 THEN SSav$ = "Act 1: Surface Encampment"
-    IF Spos% = 1 THEN SSav$ = "Act 1: Underground Level 3"
-    IF Spos% = 2 THEN SSav$ = "Act 1: Necrotalia's Labrynth, Level 2"
-    IF Tpos% = 0 THEN TSav$ = "Act 1: Surface Encampment"
-    IF Tpos% = 1 THEN TSav$ = "Act 1: Underground Level 3"
-    IF Tpos% = 2 THEN TSav$ = "Act 1: Necrotalia's Labrynth, Level 2"
-    IF Qpos% = 0 THEN QSav$ = "Act 1: Surface Encampment"
-    IF Qpos% = 1 THEN QSav$ = "Act 1: Underground Level 3"
-    IF Qpos% = 2 THEN QSav$ = "Act 1: Necrotalia's Labrynth, Level 2"
-    IF Ppos% = 0 THEN PSav$ = "Act 1: Surface Encampment"
-    IF Ppos% = 1 THEN PSav$ = "Act 1: Underground Level 3"
-    IF Ppos% = 2 THEN PSav$ = "Act 1: Necrotalia's Labrynth, Level 2"
-    IF Fpos% = 3 THEN FSav$ = "Start of the game"
-    IF Spos% = 3 THEN SSav$ = "Start of the game"
-    IF Tpos% = 3 THEN TSav$ = "Start of the game"
-    IF Qpos% = 3 THEN QSav$ = "Start of the game"
-    IF Ppos% = 3 THEN PSav$ = "Start of the game"
-
-    IF FirstName$ = "" THEN
-    FirstName$ = "Young Warrior"
-    FSav$ = "Start of the game"
-    END IF
-
-    IF SName$ = "" THEN
-    SName$ = "Young Warrior"
-    SSav$ = "Start of the game"
-    END IF
-
-    IF TName$ = "" THEN
-    TName$ = "Young Warrior"
-    TSav$ = "Start of the game"
-    END IF
-
-    IF QName$ = "" THEN
-    QName$ = "Young Warrior"
-    QSav$ = "Start of the game"
-    END IF
-
-    IF PName$ = "" THEN
-    PName$ = "Young Warrior"
-    PSav$ = "Start of the game"
-    END IF
 
     CLS
-    PRINT "--------------------------------------------"
-    PRINT "Save posistion #1"
-    PRINT "      "; FirstName$
-    PRINT "      "; FClass$
-    PRINT "      "; FSav$
-    PRINT "--------------------------------------------"
-    PRINT "Save posistion #2"
-    PRINT "      "; SName$
-    PRINT "      "; SClass$
-    PRINT "      "; SSav$
-    PRINT "--------------------------------------------"
-    PRINT "Save posistion #3"
-    PRINT "      "; TName$
-    PRINT "      "; TClass$
-    PRINT "      "; TSav$
-    PRINT "--------------------------------------------"
-    PRINT "Save posistion #4"
-    PRINT "      "; QName$
-    PRINT "      "; QClass$
-    PRINT "      "; QSav$
-    PRINT "--------------------------------------------"
-    PRINT "Save posistion #5"
-    PRINT "      "; PName$
-    PRINT "      "; PClass$
-    PRINT "      "; PSav$
+    FOR i = 0 TO slotsInUse% - 1
+        PRINT "--------------------------------------------"
+        PRINT "Save position #"; LTRIM$(STR$(i + 1))
+        PRINT "      "; SaveSlots(i).playerName
+        PRINT "      "; SaveSlots(i).playerClass
+        PRINT "      ";
+        SELECT CASE SaveSlots(i).savePoint
+            CASE 0 : PRINT "Act 1: Surface Encampment"
+            CASE 1 : PRINT "Act 1: Underground Level 3"
+            CASE 2 : PRINT "Act 1: Necrotalia's labyrinth, Level 2"
+        END SELECT
+    NEXT i
+
+    IF UBOUND(SaveSlots) + 1 - slotsInUse% > 1 THEN
+        PRINT "--------------------------------------------"
+        PRINT "Save positions #"; LTRIM$(STR$(slotsInUse% + 1)); " to #"; LTRIM$(STR$(UBOUND(SaveSlots) + 1)); " are currently free for use."
+    ELSEIF UBOUND(SaveSlots) + 1 - slotsInUse% = 1 THEN
+        PRINT "--------------------------------------------"
+        PRINT "Save position #"; LTRIM$(STR$(slotsInUse% + 1)); " is currently free for use."
+    END IF
     PRINT "--------------------------------------------"
 
     IF Operation$ = "Save" THEN
-    99998 PRINT "Which save posistion do you want to save to? <1-5>"
-    PRINT "NOTE: You will not be prompted to overwrite"
-    PRINT "To cancel type `quit'"
-    INPUT ">", Save$
-    IF Save$ = "1" THEN
-        SavedGame% = 1
-        GOTO 100000
-    END IF
+  99998
+        limit% = slotsInUse% + 1
+        IF limit% > UBOUND(SaveSlots) + 1 THEN
+            limit% = UBOUND(SaveSlots) + 1
+        END IF
 
-    IF Save$ = "2" THEN
-        SavedGame% = 2
-        GOTO 100000
-    END IF
-    IF Save$ = "3" THEN
-        SavedGame% = 3
-        GOTO 100000
-    END IF
+        PRINT "Which save position do you want to save to? <1-"; LTRIM$(STR$(limit%)); ">"
+        PRINT "NOTE: You will not be prompted to overwrite"
+        PRINT "To cancel type `quit'"
+        INPUT ">", Save$
 
-    IF Save$ = "4" THEN
-        SavedGame% = 4
-        GOTO 100000
-    END IF
-
-    IF Save$ = "5" THEN
-        SavedGame% = 5
-        GOTO 100000
-    END IF
-
-    IF Save$ = "quit" THEN
-        SavedGame% = 6
-        GOTO 100000
-    END IF
-
-        COLOR 5
-        PRINT "Huh?"
-        COLOR 15
-        GOTO 99998
+        IF Save$ = "quit" THEN
+            SavedGame% = UBOUND(SaveSlots) + 2
+        ELSE
+            SavedGame% = VAL(Save$)
+            IF SavedGame% <= 0 OR SavedGame% > limit% THEN
+                COLOR 5
+                PRINT "Huh?"
+                COLOR 15
+                GOTO 99998
+            END IF
+        END IF
     END IF
 
     IF Operation$ = "Load" THEN
-    99999 PRINT "Which save game do you wish to load? <1-5>"
-    PRINT "To cancel type `quit'"
-    INPUT ">", Load$
-    IF Load$ = "1" THEN
-        LoadedGame% = 1
-        GOTO 100000
-    END IF
+  99999
+        IF slotsInUse% = 0 THEN
+            PRINT "There are no saved games."
+            INPUT "( Press Enter to continue )"; dummy$
+            LoadedGame% = UBOUND(SaveSlots) + 1
+            GOTO 100000
+        END IF
 
-    IF Load$ = "2" THEN
-        LoadedGame% = 2
-        GOTO 100000
-    END IF
-    IF Load$ = "3" THEN
-        LoadedGame% = 3
-        GOTO 100000
-    END IF
+        PRINT "Which save game do you wish to load? <1-"; LTRIM$(STR$(slotsInUse%)); ">"
+        PRINT "To cancel type `quit'"
+        INPUT ">", Load$
 
-    IF Load$ = "4" THEN
-        LoadedGame% = 4
-        GOTO 100000
+        IF Load$ = "quit" THEN
+            LoadedGame% = UBOUND(SaveSlots) + 2
+        ELSE
+            LoadedGame% = VAL(Load$)
+            IF LoadedGame% <= 0 OR LoadedGame% > slotsInUse% THEN
+                COLOR 5
+                PRINT "Huh?"
+                COLOR 15
+                GOTO 99999
+            END IF
+        END IF
     END IF
-
-    IF Load$ = "5" THEN
-        LoadedGame% = 5
-        GOTO 100000
-    END IF
-
-    IF Load$ = "quit" THEN
-        LoadedGame% = 6
-        GOTO 100000
-    END IF
-
-        COLOR 5
-        PRINT "Huh?"
-        COLOR 15
-        GOTO 99999
-    END IF
-100000 END SUB
+  100000
+END SUB
 
 REM $DYNAMIC
 SUB HELP
@@ -9546,12 +9411,14 @@ End SUB
 SUB LoadGame
     Operation$ = "Load"
     GetSaveLoadPos
-    IF LoadedGame% = 1 THEN OPEN "mud.sav" FOR INPUT AS #2
-    IF LoadedGame% = 2 THEN OPEN "mud1.sav" FOR INPUT AS #2
-    IF LoadedGame% = 3 THEN OPEN "mud2.sav" FOR INPUT AS #2
-    IF LoadedGame% = 4 THEN OPEN "mud3.sav" FOR INPUT AS #2
-    IF LoadedGame% = 5 THEN OPEN "mud4.sav" FOR INPUT AS #2
-    IF LoadedGame% = 6 THEN GOTO 100002
+    SELECT CASE LoadedGame%
+        CASE 1 : OPEN "mud.sav" FOR INPUT AS #2
+        CASE 2 : OPEN "mud1.sav" FOR INPUT AS #2
+        CASE 3 : OPEN "mud2.sav" FOR INPUT AS #2
+        CASE 4 : OPEN "mud3.sav" FOR INPUT AS #2
+        CASE 5 : OPEN "mud4.sav" FOR INPUT AS #2
+        CASE 6 : GOTO 100002
+    END SELECT
         'Saving position
         INPUT #2, SavePos%
 
@@ -9619,733 +9486,368 @@ SUB LoadGame
                 INPUT #2, Inventory(i).amount
             END IF
         NEXT i
-        
+
         CLOSE #2
 
-    IF SavePos% = 0 THEN
-        JustLoaded% = 1
-        ACT1
-        END IF
-
-    IF SavePos% = 1 THEN
-        JustLoaded% = 1
-        Act1Pt2
-        END IF
-
-    IF SavePos% = 2 THEN
-        JustLoaded% = 1
-        Act1Pt2
-        END IF
-
-    IF SavePos% = 3 THEN
-        JustLoaded% = 1
-        ACT1
-        END IF
-    IF SavePos% = 100 THEN
-        JustLoaded% = 1
-        ACT1
-        END IF
-100002 END SUB
+    JustLoaded% = 1
+    SELECT CASE SavePos%
+        CASE 0   : ACT1
+        CASE 1   : Act1Pt2
+        CASE 2   : Act1Pt2
+        CASE 3   : ACT1
+        CASE 100 : ACT1
+        CASE ELSE
+            JustLoaded% = 0
+    END SELECT
+  100002
+END SUB
 
 REM $DYNAMIC
 SUB MAGIC
-    2999 COLOR 15
+  2999
+    COLOR 15
     PRINT "Your collected runes are: "; RUNE$
     PRINT "COMBINE YOUR RUNES:"
     INPUT "RUNE 1>", RUNE1$
-    CheckRunes
+    CheckRunes RUNE1$
     IF RuneError% = 1 GOTO 3000
 
     INPUT "RUNE 2>", RUNE2$
-    CheckRunes
+    CheckRunes RUNE2$
     IF RuneError% = 1 GOTO 3000
 
     INPUT "RUNE 3>", RUNE3$
-    CheckRunes
+    CheckRunes RUNE3$
     IF RuneError% = 1 GOTO 3000
 
-    IF RUNE1$ = "ken" AND RUNE2$ = "wak" AND RUNE3$ = "yoo" THEN GOTO 3001
-    IF RUNE1$ = "tog" AND RUNE2$ = "wir" AND RUNE3$ = "gnu" THEN GOTO 3002
-    IF RUNE1$ = "ken" AND RUNE2$ = "yoo" AND RUNE3$ = "wir" THEN GOTO 3003
-    IF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN GOTO 3004
-    IF RUNE1$ = "vas" AND RUNE2$ = "rof" AND RUNE3$ = "sho" THEN GOTO 3005
-    IF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN GOTO 3006
-    IF RUNE1$ = "poa" AND RUNE2$ = "uch" AND RUNE3$ = "wod" THEN GOTO 3007
-    IF RUNE1$ = "poa" AND RUNE2$ = "wod" AND RUNE3$ = "uch" THEN GOTO 3008
-    IF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN GOTO 3009
-    IF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "wak" THEN GOTO 3010
-    IF RUNE1$ = "pud" AND RUNE2$ = "pud" AND RUNE3$ = "pud" THEN GOTO 3011
-    IF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN GOTO 3012
-    IF RUNE1$ = "das" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN GOTO 3013
-    IF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "fla" THEN GOTO 3014
-    IF RUNE1$ = "sho" AND RUNE2$ = "til" AND RUNE3$ = "tog" THEN GOTO 3015
-    IF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "poa" THEN GOTO 3016
-    IF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "wir" THEN GOTO 3017
-    IF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN GOTO 3018
-    IF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN GOTO 3019
-    IF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "wod" THEN GOTO 3020
-    IF RUNE1$ = "til" AND RUNE2$ = "sho" AND RUNE3$ = "pos" THEN GOTO 3021
-    IF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN GOTO 3022
-    IF RUNE1$ = "dir" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN GOTO 3023
-    IF RUNE1$ = "pos" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN GOTO 3024
-    IF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "vas" THEN GOTO 3025
-    IF RUNE1$ = "sho" AND RUNE2$ = "wod" AND RUNE3$ = "wir" THEN GOTO 3026
-    IF RUNE1$ = "pos" AND RUNE2$ = "fla" AND RUNE3$ = "sho" THEN GOTO 3027
-    IF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "wak" THEN GOTO 3028
-    IF RUNE1$ = "rer" AND RUNE2$ = "sho" AND RUNE3$ = "wir" THEN GOTO 3029
-    IF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN GOTO 3030
-    IF RUNE1$ = "wak" AND RUNE2$ = "uss" AND RUNE3$ = "wir" THEN GOTO 3031
-    IF RUNE1$ = "roc" AND RUNE2$ = "vas" AND RUNE3$ = "vas" THEN GOTO 3032
-    IF RUNE1$ = "oje" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN GOTO 3033
-    IF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "poa" THEN GOTO 3034
-    IF RUNE1$ = "pud" AND RUNE2$ = "cal" AND RUNE3$ = "das" THEN GOTO 3035
-    IF RUNE1$ = "gnu" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN GOTO 3036
-    IF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN GOTO 3037
-    IF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN GOTO 3038
-    IF RUNE1$ = "sho" AND RUNE2$ = "rer" AND RUNE3$ = "vas" THEN GOTO 3039
-    IF RUNE1$ = "pos" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN GOTO 3040
-    IF RUNE1$ = "pos" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN GOTO 3041
-    IF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN GOTO 3042
-    IF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN GOTO 3043
-    IF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "yoo" THEN GOTO 3044
-    IF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN GOTO 3045
-    IF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "wir" THEN GOTO 3046
-    IF RUNE1$ = "uss" AND RUNE2$ = "cal" AND RUNE3$ = "oje" THEN GOTO 3047
-    IF RUNE1$ = "fla" AND RUNE2$ = "dir" AND RUNE3$ = "roc" THEN GOTO 3048
-    IF RUNE1$ = "uch" AND RUNE2$ = "gnu" AND RUNE3$ = "tog" THEN GOTO 3049
-    IF RUNE1$ = "ken" AND RUNE2$ = "uss" AND RUNE3$ = "tog" THEN GOTO 3050
-    IF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN GOTO 3051
-    IF RUNE1$ = "das" AND RUNE2$ = "pud" AND RUNE3$ = "yoo" THEN GOTO 3052
-    IF RUNE1$ = "arp" AND RUNE2$ = "oje" AND RUNE3$ = "til" THEN GOTO 3053
-    IF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "coz" THEN GOTO 3054
-    IF RUNE1$ = "roc" AND RUNE2$ = "wod" AND RUNE3$ = "wak" THEN GOTO 3055
-    IF RUNE1$ = "gnu" AND RUNE2$ = "poa" AND RUNE3$ = "yoo" THEN GOTO 3056
-    IF RUNE1$ = "arp" AND RUNE2$ = "gnu" AND RUNE3$ = "oje" THEN GOTO 3057
-    IF RUNE1$ = "uss" AND RUNE2$ = "ken" AND RUNE3$ = "tog" THEN GOTO 3058
-    IF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN GOTO 3059
-    IF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN GOTO 3060
-    IF RUNE1$ = "sho" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN GOTO 3061
-    IF RUNE1$ = "fla" AND RUNE2$ = "uss" AND RUNE3$ = "arp" THEN GOTO 3062
-    IF RUNE1$ = "dop" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN GOTO 3063
-    IF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "cal" THEN GOTO 3064
-    IF RUNE1$ = "wir" AND RUNE2$ = "pos" AND RUNE3$ = "uch" THEN GOTO 3065
-    IF RUNE1$ = "rof" AND RUNE2$ = "cal" AND RUNE3$ = "coz" THEN GOTO 3066
-    IF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "sho" THEN GOTO 3067
-    IF RUNE1$ = "cal" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN GOTO 3068
-    IF RUNE1$ = "ken" AND RUNE2$ = "tog" AND RUNE3$ = "poa" THEN GOTO 3069
-    IF RUNE1$ = "uss" AND RUNE2$ = "gnu" AND RUNE3$ = "rer" THEN GOTO 3070
-    IF RUNE1$ = "tog" AND RUNE2$ = "poa" AND RUNE3$ = "arp" THEN GOTO 3071
-    IF RUNE1$ = "gnu" AND RUNE2$ = "rer" AND RUNE3$ = "oje" THEN GOTO 3072
-    IF RUNE1$ = "poa" AND RUNE2$ = "arp" AND RUNE3$ = "til" THEN GOTO 3073
-    IF RUNE1$ = "das" AND RUNE2$ = "yoo" AND RUNE3$ = "wak" THEN GOTO 3074
-    IF RUNE1$ = "pud" AND RUNE2$ = "dir" AND RUNE3$ = "wod" THEN GOTO 3075
-    IF RUNE1$ = "yoo" AND RUNE2$ = "wak" AND RUNE3$ = "roc" THEN GOTO 3076
-    IF RUNE1$ = "yoo" AND RUNE2$ = "tog" AND RUNE3$ = "uss" THEN GOTO 3077
-    IF RUNE1$ = "rof" AND RUNE2$ = "coz" AND RUNE3$ = "wak" THEN GOTO 3078
-    IF RUNE1$ = "til" AND RUNE2$ = "ken" AND RUNE3$ = "vas" THEN GOTO 3079
-    IF RUNE1$ = "tog" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN GOTO 3080
-    IF RUNE1$ = "wak" AND RUNE2$ = "roc" AND RUNE3$ = "vas" THEN GOTO 3081
-    IF RUNE1$ = "fla" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN GOTO 3082
-    IF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN GOTO 3083
-    IF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "coz" THEN GOTO 3084
-    IF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN GOTO 3085
-    IF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN GOTO 3086
-    IF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "pud" THEN GOTO 3087
-    IF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN GOTO 3088
-    IF RUNE1$ = "gnu" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN GOTO 3089
-    IF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN GOTO 3090
-    IF RUNE1$ = "wod" AND RUNE2$ = "uss" AND RUNE3$ = "ken" THEN GOTO 3091
-    IF RUNE1$ = "gnu" AND RUNE2$ = "wak" AND RUNE3$ = "coz" THEN GOTO 3092
-    IF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "ken" THEN GOTO 3093
-    IF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "cal" THEN GOTO 3094
-    IF RUNE1$ = "wod" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN GOTO 3095
-    IF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN GOTO 3096
-    IF RUNE1$ = "fla" AND RUNE2$ = "wir" AND RUNE3$ = "rof" THEN GOTO 3097
-    IF RUNE1$ = "wir" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN GOTO 3098
-    IF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN GOTO 3099
-    IF RUNE1$ = "pos" AND RUNE2$ = "cal" AND RUNE3$ = "uch" THEN GOTO 3100
-    PRINT "Not a valid spell."
-    GOTO 3000
-    3001
-    PRINT "A fireball leaps from your hand!"
-    ENEMYPTS% = ENEMYPTS% - 20
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
+    IF RUNE1$ = "ken" AND RUNE2$ = "wak" AND RUNE3$ = "yoo" THEN
+        PRINT "A fireball leaps from your hand!"
+        ENEMYPTS% = ENEMYPTS% - 20
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "wir" AND RUNE3$ = "gnu" THEN
+        PRINT "A lightning bolt leaps from your finger tips!"
+        ENEMYPTS% = ENEMYPTS% - 10
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "yoo" AND RUNE3$ = "wir" THEN
+        PRINT "Some of your wounds have healed!"
+        HPS% = HPS% + 2
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+        PRINT "You have gained super strength!!!"
+        STR% = STR% + 5
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "rof" AND RUNE3$ = "sho" THEN 
+        PRINT "A blast of raw magic erupts from your hands causing you to bleed profusely!"
+        ENEMYPTS% = ENEMYPTS% - 15
+        IF ENEMYPTS% > 0 THEN
+            HPS% = HPS% - 4
+        END IF
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+        PRINT "Your opponent bursts into flames!"
+        ENEMYPTS% = ENEMYPTS% - 50
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "uch" AND RUNE3$ = "wod" THEN 
+        PRINT "You have cast healing upon yourself!"
+        HPS% = HPS% + 30
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "wod" AND RUNE3$ = "uch" THEN 
+        PRINT "You have summoned a greater power of destruction!!!"
+        ENEMYPTS% = ENEMYPTS% - 17
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN 
+        PRINT "A swarm of hornets has attacked your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "wak" THEN 
+        PRINT "The ground starts rumbling from a massive earthquake!!!"
+        ENEMYPTS% = ENEMYPTS% - 15
+        IF ENEMYPTS% > 0 THEN
+            HPS% = HPS% - 15
+        END IF
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "pud" AND RUNE3$ = "pud" THEN 
+        PRINT "You have cast the spell of equality!"
+        HPS% = HPS% / 2
+        ENEMYPTS% = HPS%
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+        PRINT "A cobra is attacking your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 12
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+        PRINT "There is a huge explosion between you and your opponent!"
+        HPS% = HPS% - 11
+        ENEMYPTS% = ENEMYPTS% - 11
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "fla" THEN 
+        PRINT "A series of enchanted shruikens appear suddenly and hit your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "til" AND RUNE3$ = "tog" THEN 
+        PRINT "A flaming blast of fire erupts from your hands and engulfs the enemy in flames!"
+        ENEMYPTS% = ENEMYPTS% - 16
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "poa" THEN 
+        PRINT "You have summoned your familiar to your side!"
+        ENEMYPTS% = ENEMYPTS% - 12
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "wir" THEN 
+        PRINT "You have summoned Sir Jacob to your side!!!"
+        ENEMYPTS% = ENEMYPTS% - 13
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+        PRINT "Suddenly it begins to rain frogs!"
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN 
+        PRINT "Nothing happens."
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "wod" THEN 
+        PRINT "Raw magic whips out of your body and strangles your opponent."
+        ENEMYPTS% = ENEMYPTS% - 13
+    ELSEIF RUNE1$ = "til" AND RUNE2$ = "sho" AND RUNE3$ = "pos" THEN 
+        PRINT "Your body begins to crack and blister while releasing raw pain into your enemy!!"
+        ENEMYPTS% = ENEMYPTS% - 18
+        HPS% = HPS% - 18
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN 
+        PRINT "You have poisoned your opponent!!!"
+        ENEMYPTS% = ENEMYPTS% - 3
+    ELSEIF RUNE1$ = "dir" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN 
+        PRINT "A magical Genie appears..."
+        PRINT "What do you get when you cross a sheep with a kangaroo?"
+        PRINT "Cast Pos-Coz-Vas for the answer."
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+        PRINT "A wooly jumper!"
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "vas" THEN 
+        PRINT "Your opponent is strangled by an invisible entity!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "wod" AND RUNE3$ = "wir" THEN 
+        PRINT "A spell never includes two or more identical rune words."
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "fla" AND RUNE3$ = "sho" THEN 
+        PRINT "Suddenly you have very bad cramp!"
+        HPS% = HPS% - 1
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "wak" THEN 
+        PRINT "A great, black bat attacks your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 4
+    ELSEIF RUNE1$ = "rer" AND RUNE2$ = "sho" AND RUNE3$ = "wir" THEN 
+        PRINT "Elvis is alive!!!"
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN 
+        PRINT "You have killed your opponent!!!"
+        ENEMYPTS% = 0
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "uss" AND RUNE3$ = "wir" THEN 
+        PRINT "Pulses of electricity run through your opponent's body!"
+        ENEMYPTS% = ENEMYPTS% - 13
+    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "vas" AND RUNE3$ = "vas" THEN 
+        PRINT "Your opponent is sucked into the ground!"
+        ENEMYPTS% = ENEMYPTS% - 4
+    ELSEIF RUNE1$ = "oje" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "poa" THEN 
+        PRINT "Rock hard and hard rock!!!"
+        ENEMYPTS% = 2
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "cal" AND RUNE3$ = "das" THEN 
+        PRINT "You have cast a spell of holding!!!"
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+        PRINT "You have entered a time warp!!!"
+        ENEMYPTS% = ENEMYPTS% + 10
+        HPS% = HP%
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+        PRINT "KABOOM!!!!!!"
+        ENEMYPTS% = 1
+        HPS% = 1
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+        PRINT "You have cast the spell of speed and may cast another spell!!!"
+        GOTO 2999
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rer" AND RUNE3$ = "vas" THEN 
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN 
+        PRINT "You have cast the spell of weakness!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+        PRINT "Your opponent starts drowning on air!!!"
+        ENEMYPTS% = ENEMYPTS% - 17
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN 
+        PRINT "Hdgwnconsan;o!!!"
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+        PRINT "I'm sorry but I don't feel like casting that spell."
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "yoo" THEN 
+        PRINT "Sorry. That spell is out of order."
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN 
+        PRINT "Baboom!!!"
+        ENEMYPTS% = ENEMYPTS% - 5
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "wir" THEN 
+        PRINT "What?"
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "cal" AND RUNE3$ = "oje" THEN 
+        BEEP
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "dir" AND RUNE3$ = "roc" THEN 
+        PRINT "You have cast the spell of falling!!!"
+        BEEP
+        BEEP
+        BEEP
+        BEEP
+        BEEP
+        BEEP
+        PRINT "Ha, ha!!!"
+        ENEMYPTS% = ENEMYPTS% - 10
+    ELSEIF RUNE1$ = "uch" AND RUNE2$ = "gnu" AND RUNE3$ = "tog" THEN 
+        PRINT "AAAAAAAAAAAAAAGGGGHHH!!!"
+        ENEMYPTS% = ENEMYPTS% - 18
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "uss" AND RUNE3$ = "tog" THEN 
+        PRINT "Wimp."
+        BEEP
+        HPS% = 1
+    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN 
+        PRINT "Your opponent's blood begins to boil!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "pud" AND RUNE3$ = "yoo" THEN 
+        PRINT "Your wounds have healed."
+        HPS% = HPS% + 15
+    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "oje" AND RUNE3$ = "til" THEN 
+        CLS
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "coz" THEN 
+        PRINT "Finish him!!!"
+        ENEMYPTS% = 1
+        GOTO 2999
+    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "wod" AND RUNE3$ = "wak" THEN 
+        PRINT "You have tilted the scales of Libra!"
+        ENEMYPTS% = 1
+        HPS% = HPS% + 10
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "poa" AND RUNE3$ = "yoo" THEN 
+        PRINT "You cast the spell of love and have fallen in love"
+        PRINT "with your opponent and decided not to try and kill them THIS TIME."
+    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "gnu" AND RUNE3$ = "oje" THEN 
+        PRINT "SYNTAX ERROR: IDIOT ATTEMPTING TO CAST SPELL>"
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "ken" AND RUNE3$ = "tog" THEN 
+        PRINT "Your too dumb to be able to cast spell!!!"
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+        PRINT "What ever your do, don't cast Til-Shi-Pos!"
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN 
+        PRINT "Laser beams flash from your eyes and kill your opponent!!!"
+        ENEMYPTS% = 0
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+        PRINT "A thick poisonous fog surrounds your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "uss" AND RUNE3$ = "arp" THEN 
+        PRINT "You freeze your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 3
+    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN 
+        PRINT "Suddenly you are compelled to nut your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 2
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "cal" THEN 
+        'TODO: compile error here
+        'PLAY VARPTR$(cccd)
+    ELSEIF RUNE1$ = "wir" AND RUNE2$ = "pos" AND RUNE3$ = "uch" THEN 
+        PRINT "A lemming falls from the sky and hits your opponent on the head!"
+        ENEMYPTS% = ENEMYPTS% - 8
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "cal" AND RUNE3$ = "coz" THEN 
+        PRINT "You summon a dragon and try to kill your opponent!!!"
+        ENEMYPTS% = ENEMYPTS% - 10
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "sho" THEN 
+        PRINT "You have cast the spell of suicide!!!"
+        HPS% = 0
+    ELSEIF RUNE1$ = "cal" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+        PRINT "???"
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "tog" AND RUNE3$ = "poa" THEN 
+        PRINT "???"
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "gnu" AND RUNE3$ = "rer" THEN 
+        PRINT "W"
+        PRINT "h"
+        PRINT "a"
+        PRINT "t"
+        PRINT "?"
+        PRINT "?"
+        PRINT "?"
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "poa" AND RUNE3$ = "arp" THEN
+        PRINT "h"
+        PRINT "a"
+        PRINT "t"
+        PRINT "?"
+        PRINT "?"
+        PRINT "?"
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "rer" AND RUNE3$ = "oje" THEN 
+        PRINT "Your opponent is electrocuted!"
+        ENEMYPTS% = ENEMYPTS% - 16
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "arp" AND RUNE3$ = "til" THEN 
+        PRINT "You have raised an undead warrior!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "yoo" AND RUNE3$ = "wak" THEN 
+        PRINT "Babababooom!!!"
+        ENEMYPTS% = 2
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "dir" AND RUNE3$ = "wod" THEN 
+        PRINT "You have cast the spell of mirror!"
+        HPS% = ENEMYPTS%
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "wak" AND RUNE3$ = "roc" THEN 
+        PRINT "You have created an enchanted weapon!"
+        DAMAGEADDED% = DAMAGEADDED% + 10
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "tog" AND RUNE3$ = "uss" THEN 
+        PRINT "Splat!"
+        BEEP
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "coz" AND RUNE3$ = "wak" THEN 
+        PRINT "Your hair has turned red!"
+        PRINT "Don't move buddy!"
+    ELSEIF RUNE1$ = "til" AND RUNE2$ = "ken" AND RUNE3$ = "vas" THEN 
+        PRINT "Don't move buddy!"
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN 
+        PRINT "Ready,"
+        PRINT "Steady,"
+        PRINT "GO!!!"
+        ENEMYPTS% = ENEMYPTS% - 17
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "roc" AND RUNE3$ = "vas" THEN 
+        PRINT "The X-Files is rather good."
+        ENEMYPTS% = 2
+        PRINT "Babylon 5 is great!"
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN
+        PRINT "Babylon 5 is great!"
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN 
+        PRINT "Zzzzap!"
+        ENEMYPTS% = ENEMYPTS% - 15
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "coz" THEN 
+        PRINT "You have turned your opponent into stone!"
+        ENEMYPTS% = ENEMYPTS% - 19
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN 
+        PRINT "Red lasers flash from your eyes!"
+        ENEMYPTS% = ENEMYPTS% - 14
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN 
+        PRINT "You have built a shield!"
+        HPS% = HPS% + 4
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "pud" THEN 
+        PRINT "You have gained magic armour!"
+        HPS% = HPS% + 6
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+        CLS
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN 
+        PRINT "The ground swallows up your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 7
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN 
+        PRINT "Lightning never strikes twice!"
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "uss" AND RUNE3$ = "ken" THEN 
+        PRINT "Wierd-a-loony-fantastic-eye-boggling-mania!!!"
+        ENEMYPTS% = 1
+        HPS% = 10
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wak" AND RUNE3$ = "coz" THEN 
+        PRINT "A tiger forms in the air and attacks your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 5
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "ken" THEN 
+        PRINT "You'll be the death of your opponent one day!"
+        ENEMYPTS% = ENENYHPS% - HPS%
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "cal" THEN 
+        PRINT "Fart the day of the right way!!!"
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN 
+        PRINT
+    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN
+        PRINT
+        ENEMYPTS% = ENEMYPTS% - 13
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "wir" AND RUNE3$ = "rof" THEN
+        PRINT "Your opponent comes out in red spots!"
+        ENEMYPTS% = ENEMYPTS% - 1
+    ELSEIF RUNE1$ = "wir" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN
+        PRINT "A hideous monster appears and attacks your opponent!"
+        ENEMYPTS% = ENEMYPTS% - 18
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN
+        PRINT "Happy Birthday!!!"
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "cal" AND RUNE3$ = "uch" THEN
+        PRINT "Do you know that this is the 100th spell?"
+        COLOR 7
+    ELSE
+        PRINT "Not a valid spell."
     END IF
-    GOTO 3000
-    3002
-    PRINT "A lightning bolt leaps from your finger tips!"
-    ENEMYPTS% = ENEMYPTS% - 10
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3003
-    PRINT "Some of your wounds have healed!"
-    HPS% = HPS% + 2
-    IF HPS% > HP% THEN
+
+    IF HPS% <= 0 THEN
+        PRINT "You have died."
+        END
+    ELSEIF HPS% > HP THEN
         HPS% = HP%
     END IF
-    GOTO 3000
-    3004
-    PRINT "You have gained super strength!!!"
-    STR% = STR% + 5
-    GOTO 3000
-    3005
-    PRINT "A blast of raw magic erupts from your hands causing you to bleed profusely!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    HPS% = HPS% - 4
-    IF HPS% <= 0 THEN
-        PRINT "You have died."
-        END
-    END IF
-    GOTO 3000
-    3006
-    PRINT "Your opponent bursts into flames!"
-    ENEMYPTS% = ENEMYPTS% - 50
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3007
-    PRINT "You have cast healing upon yourself!"
-    HPS% = HPS% + 30
-    IF HPS% > HP% THEN
-           HPS% = HP%
-    END IF
-    GOTO 3000
-    3008
-    PRINT "You have summoned a greater power of destruction!!!"
-    ENEMYPTS% = ENEMYPTS% - 17
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3009
-    PRINT "A swarm of hornets has attacked your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3010
-    PRINT "The ground starts rumbling from a massive earthquake!!!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    HPS% = HPS% - 15
-    IF HPS% <= 0 THEN
-           PRINT "You have died."
-           END
-    END IF
-    GOTO 3000
-    3011
-    PRINT "You have cast the spell of equality!"
-    HPS% = HPS% / 2
-    ENEMYPTS% = HPS%
-    GOTO 3000
-    3012
-    PRINT "A cobra is attacking your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 12
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3013
-    PRINT "There is a huge explosion between you and your opponent!"
-    HPS% = HPS% - 11
-    IF HPS% <= 0 THEN
-        PRINT "You have died."
-        END
-    END IF
-    ENEMYPTS% = ENEMYPTS% - 11
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3014
-    PRINT "A series of enchanted shruikens appear suddenly and hit your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3015
-    PRINT "A flaming blast of fire erupts from your hands and engulfs the enemy in flames!"
-    ENEMYPTS% = ENEMYPTS% - 16
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3016
-    PRINT "You have summoned your familiar to your side!"
-    ENEMYPTS% = ENEMYPTS% - 12
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3017
-    PRINT "You have summoned Sir Jacob to your side!!!"
-    ENEMYPTS% = ENEMYPTS% - 13
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3018
-    PRINT "Suddenly it begins to rain frogs!"
-    GOTO 3000
-    3019
-    PRINT "Nothing happens."
-    GOTO 3000
-    3020
-    PRINT "Raw magic whips out of your body and strangles your opponent."
-    ENEMYPTS% = ENEMYPTS% - 13
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3021
-    PRINT "Your body begins to crack and blister while releasing raw pain into your enemy!!"
-    ENEMYPTS% = ENEMYPTS% - 18
-    HPS% = HPS% - 18
-    IF HPS% <= 0 THEN
-        PRINT "You have died."
-        END
-    END IF
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3022
-    PRINT "You have poisoned your opponent!!!"
-    ENEMYPTS% = ENEMYPTS% - 3
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3023
-    PRINT "A magical Genie appears..."
-    PRINT "What do you get when you cross a sheep with a kangaroo?"
-    PRINT "Cast Pos-Coz-Vas for the answer."
-    GOTO 3000
-    3024
-    PRINT "A wooly jumper!"
-    GOTO 3000
-    3025
-    PRINT "Your opponent is strangled by an invisible entity!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3026
-    PRINT "A spell never includes two or more identical rune words."
-    GOTO 3000
-    3027
-    PRINT "Suddenly you have very bad cramp!"
-    HPS% = HPS% - 1
-    IF HPS% <= 0 THEN
-    PRINT "You have died."
-    END
-    END IF
-    GOTO 3000
-    3028
-    PRINT "A great, black bat attacks your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 4
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3029
-    PRINT "Elvis is alive!!!"
-    GOTO 3000
-    3030
-    PRINT "You have killed your opponent!!!"
-    ENEMYPTS% = 0
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3031
-    PRINT "Pulses of electricity run through your opponent's body!"
-    ENEMYPTS% = ENEMYPTS% - 13
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3032
-    PRINT "Your opponent is sucked into the ground!"
-    ENEMYPTS% = ENEMYPTS% - 4
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3033
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3034
-    PRINT "Rock hard and hard rock!!!"
-    ENEMYPTS% = 2
-    GOTO 3000
-    3035
-    PRINT "You have cast a spell of holding!!!"
-    GOTO 3000
-    3036
-    PRINT "You have entered a time warp!!!"
-    ENEMYPTS% = ENEMYPTS% + 10
-    HPS% = HP%
-    GOTO 3000
-    3037
-    PRINT "KABOOM!!!!!!"
-    ENEMYPTS% = 1
-    HPS% = 1
-    GOTO 3000
-    3038
-    PRINT "You have cast the spell of speed and may cast another spell!!!"
-    GOTO 2999
-    3039
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3040
-    PRINT "You have cast the spell of weakness!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3041
-    PRINT "Your opponent starts drowning on air!!!"
-    ENEMYPTS% = ENEMYPTS% - 17
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3042
-    PRINT "Hdgwnconsan;o!!!"
-    GOTO 3000
-    3043
-    PRINT "I'm sorry but I don't feel like casting that spell."
-    GOTO 3000
-    3044
-    PRINT "Sorry. That spell is out of order."
-    GOTO 3000
-    3045
-    PRINT "Baboom!!!"
-    ENEMYPTS% = ENEMYPTS% - 5
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3046
-    PRINT "What?"
-    GOTO 3000
-    3047
-    BEEP
-    GOTO 3000
-    3048
-    PRINT "You have cast the spell of falling!!!"
-    BEEP
-    BEEP
-    BEEP
-    BEEP
-    BEEP
-    BEEP
-    PRINT "Ha, ha!!!"
-    ENEMYPTS% = ENEMYPTS% - 10
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3049
-    PRINT "AAAAAAAAAAAAAAGGGGHHH!!!"
-    ENEMYPTS% = ENEMYPTS% - 18
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3050
-    PRINT "Wimp."
-    BEEP
-    HPS% = 1
-    GOTO 3000
-    3051
-    PRINT "Your opponent's blood begins to boil!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3052
-    PRINT "Your wounds have healed."
-    HPS% = HPS% + 15
-    IF HPS% >= HP% THEN
-    HPS% = HP%
-    END IF
-    GOTO 3000
-    3053
-    CLS
-    GOTO 3000
-    3054
-    PRINT "Finish him!!!"
-    ENEMYPTS% = 1
-    GOTO 2999
-    3055
-    PRINT "You have tilted the scales of Libra!"
-    ENEMYPTS% = 1
-    HPS% = HPS% + 10
-    IF HPS% >= HP% THEN
-    HPS% = HP%
-    END IF
-    GOTO 3000
-    3056
-    PRINT "You cast the spell of love and have fallen in love"
-    PRINT "with your opponent and decided not to try and kill them THIS TIME."
-    GOTO 3000
-    3057
-    PRINT "SYNTAX ERROR: IDIOT ATTEMPTING TO CAST SPELL>"
-    GOTO 3000
-    3058
-    PRINT "Your too dumb to be able to cast spell!!!"
-    GOTO 3000
-    3059
-    PRINT "What ever your do, don't cast Til-Shi-Pos!"
-    GOTO 3000
-    3060
-    PRINT "Laser beams flash from your eyes and kill your opponent!!!"
-    ENEMYPTS% = 0
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3061
-    PRINT "A thick poisonous fog surrounds your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3062 PRINT "You freeze your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 3
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3063
-    PRINT "Suddenly you are compelled to nut your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 2
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3064
-    'TODO: compile error here
-    'PLAY VARPTR$(cccd)
-    GOTO 3000
-    3065
-    PRINT "A lemming falls from the sky and hits your opponent on the head!"
-    ENEMYPTS% = ENEMYPTS% - 8
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3066
-    PRINT "You summon a dragon and try to kill your opponent!!!"
-    ENEMYPTS% = -10
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3067
-    PRINT "You have cast the spell of suicide!!!"
-    HPS% = 0
-    PRINT "You have died."
-    END
-    3068
-    GOTO 3069
-    3069
-    PRINT "???"
-    GOTO 3000
-    3070
-    PRINT "W"
-    3071
-    PRINT "h"
-    PRINT "a"
-    PRINT "t"
-    PRINT "?"
-    PRINT "?"
-    PRINT "?"
-    GOTO 3000
-    3072
-    PRINT "Your opponent is electrocuted!"
-    ENEMYPTS% = ENEMYPTS% - 16
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3073
-    PRINT "You have raised an undead warrior!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3074
-    PRINT "Babababooom!!!"
-    ENEMYPTS% = 2
-    GOTO 3000
-    3075
-    PRINT "You have cast the spell of mirror!"
-    HPS% = ENEMYPTS%
-    GOTO 3000
-    3076
-    PRINT "You have created an enchanted weapon!"
-    DAMAGEADDED% = DAMAGEADDED% + 10
-    GOTO 3000
-    3077
-    PRINT "Splat!"
-    BEEP
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3078
-    PRINT "Your hair has turned red!"
-    3079
-    PRINT "Don't move buddy!"
-    GOTO 3000
-    3080
-    PRINT "Ready,"
-    PRINT "Steady,"
-    PRINT "GO!!!"
-    ENEMYPTS% = ENEMYPTS% - 17
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3081
-    PRINT "The X-Files is rather good."
-    ENEMYPTS% = 2
-    3082
-    PRINT "Babylon 5 is great!"
-    GOTO 3000
-    3083
-    PRINT "Zzzzap!"
-    ENEMYPTS% = ENEMYPTS% - 15
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3084
-    PRINT "You have turned your opponent into stone!"
-    ENEMYPTS% = ENEMYPTS% - 19
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3085
-    PRINT "Red lasers flash from your eyes!"
-    ENEMYPTS% = ENEMYPTS% - 14
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3086
-    PRINT "You have built a shield!"
-    HPS% = HPS% + 4
-    IF HPS% >= HP% THEN
-    HPS% = HP%
-    END IF
-    GOTO 3000
-    3087
-    PRINT "You have gained magic armour!"
-    HPS% = HPS% + 6
-    IF HPS% >= HP% THEN
-    HPS% = HP%
-    END IF
-    GOTO 3000
-    3088
-    CLS
-    GOTO 3000
-    3089
-    PRINT "The ground swallows up your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 7
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3090 PRINT "Lightning never strikes twice!"
-    GOTO 3000
-    3091
-    PRINT "Wierd-a-loony-fantastic-eye-boggling-mania!!!"
-    ENEMYPTS% = 1
-    HPS% = 10
-    GOTO 3000
-    3092
-    PRINT "A tiger forms in the air and attacks your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 5
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3093
-    PRINT "You'll be the death of your opponent one day!"
-    ENEMYPTS% = ENENYHPS% - HPS%
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3094
-    PRINT "Fart the day of the right way!!!"
-    GOTO 3000
-    3095
-    PRINT
-    GOTO 3000
-    3096
-    PRINT
-    ENEMYPTS% = ENEMYPTS% - 13
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3097
-    PRINT "Your opponent comes out in red spots!"
-    ENEMYPTS% = ENEMYPTS% - 1
-    IF ENEMYPTS% <= 0 THEN
-        GOTO 3000
-    END IF
-    GOTO 3000
-    3098
-    PRINT "A hideous monster appears and attacks your opponent!"
-    ENEMYPTS% = ENEMYPTS% - 18
-    IF ENEMYPTS% <= 0 THEN
-    GOTO 3000
-    END IF
-    GOTO 3000
-    3099
-    PRINT "Happy Birthday!!!"
-    GOTO 3000
-    3100
-    PRINT "Do you know that this is the 100th spell?"
-    COLOR 7
-    GOTO 3000
-3000 END SUB
+  3000
+END SUB
 
     REM $STATIC
 SUB MainMenu
     Diff% = 1
-    9998 CLS
-    SCREEN 12
+  9998
+    CLS
     PRINT "                         THE MUD GAME"
     PRINT ""
     PRINT "                          MAIN MENU"
@@ -10356,42 +9858,36 @@ SUB MainMenu
     PRINT "                       3-Credits"
     PRINT "                       4-Options"
     IF GameOn% = 1 THEN
-    PRINT "                       5-Return to current game"
+        PRINT "                       5-Return to current game"
     END IF
-    9999 INPUT ">", Menu$
-        IF Menu$ = "0" THEN
+  9999
+    INPUT ">", Menu$
+    SELECT CASE Menu$
+        CASE "0"
             GameOn% = 0
             SavePos% = 100
             ClearFlags
             ACT1
-        END IF
-        IF Menu$ = "1" THEN
+        CASE "1"
             LoadGame
-            GOTO 9998
-        END IF
-
-        IF Menu$ = "3" THEN
+        CASE "2"
+            END
+        CASE "3"
             Credits
             CLS
-            GOTO 9998
-        END IF
-
-        IF Menu$ = "4" THEN
+        CASE "4"
             Options
-
-            GOTO 9998
-        END IF
-
-        IF Menu$ = "5" THEN
-            IF GameOn% = 1 THEN
-                GOTO 10000
-            END IF
-        END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
-    GOTO 9999
-10000 END SUB
+        CASE "5"
+            IF GameOn% = 1 GOTO 10000
+        CASE ELSE
+            COLOR 5
+            PRINT "Huh?"
+            COLOR 15
+            GOTO 9999
+    END SELECT
+    GOTO 9998
+  10000
+END SUB
 
 SUB NecrotaliaAI
     NecroAI% = INT(RND * 4) + 1
@@ -11139,11 +10635,10 @@ SUB Options
     CLS
     PRINT "Options:"
     PRINT "   1-Game Options"
-    PRINT "   2-Sound Options"
-    PRINT "   3-Return to main menu"
+    PRINT "   2-Return to main menu"
     PRINT ""
   1.1
-    PRINT "What is your choice? <1-3>"
+    PRINT "What is your choice? <1-2>"
     INPUT ">", Optionse$
     SELECT CASE Optionse$
         CASE "1"
@@ -11171,61 +10666,12 @@ SUB Options
             PRINT "Huh?"
             COLOR 15
             GOTO 1.25
-        CASE "2" : GOTO 1.3
-        CASE "3" : GOTO 1.7
+        CASE "2" : GOTO 1.7
     END SELECT
     COLOR 5
     PRINT "Huh?"
     COLOR 15
     GOTO 1.1
-
-  1.3 
-    CLS
-    PRINT "Sound options:"
-    PRINT "Volume   -<S>ound Effects:"; WillsSoundEffectVolume%
-    PRINT "         -<M>usic:"; WillsMusicVolume%
-    PRINT ""
-    PRINT "Sound <E>ffect Test: <1-3>"
-    PRINT "Music <T>est: <1-8>"
-    PRINT ""
-    PRINT "<L>eave"
-    PRINT ""
-  1.35
-    PRINT "What is your choice?"
-    INPUT ">", Sound$
-        IF Sound$ = "s" THEN
-            PRINT "What new volume do you wish to set it to? <1-100>"
-            INPUT ">", WillsSoundEffectVolume%
-            IF WillsSoundEffectVolume% > 100 THEN WillsSoundEffectVolume% = 50
-            IF WillsSoundEffectVolume% < 0 THEN WillsSoundEffectVolume% = 50
-
-            GOTO 1.3
-        END IF
-        IF Sound$ = "m" THEN
-            PRINT "What new volume do you wish to set it to? <1-100>"
-            INPUT ">", WillsMusicVolume%
-            IF WillsMusicVolume% > 100 THEN WillsMusicVolume% = 50
-            IF WillsMusicVolume% < 0 THEN WillsMusicVolume% = 50
-
-            GOTO 1.3
-        END IF
-        IF Sound$ = "e" THEN
-            PRINT "Which one do you want to play? <1-3>"
-            INPUT ">", SFXTest$
-
-            GOTO 1.3
-        END IF
-        IF Sound$ = "t" THEN
-            PRINT "Which one do you want to play? <1-8>"
-            INPUT ">", MUSTest$
-
-            GOTO 1.3
-        END IF
-        IF Sound$ = "l" THEN GOTO 1.05
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
-    GOTO 1.35
   1.7
 END SUB
 
@@ -11236,12 +10682,12 @@ SUB OWLSPELL
         IF OWLSPELLCHANCE% <= 10 THEN
           19999.9
             WHICHOWLSPELL% = INT(RND * 12) + 1
-            
+
             IF NOT OwlSpells(WHICHOWLSPELL%).hasIt THEN
                 LEARNOWLSPELL$ = OwlSpells(WHICHOWLSPELL%).name
                 OwlSpells(WHICHOWLSPELL%).hasIt = TRUE
                 ALLE% = ALLE% + 1
-                
+
                 PRINT Familiar$; " learned the "; LEARNOWLSPELL$; " spell!"
             ELSE
                 GOTO 19999.9
@@ -11299,17 +10745,17 @@ SUB PurchaseSamael
                     PRINT USING "####"; Inventory(i).buyPrice
                 END IF
             NEXT i
-            
+
             PRINT ""
             PRINT "Gold="; Gold&
 
             INPUT "item name>", Purchase$
-            
+
             Purchase$ = LCASE$(Purchase$)
             FOR i = 0 TO UBOUND(Inventory)
                 IF Inventory(i).buyPrice <> 0 AND LCASE$(Inventory(i).name) = Purchase$ THEN
                     foundIt% = TRUE
-                    
+
                     IF Gold& >= Inventory(i).buyPrice THEN
                         Gold& = Gold& - Inventory(i).buyPrice
                         Inventory(i).amount = Inventory(i).amount + 1
@@ -11317,47 +10763,48 @@ SUB PurchaseSamael
                     ELSE
                         PRINT "You don't have enough gold for that"
                     END IF
-                    
+
                     EXIT FOR
                 END IF
             NEXT i
-            
+
             IF NOT foundIt% THEN PRINT "Samael> ooook...I don't quite understande ye, try again."
         CASE "sell"
             displayinventory
             PRINT "What do you wish to sell?"
             INPUT "Item Name>", Sell$
-            
+
             Sell$ = LCASE$(Sell$)
             FOR i = 0 TO UBOUND(Inventory)
                 IF Inventory(i).sellPrice <> 0 AND Inventory(i).amount > 0 AND LCASE$(Inventory(i).name) = Sell$ THEN
                     foundIt% = TRUE
-                    
+
                     PRINT "Samael> Okay I can give ye "; Inventory(i).sellPrice; " gold fer each of em"
                     PRINT "        how many do ye want to sell me?"
                     PRINT "Quantity:"; Inventory(i).amount
                     INPUT "Sell how many?", amount%
-                    
+
                     IF Inventory(i).amount < amount% THEN
                         PRINT "You don't have that many. Anyways, I'll take everything ye got."
                         amount% = Inventory(i).amount
                     END IF
-                    
+
                     Gold& = Gold& + (Inventory(i).sellPrice * amount%)
                     Inventory(i).amount = Inventory(i).amount - amount%
-                    
+
                     EXIT FOR
                 END IF
             NEXT i
-            
+
             IF NOT foundIt% THEN PRINT "Samael> ooook...I don't quite understande ye, try again."
         CASE "leave"
-            RETURN
+            GOTO SUBEND
         CASE ELSE
             PRINT "huh?"
             GOTO 431
     END SELECT
     GOTO 430
+  SUBEND:
 END SUB
 
 SUB RANDOMRUNEDROP
@@ -11438,9 +10885,9 @@ SUB SaveGame
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).equipType = EQUIP_WEAPON THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
@@ -11452,57 +10899,57 @@ SUB SaveGame
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).equipType = EQUIP_HELM THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
     NEXT i
     PRINT #1, ""
-    
+
     'Shield Inventory
     firstTaken% = FALSE
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).equipType = EQUIP_SHIELD THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
     NEXT i
     PRINT #1, ""
-    
+
     'Armour Inventory
     firstTaken% = FALSE
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).equipType = EQUIP_ARMOUR THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
     NEXT i
     PRINT #1, ""
-    
+
     'Potion Inventory
     firstTaken% = FALSE
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).itemType = ITEM_TYPE_POTION THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
     NEXT i
     PRINT #1, ""
-    
+
     'Act1Pt2 SUB Triggers, Quest Items
     WRITE #1, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, Inventory(QITEM_GATE_KEY).amount, A67PillarOn%
 
@@ -11511,7 +10958,7 @@ SUB SaveGame
 
     'Familiar Stuff
     WRITE #1, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$,
-    
+
     FOR i = 0 TO 8
         WRITE #1, OwlSpells(i).hasIt,
     NEXT i
@@ -11537,14 +10984,14 @@ SUB SaveGame
         END IF
     NEXT i
     PRINT #1, ""
-    
+
     firstTaken% = FALSE
     FOR i = 0 TO UBOUND(Inventory)
         IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
             IF firstTaken% THEN
-                PRINT #1, ","; Inventory(i).amount;
+                PRINT #1, ","; LTRIM$(STR$(Inventory(i).amount));
             ELSE
-                PRINT #1, Inventory(i).amount;
+                PRINT #1, LTRIM$(STR$(Inventory(i).amount));
                 firstTaken% = TRUE
             END IF
         END IF
@@ -11560,48 +11007,32 @@ END SUB
 SUB SaveToSavegame
     OPEN "sgame.sav" FOR INPUT AS #1
 
-    INPUT #1, FirstName$, FClass$, Fpos%
-    INPUT #1, SName$, SClass$, Spos%
-    INPUT #1, TName$, TClass$, Tpos%
-    INPUT #1, QName$, QClass$, Qpos%
-    INPUT #1, PName$, PClass$, Ppos%
-
+    slotsInUse% = 0
+    IF LOF(1) > 0 THEN
+        DO
+            INPUT #1, SaveSlots(slotsInUse%).playerName, SaveSlots(slotsInUse%).playerClass, SaveSlots(slotsInUse%).savePoint
+            IF SaveSlots(slotsInUse%).playerName <> "" THEN
+                slotsInUse% = slotsInUse% + 1
+            END IF
+        LOOP UNTIL EOF(1) OR slotsInUse% > UBOUND(SaveSlots)
+    END IF
+    
     CLOSE #1
-
     OPEN "sgame.sav" FOR OUTPUT AS #2
 
-    SELECT CASE SavedGame%
-        CASE 1
-            WRITE #2, Name$, Class$, SavePos%
-            WRITE #2, SName$, SClass$, Spos%
-            WRITE #2, TName$, TClass$, Tpos%
-            WRITE #2, QName$, QClass$, Qpos%
-            WRITE #2, PName$, PClass$, Ppos%
-        CASE 2
-            WRITE #2, FirstName$, FClass$, Fpos%
-            WRITE #2, Name$, Class$, SavePos%
-            WRITE #2, TName$, TClass$, Tpos%
-            WRITE #2, QName$, QClass$, Qpos%
-            WRITE #2, PName$, PClass$, Ppos%
-        CASE 3
-            WRITE #2, FirstName$, FClass$, Fpos%
-            WRITE #2, SName$, SClass$, Spos%
-            WRITE #2, Name$, Class$, SavePos%
-            WRITE #2, QName$, QClass$, Qpos%
-            WRITE #2, PName$, PClass$, Ppos%
-        CASE 4
-            WRITE #2, FirstName$, FClass$, Fpos%
-            WRITE #2, SName$, SClass$, Spos%
-            WRITE #2, TName$, TClass$, Tpos%
-            WRITE #2, Name$, Class$, SavePos%
-            WRITE #2, PName$, PClass$, Ppos%
-        CASE 5
-            WRITE #2, FirstName$, FClass$, Fpos%
-            WRITE #2, SName$, SClass$, Spos%
-            WRITE #2, TName$, TClass$, Tpos%
-            WRITE #2, QName$, QClass$, Qpos%
-            WRITE #2, Name$, Class$, SavePos%
-    END SELECT
+    IF SavedGame% <= UBOUND(SaveSlots) + 1 THEN
+        SaveSlots(SavedGame% - 1).playerName = Name$
+        SaveSlots(SavedGame% - 1).playerClass = Class$
+        SaveSlots(SavedGame% - 1).savePoint = SavePos%
+        
+        IF SavedGame% = slotsInUse% + 1 THEN
+            slotsInUse% = slotsInUse% + 1
+        END IF
+    END IF
+    
+    FOR i = 0 TO slotsInUse% - 1
+        WRITE #2, SaveSlots(i).playerName, SaveSlots(i).playerClass, SaveSlots(i).savePoint
+    NEXT i
 
     CLOSE #2
 END SUB
@@ -11677,10 +11108,10 @@ END SUB
 REM $DYNAMIC
 SUB USEOWLSPELL
     index% = -1
-    
+
   spellLoop:
     loopDone = TRUE
-    
+
     PRINT "Your owl spell list:"
     FOR i = LBOUND(OwlSpells) TO UBOUND(OwlSpells)
         IF OwlSpells(i).hasIt THEN PRINT OwlSpells(i).name
@@ -11906,7 +11337,7 @@ SUB XanathusBattle
                     IF COMBATSPEED% < ENEMYSPEED% THEN
                         XanathusAI
                     END IF
-                    
+
                     LHO$ = LH$
                     IF LH$ = "Long Staff" THEN RH$ = ""
                     IF LH$ = "Short Staff" THEN RH$ = ""
@@ -11927,7 +11358,7 @@ SUB XanathusBattle
                         XanathusDead% = 1
                         GOTO 4000
                     END IF
-                    
+
                     IF COMBATSPEED% >= ENEMYSPEED% THEN
                         XanathusAI
                     END IF
@@ -11950,7 +11381,7 @@ SUB XanathusBattle
                 IF COMBATSPEED% < ENEMYSPEED% THEN
                     XanathusAI
                 END IF
-                
+
                 COLOR 5
                 IF Inventory(ITEM_POTION).amount >= 1 THEN
                     PRINT "used potion"
@@ -11958,7 +11389,7 @@ SUB XanathusBattle
                     PRINT "you are out of potions"
                 END IF
                 COLOR 15
-                
+
                 IF COMBATSPEED% >= ENEMYSPEED% THEN
                     XanathusAI
                 END IF
@@ -11976,7 +11407,7 @@ SUB XanathusBattle
                         GOTO 4001
                     END IF
                 END IF
-                
+
                 MAGIC
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
@@ -12007,7 +11438,7 @@ SUB XanathusBattle
                         GOTO 4001
                     END IF
                 END IF
-                
+
                 PRINT "You slashed Xanathus in the chest, he staggers back in pain"
                 XanathusHP% = XanathusHP% - (DAMAGEADDED% + STR% + 2)
                 IF XanathusHP% <= 0 THEN
@@ -12034,7 +11465,7 @@ SUB XanathusBattle
                         GOTO 4001
                     END IF
                 END IF
-                
+
                 PRINT "You lunge forward and pierce Xanathus, he staggers back in pain."
                 XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
                 IF XanathusHP% <= 0 THEN
@@ -12518,7 +11949,7 @@ SUB InitGlobals
     Inventory(ITEM_BUCKLER).sellPrice = 7
     Inventory(ITEM_SMALL_SHIELD).sellPrice = 12
     Inventory(ITEM_LARGE_SHIELD).sellPrice = 20
-    
+
     FOR i = 0 TO UBOUND(OwlSpells)
         OwlSpells(i).hasIt = FALSE
         OwlSpells(i).dmg = 0
