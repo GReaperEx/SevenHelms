@@ -5973,38 +5973,38 @@ SUB Act1Pt2
 
 END SUB
 
-SUB AI                            'RANDOMIZING AI PROTOCOLS
-    AII% = INT(RND * 10) + 1                    'RANDOMIZING AI PROTOCOLS
-    IF AII% = 1 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 11                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 2 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 3 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 4 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 5 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 6 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 7 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 12                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 8 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 13                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 9 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 14                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
-    IF AII% = 10 THEN                           'RANDOMIZING AI PROTOCOLS
-        GOTO 16                            'RANDOMIZING AI PROTOCOLS
-    END IF                                     'RANDOMIZING AI PROTOCOLS
+SUB AI
+    AII% = INT(RND * 10) + 1
+    IF AII% = 1 THEN
+        GOTO 11
+    END IF
+    IF AII% = 2 THEN
+        GOTO 12
+    END IF
+    IF AII% = 3 THEN
+        GOTO 12
+    END IF
+    IF AII% = 4 THEN
+        GOTO 12
+    END IF
+    IF AII% = 5 THEN
+        GOTO 12
+    END IF
+    IF AII% = 6 THEN
+        GOTO 12
+    END IF
+    IF AII% = 7 THEN
+        GOTO 12
+    END IF
+    IF AII% = 8 THEN
+        GOTO 13
+    END IF
+    IF AII% = 9 THEN
+        GOTO 14
+    END IF
+    IF AII% = 10 THEN
+        GOTO 16
+    END IF
     11 PRINT "The "; ENEMY$; " starts circling "; Name$; "."
     GOTO 2500
     12 PRINT "The "; ENEMY$; " attacks."
@@ -6092,27 +6092,27 @@ SUB BATTLE
         SLEEP 1
         END IF
 
-    0.1 RANDOMIZE TIMER                        'SELECTING THE MONSTER CLASS
-    M% = INT(RND * 6) + 1                      'SELECTING THE MONSTER CLASS
-    IF M% = 1 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Axe Maiden"              'SELECTING THE MONSTER CLASS
-    END IF                                     'SELECTING THE MONSTER CLASS
-    IF M% = 2 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Skeleton"                'SELECTING THE MONSTER CLASS
+    0.1 RANDOMIZE TIMER
+    M% = INT(RND * 6) + 1
+    IF M% = 1 THEN
+        ENEMY$ = "Axe Maiden"
+    END IF
+    IF M% = 2 THEN
+        ENEMY$ = "Skeleton"
         Undead% = 1
-    END IF                                     'SELECTING THE MONSTER CLASS
-    IF M% = 3 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Giant Spider"            'SELECTING THE MONSTER CLASS
-    END IF                                     'SELECTING THE MONSTER CLASS
-    IF M% = 4 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Zombie"                  'SELECTING THE MONSTER CLASS
+    END IF
+    IF M% = 3 THEN
+        ENEMY$ = "Giant Spider"
+    END IF
+    IF M% = 4 THEN
+        ENEMY$ = "Zombie"
         Undead% = 1
-    END IF                                     'SELECTING THE MONSTER CLASS
-    IF M% = 5 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Imp"                     'SELECTING THE MONSTER CLASS
-    END IF                                     'SELECTING THE MONSTER CLASS
-    IF M% = 6 THEN                             'SELECTING THE MONSTER CLASS
-        ENEMY$ = "Ghoul"                   'SELECTING THE MONSTER CLASS
+    END IF
+    IF M% = 5 THEN
+        ENEMY$ = "Imp"
+    END IF
+    IF M% = 6 THEN
+        ENEMY$ = "Ghoul"
         Undead% = 1
     END IF
     IF HelmsburgBttl% = 1 THEN
@@ -6139,10 +6139,10 @@ SUB BATTLE
 
     END IF
 
-    0.2 RANDOMIZE TIMER                        'RANDOMIZING THE MONSTER HITPOINTS
-    P% = INT(RND * 6) + 1                      'RANDOMIZING THE MONSTER HITPOINTS
-    q% = INT(RND * 6) + 1                      'RANDOMIZING THE MONSTER HITPOINTS (IN BETWEEN 2 AND 12)
-    ENEMYPTS% = P% + q% + ENEMYHPSBONUS        'RANDOMIZING THE MONSTER HITPOINTS (IN BETWEEN 2 AND 12)
+    0.2 RANDOMIZE TIMER
+    P% = INT(RND * 6) + 1
+    q% = INT(RND * 6) + 1
+    ENEMYPTS% = P% + q% + ENEMYHPSBONUS
 
     IF WightLord% = 1 THEN
         ENEMY$ = "Wight Lord"
