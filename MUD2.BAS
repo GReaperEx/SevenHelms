@@ -490,8 +490,7 @@ SUB ACT1
     209 CLS
 
     SLEEP 1
-    PRINT  _
-    "You sit in front of the campfire.  The dark city is quiet for now, you begin to look at your surroundings.  An old shop is off to the northeast.  There is a set of pillars surrounding a chaos star carved into the ground nearby.  The fiery pit lies to the northwest.  Sir Jacob is standing beside the abandoned shop." _
+    PRINT "You sit in front of the campfire.  The dark city is quiet for now, you begin to look at your surroundings.  An old shop is off to the northeast.  There is a set of pillars surrounding a chaos star carved into the ground nearby.  The fiery pit lies to the northwest.  Sir Jacob is standing beside the abandoned shop."
 
     COLOR 5
     PRINT "There are two obvious exits:"
@@ -8629,16 +8628,13 @@ SUB GameIntro
     PRINT ""
     PRINT "                          Welcome to the world of Forgaia"
     PRINT ""
-    PRINT  _
-    " Land of grass, lakes and great mountains.  Home to the humans and elves this   paradise has seen nothing of war for the past 10 000 years. This land has a     great legend, I shall tell it to you, 10 000 years ago, 4 daemons of hell rose  to power each controlling a sacred element of the planet: Fire, Water, Thunder  and Wind. 10 000 years ago, the daemons broke free of the barrier between hell  and the normal world and soon caused the planet to suffer, losing it's elementalattributes one by one." _
+    PRINT " Land of grass, lakes and great mountains.  Home to the humans and elves this   paradise has seen nothing of war for the past 10 000 years. This land has a     great legend, I shall tell it to you, 10 000 years ago, 4 daemons of hell rose  to power each controlling a sacred element of the planet: Fire, Water, Thunder  and Wind. 10 000 years ago, the daemons broke free of the barrier between hell  and the normal world and soon caused the planet to suffer, losing it's elementalattributes one by one."
 
     PRINT ""
-    PRINT  _
-    "  First came water, the great oceans of Forgaia began to dissapear.  Thunder    followed as the skies would never rain nor shed a bolt of lightning.  As wind   lost its power the air became damp and heavy.  And finally fire left Forgaia andneither the humans nor elves could warm themselves.  Indeed, the people prayed  to heaven and continued to pray yet there came no reply.  And to add to their   dispair monsters, fiends, beasts whatever you should wish to call them began    appearing on the lands of Forgaia." _
+    PRINT "  First came water, the great oceans of Forgaia began to dissapear.  Thunder    followed as the skies would never rain nor shed a bolt of lightning.  As wind   lost its power the air became damp and heavy.  And finally fire left Forgaia andneither the humans nor elves could warm themselves.  Indeed, the people prayed  to heaven and continued to pray yet there came no reply.  And to add to their   dispair monsters, fiends, beasts whatever you should wish to call them began    appearing on the lands of Forgaia."
 
     PRINT ""
-    PRINT  _
-    "  They attacked and destroyed many towns all over Forgaia leaving the humans and dwarves on the brink of defeat.  Yet far off in the city of Tol Barad three heroesunited, their names: Sir Terenas, Thor Beckmann and Thernard Vicktor.  Together they united and banished the 4 daemons back to the hell they were spawned in,   returning peace to Fargaia." _
+    PRINT "  They attacked and destroyed many towns all over Forgaia leaving the humans and dwarves on the brink of defeat.  Yet far off in the city of Tol Barad three heroesunited, their names: Sir Terenas, Thor Beckmann and Thernard Vicktor.  Together they united and banished the 4 daemons back to the hell they were spawned in,   returning peace to Fargaia."
 
     PRINT ""
     PRINT "  Now 10 000 years later, in the mountain city of helmsburg, one boy begins his story..."
