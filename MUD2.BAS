@@ -6074,13 +6074,13 @@ SUB AI
 
 SUB BardMusic
     MusicChance% = INT(RND * 100) - VIT%
-        IF MusicChance% <= 50 THEN
+    IF MusicChance% <= 50 THEN
         PRINT "You start playing your insturment."
         PRINT "You now feel much stronger!"
-            STR% = STR% + 5
-        ELSE
+        STR% = STR% + 5
+    ELSE
         PRINT "The music has no effect on you."
-        END IF
+    END IF
 END SUB
 
 REM $DYNAMIC
@@ -6090,9 +6090,9 @@ SUB BATTLE
         'START PLAYIN SOME TUNES!
     IF HelmsburgBttl% = 3 THEN
         SLEEP 1
-        END IF
+    END IF
 
-    0.1 RANDOMIZE TIMER
+    0.1
     M% = INT(RND * 6) + 1
     IF M% = 1 THEN
         ENEMY$ = "Axe Maiden"
@@ -6139,7 +6139,7 @@ SUB BATTLE
 
     END IF
 
-    0.2 RANDOMIZE TIMER
+    0.2
     P% = INT(RND * 6) + 1
     q% = INT(RND * 6) + 1
     ENEMYPTS% = P% + q% + ENEMYHPSBONUS
@@ -6631,7 +6631,7 @@ SUB BATTLE
         PRINT "The "; ENEMY$; " is dead."
         GOTO 2000
     END IF
-    2000 RANDOMIZE TIMER
+    2000
     RANDOMEXPR% = INT(RND * 200) + 1
     PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
@@ -7513,7 +7513,7 @@ SUB BATTLE2
         PRINT "The "; ENEMY$; " is dead."
         GOTO 102000
     END IF
-    102000 RANDOMIZE TIMER
+    102000
     RANDOMEXPR% = INT(RND * 500) + 1
     PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
