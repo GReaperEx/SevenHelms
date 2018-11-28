@@ -382,8 +382,6 @@ TYPE SpellProps
 END TYPE
 DIM SHARED OwlSpells(0 TO 11) AS SpellProps
 
-DIM SHARED XanathusFleeAreas(0 TO 7) AS STRING
-
 SCREEN 12
     PRINT "Loading...Please Wait"
     RANDOMIZE TIMER
@@ -11613,7 +11611,16 @@ SUB XanathusBattle
 END SUB
 
 SUB XanathusFlee
-    XanathusArea$ = XanathusFleeAreas(INT(RND * 8))
+    SELECT CASE INT(RND * 8)
+        CASE 0 : XanathusArea$ = "NW"
+        CASE 1 : XanathusArea$ = "N"
+        CASE 2 : XanathusArea$ = "NE"
+        CASE 3 : XanathusArea$ = "E"
+        CASE 4 : XanathusArea$ = "SE"
+        CASE 5 : XanathusArea$ = "S"
+        CASE 6 : XanathusArea$ = "SW"
+        CASE 7 : XanathusArea$ = "W"
+    END SELECT
 END SUB
 
 SUB XanathusTaunt
@@ -11634,7 +11641,7 @@ END SUB
 SUB XanathusWorldFlee
     IF INT(RND * 40) <= 10 THEN
         PRINT "Xanathus is moving from the area he was in!"
-        XanathusArea$ = XanathusFleeAreas(INT(RND * 8))
+        XanathusFlee
     END IF
 END SUB
 
@@ -11980,13 +11987,4 @@ SUB InitGlobals
     OwlSpells(10).heal = 15
     OwlSpells(11).name = "Fira"
     OwlSpells(11).dmg = 15
-
-    XanathusFleeAreas(0) = "NW"
-    XanathusFleeAreas(1) = "N"
-    XanathusFleeAreas(2) = "NE"
-    XanathusFleeAreas(3) = "E"
-    XanathusFleeAreas(4) = "SE"
-    XanathusFleeAreas(5) = "S"
-    XanathusFleeAreas(6) = "SW"
-    XanathusFleeAreas(7) = "W"        
 END SUB
