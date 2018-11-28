@@ -83,6 +83,7 @@ DECLARE SUB FamiliarCall ()
 DECLARE SUB ToadSteal ()
 DECLARE SUB CallFamiliar ()
 
+DECLARE SUB ColorPrint (outputColor%, outputStr$)
 DECLARE SUB InitGlobals ()
 
 'Game Required
@@ -390,7 +391,7 @@ SCREEN 12
     WillsSoundEffectVolume% = 50
     WillsMusicVolume% = 75
 
-    MainMenu    
+    MainMenu
 END
 
 REM $STATIC
@@ -441,16 +442,12 @@ SUB A56GetHint
                     PRINT "take a closer look at I think..."
             END SELECT
         ELSE
-            COLOR 14
-            PRINT "Vampire> What's this? this isn't 50 gold, NO DEAL!"
-            COLOR 15
+            ColorPrint 14, "Vampire> What's this? this isn't 50 gold, NO DEAL!"
         END IF
         GOTO 998
     END IF
     IF HintChoice$ = "n" GOTO 999
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 998
   999
     END SUB
@@ -561,21 +558,15 @@ SUB ACT1
                 IF Save$ = "y" THEN
                     SavePos% = 0
                     SaveGame
-                    COLOR 5
-                    PRINT "Game Saved"
-                    COLOR 15
+                    ColorPrint 5, "Game Saved"
                     GOTO 210
                 END IF
 
                 IF Save$ = "n" GOTO 210
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 215
         END IF
-    COLOR 5
-    PRINT "huh?"
-    COLOR 15
+    ColorPrint 5, "huh?"
     GOTO 210
 
     220 CLS
@@ -583,9 +574,7 @@ SUB ACT1
     PRINT "the shelves are ransacked.  Several broken jars that once contained "
     PRINT "potions now lie on the floor.  Other than that the shop seems empty."
     IF A1ShopEnter% = 1 THEN
-        COLOR 5
-        PRINT "Samael is standing behind the counter"
-        COLOR 15
+        ColorPrint 5, "Samael is standing behind the counter"
         END IF
 
     IF A1ShopEnter% = 0 THEN
@@ -638,9 +627,7 @@ SUB ACT1
 
         IF A0$ = "talk to sir jacob" THEN
             IF A1ShopEnter% = 0 THEN
-                COLOR 5
-                PRINT "Sir Jacob> It seems as we can trust this dwarf."
-                COLOR 15
+                ColorPrint 5, "Sir Jacob> It seems as we can trust this dwarf."
                 GOTO 225
                 END IF
         END IF
@@ -688,17 +675,13 @@ SUB ACT1
 
         IF A0$ = "get potion" THEN
             IF A1ShopPotion% = 0 THEN
-                COLOR 5
-                PRINT "Got Potion"
-                COLOR 15
+                ColorPrint 5, "Got Potion"
                 A1ShopPotion% = 1
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
                 GOTO 225
                 END IF
             END IF
-    COLOR 5
-    PRINT "huh?"
-    COLOR 15
+    ColorPrint 5, "huh?"
     GOTO 225
 
     230 CLS
@@ -730,17 +713,13 @@ SUB ACT1
                 IF SirJacobA1$ = "y" THEN
                     SavePos% = 0
                     SaveGame
-                    COLOR 5
-                    PRINT "Game Saved"
-                    COLOR 15
+                    ColorPrint 5, "Game Saved"
                     GOTO 235
                 END IF
 
                 IF SirJacobA1$ = "n" GOTO 235
 
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 236
         END IF
         IF AEncampment$ = "help" THEN WorldHelp
@@ -778,9 +757,7 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 235
             END IF
         END IF
@@ -797,9 +774,7 @@ SUB ACT1
             END IF
         END IF
 
-    COLOR 5
-    PRINT "huh?"
-    COLOR 15
+    ColorPrint 5, "huh?"
     GOTO 210
 
     'Area 1
@@ -825,10 +800,7 @@ SUB ACT1
     PRINT "the dark labrynth."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE
 
@@ -880,15 +852,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
             END IF
         END IF
 
-        COLOR 5
-        PRINT "Huh?"
-        COLOR 15
+        ColorPrint 5, "Huh?"
 
     GOTO 245
 
@@ -944,15 +912,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 255
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 255
 
     'Area 4
@@ -1010,15 +974,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 265
             END IF
         END IF
-    COLOR 5
-    PRINT "huh?"
-    COLOR 15
+    ColorPrint 5, "huh?"
     GOTO 265
 
     'Area 5
@@ -1085,15 +1045,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 275
             END IF
         END IF
-    COLOR 5
-    PRINT "huh?"
-    COLOR 15
+    ColorPrint 5, "huh?"
     GOTO 275
 
     'Area 6
@@ -1159,16 +1115,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 285
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 285
 
     'Area 3
@@ -1177,9 +1129,7 @@ SUB ACT1
     PRINT "corpse lying propped against a wall.  On the shelves are several broken"
     PRINT "bottles possibly containing potions at one time."
     IF A3LS% = 0 THEN
-        COLOR 5
-        PRINT "There is a long sword sitting on a shelf"
-        COLOR 15
+        ColorPrint 5, "There is a long sword sitting on a shelf"
         END IF
     RANDOMSTRING
         BATTLECHANCE% = INT(RND * 100)
@@ -1205,9 +1155,7 @@ SUB ACT1
             IF A3LS% = 0 THEN
                 A3LS% = 1
                 Inventory(ITEM_LONG_SWORD).amount = Inventory(ITEM_LONG_SWORD).amount + 1
-                COLOR 5
-                PRINT "Got long sword"
-                COLOR 15
+                ColorPrint 5, "Got long sword"
                 GOTO 295
                 END IF
         END IF
@@ -1218,10 +1166,7 @@ SUB ACT1
                 COLOR 5
                 PRINT "You examine the corpse and find 50 gold coins"
                 Gold& = Gold& + 50
-                COLOR 3
-                PRINT "All of a sudden the corpse lunges towards you!"
-
-                COLOR 15
+                ColorPrint 3, "All of a sudden the corpse lunges towards you!"
                 SLEEP 4
                 BATTLE
 
@@ -1264,16 +1209,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 295
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 295
 
     'Area 8
@@ -1332,16 +1273,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 305
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 305
 
     'Area 7
@@ -1408,16 +1345,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 315
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 315
 
     'Area 9
@@ -1483,16 +1416,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 325
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 325
 
     'Area 10
@@ -1553,16 +1482,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 335
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 335
 
     'Area 11
@@ -1570,9 +1495,7 @@ SUB ACT1
     PRINT "   You are now standing on the stage, corpses here appear to be crucified"
     PRINT "There is a large throne sitting in the middle of the stage."
     IF GoldenSkullTaken% = 0 THEN
-        COLOR 5
-        PRINT "There is a golden skull sitting in the middle of the throne"
-        COLOR 15
+        ColorPrint 5, "There is a golden skull sitting in the middle of the throne"
     END IF
 
         BATTLECHANCE% = INT(RND * 100)
@@ -1605,9 +1528,7 @@ SUB ACT1
         IF A11$ = "get golden skull" THEN
             IF GoldenSkullTaken% = 0 THEN
                 Inventory(QITEM_GOLDEN_SKULL).amount = 1
-                COLOR 5
-                PRINT "Got golden skull"
-                COLOR 15
+                ColorPrint 5, "Got golden skull"
                 GoldenSkullTaken% = 1
                 GOTO 345
             END IF
@@ -1625,9 +1546,7 @@ SUB ACT1
             END IF
 
             IF ThroneSwitch% = 1 THEN
-                COLOR 5
-                PRINT "There's no need to examine it again."
-                COLOR 15
+                ColorPrint 5, "There's no need to examine it again."
                 GOTO 345
             END IF
         END IF
@@ -1665,16 +1584,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 345
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 345
 
     'Area 12
@@ -1690,15 +1605,11 @@ SUB ACT1
         END IF
 
     IF A12ShieldPlusTwo% = 0 THEN
-        COLOR 5
-        PRINT "You see a special shield lying on the table"
-        COLOR 15
+        ColorPrint 5, "You see a special shield lying on the table"
         END IF
 
     IF A12SwordPlusTwo% = 0 THEN
-        COLOR 5
-        PRINT "You see a special sword mounted on the wall"
-        COLOR 15
+        ColorPrint 5, "You see a special sword mounted on the wall"
         END IF
 
     COLOR 5
@@ -1716,9 +1627,7 @@ SUB ACT1
         IF A12$ = "get potion" THEN
             IF A12Potions% >= 1 THEN
                 A12Potions% = A12Potions% - 1
-                COLOR 5
-                PRINT "Got one Potion"
-                COLOR 15
+                ColorPrint 5, "Got one Potion"
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
                 GOTO 355
             END IF
@@ -1727,9 +1636,7 @@ SUB ACT1
         IF A12$ = "get special sword" THEN
             IF A12SwordPlusTwo% = 0 THEN
                 A12SwordPlusTwo% = 1
-                COLOR 5
-                PRINT "You pick up the sword and realize it is a Sword +2, rare."
-                COLOR 15
+                ColorPrint 5, "You pick up the sword and realize it is a Sword +2, rare."
                 Inventory(ITEM_SWORD_PLUS_TWO).amount = Inventory(ITEM_SWORD_PLUS_TWO).amount + 1
                 GOTO 355
             END IF
@@ -1738,9 +1645,7 @@ SUB ACT1
         IF A12$ = "get special shield" THEN
             IF A12ShieldPlusTwo% = 0 THEN
                 A12ShieldPlusTwo% = 1
-                COLOR 5
-                PRINT "You picked up the shield, it is a Shield +2"
-                COLOR 15
+                ColorPrint 5, "You picked up the shield, it is a Shield +2"
                 Inventory(ITEM_SHIELD_PLUS_TWO).amount = Inventory(ITEM_SHIELD_PLUS_TWO).amount + 1
                 GOTO 355
             END IF
@@ -1779,16 +1684,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 355
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 355
 
     'Area 13
@@ -1856,25 +1757,19 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 365
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 365
 
     'Area 14
     370 CLS
     PRINT "   You enter a jail cell inhabited by one skeleton."
     IF A14Key1% = 0 THEN
-        COLOR 5
-        PRINT "The skeleton seems to have some kind of key in its mouth"
-        COLOR 15
+        ColorPrint 5, "The skeleton seems to have some kind of key in its mouth"
     END IF
     RANDOMSTRING
         BATTLECHANCE% = INT(RND * 100)
@@ -1898,9 +1793,7 @@ SUB ACT1
 
         IF A14$ = "get key" THEN
             IF A14Key1% = 0 THEN
-                COLOR 5
-                PRINT "Got a key, type 1"
-                COLOR 15
+                ColorPrint 5, "Got a key, type 1"
                 Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount + 1
                 A14Key1% = 1
                 GOTO 375
@@ -1941,16 +1834,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 375
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 375
 
     'Area 15
@@ -2010,16 +1899,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 385
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 385
 
     'Area 16
@@ -2079,16 +1964,12 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 395
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 395
 
     'Area 17
@@ -2151,15 +2032,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 505
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 505
 
     'Area 18
@@ -2176,9 +2053,7 @@ SUB ACT1
     PRINT "small enough for you to pass.  In the center of the flames you can see a"
     PRINT "table with a dead corpse."
         IF StrangePendantTaken% = 0 THEN
-            COLOR 5
-            PRINT "As you lean closer you see the corpse is grasping a strange pendant."
-            COLOR 15
+            ColorPrint 5, "As you lean closer you see the corpse is grasping a strange pendant."
         END IF
     END IF
     RANDOMSTRING
@@ -2254,15 +2129,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 515
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 515
 
     'Area 19
@@ -2299,9 +2170,7 @@ SUB ACT1
     525 INPUT ">", A19$
         IF A19$ = "north" THEN
             IF A19Lvl2Door% = 0 THEN
-                COLOR 5
-                PRINT "A locked door blocks your way."
-                COLOR 15
+                ColorPrint 5, "A locked door blocks your way."
                 GOTO 525
             END IF
             IF A19Lvl2Door% = 1 GOTO 620
@@ -2309,9 +2178,7 @@ SUB ACT1
 
         IF A19$ = "east" THEN
             IF A19Lvl1Door% = 0 THEN
-                COLOR 5
-                PRINT "A locked door blocks your way."
-                COLOR 15
+                ColorPrint 5, "A locked door blocks your way."
                 GOTO 525
             END IF
             IF A19Lvl1Door% = 1 GOTO 570
@@ -2375,15 +2242,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 525
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 525
 
     'Area 20
@@ -2433,9 +2296,7 @@ SUB ACT1
         IF A20$ = "south" GOTO 530
         IF A20$ = "east" THEN
             IF A20Lvl1Door% = 0 THEN
-                COLOR 5
-                PRINT "A locked door blocks your path"
-                COLOR 15
+                ColorPrint 5, "A locked door blocks your path"
                 GOTO 535
             END IF
             IF A20Lvl1Door% = 1 THEN GOTO 570
@@ -2475,15 +2336,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 535
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 535
 
     'Area 21
@@ -2549,15 +2406,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 545
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 545
 
     'Area 22
@@ -2627,15 +2480,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 555
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 555
 
     'Area 23
@@ -2700,9 +2549,7 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 565
             END IF
         END IF
@@ -2711,16 +2558,12 @@ SUB ACT1
             IF A23FamiliarFlute% = 0 THEN
                 A23FamiliarFlute% = 1
                 Inventory(QITEM_FAMILIAR_FLUTE).amount = Inventory(QITEM_FAMILIAR_FLUTE).amount + 1
-                COLOR 5
-                PRINT "You got the flute, it appears to call familiars."
-                COLOR 15
+                ColorPrint 5, "You got the flute, it appears to call familiars."
                 GOTO 565
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 565
 
     'Area 24
@@ -2792,15 +2635,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 575
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 575
 
     'Area 25
@@ -2852,15 +2691,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 585
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 585
 
     'Area 26
@@ -2922,9 +2757,7 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 595
             END IF
         END IF
@@ -2939,18 +2772,14 @@ SUB ACT1
             END IF
 
             IF A26ChaosStar% = 1 THEN
-                COLOR 5
-                PRINT "You got the chaos star pendant"
-                COLOR 15
+                ColorPrint 5, "You got the chaos star pendant"
                 A26ChaosStar% = 2
                 Inventory(QITEM_CHAOS_STAR).amount = 1
                 GOTO 595
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 595
 
     'Area 27
@@ -2976,9 +2805,7 @@ SUB ACT1
         END IF
     END IF
     IF A27AvengerSword% = 1 THEN
-        COLOR 5
-        PRINT "There is a very special looking sword lying on the ground next to the wight lord."
-        COLOR 15
+        ColorPrint 5, "There is a very special looking sword lying on the ground next to the wight lord."
     END IF
     COLOR 5
     PRINT "There is one obvious exit:"
@@ -3021,9 +2848,7 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 605
             END IF
         END IF
@@ -3065,17 +2890,13 @@ SUB ACT1
                 IF A27JadeSocket% = 1 THEN
                     Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount = Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount + 1
                     A27AvengerSword% = 1
-                    COLOR 5
-                    PRINT "You got the sword, it is an Avenger Sword +7"
-                    COLOR 15
+                    ColorPrint 5, "You got the sword, it is an Avenger Sword +7"
                     GOTO 605
                 END IF
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 605
 
     'Area 28
@@ -3132,18 +2953,14 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 615
             END IF
         END IF
 
         IF A28$ = "use chaos star pendant" THEN
             IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
-                COLOR 5
-                PRINT "You inserted the chaos star pendant into the socket."
-                COLOR 15
+                ColorPrint 5, "You inserted the chaos star pendant into the socket."
                 ChaosStarInsert% = 1
                 A28ChaosStarSocket% = 1
                 Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
@@ -3153,18 +2970,14 @@ SUB ACT1
 
         IF A28$ = "get chaos star pendant" THEN
             IF A28ChaosStarSocket% = 1 THEN
-                COLOR 5
-                PRINT "Got chaos star pendant from the socket."
-                COLOR 15
+                ColorPrint 5, "Got chaos star pendant from the socket."
                 ChaosStarInsert% = 0
                 A28ChaosStarSocket% = 0
                 Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
                 GOTO 615
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 615
 
     'Area 29
@@ -3246,18 +3059,14 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 625
             END IF
         END IF
 
         IF A29$ = "use chaos star pendant" THEN
             IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
-                COLOR 5
-                PRINT "You inserted the chaos star pendant into the socket."
-                COLOR 15
+                ColorPrint 5, "You inserted the chaos star pendant into the socket."
                 A29StarSocket% = 1
                 Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
                 GOTO 625
@@ -3268,9 +3077,7 @@ SUB ACT1
             IF A29StarSocket% = 1 THEN
                 A29StarSocket% = 0
                 Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
-                COLOR 5
-                PRINT "Got chaos star pendant"
-                COLOR 15
+                ColorPrint 5, "Got chaos star pendant"
                 GOTO 625
             END IF
             IF A29StarSocket% = 2 THEN
@@ -3281,9 +3088,7 @@ SUB ACT1
                 COLOR 15
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 625
 
     'Area 30
@@ -3333,15 +3138,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 635
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 635
 
     'Area 31
@@ -3391,15 +3192,11 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 645
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 645
 
     'Area 32
@@ -3425,9 +3222,7 @@ SUB ACT1
     655 INPUT ">", A32$
         IF A32$ = "up" THEN
             IF A29StarSocket% = 0 THEN
-                COLOR 5
-                PRINT "The lift doesn't seem to move"
-                COLOR 15
+                ColorPrint 5, "The lift doesn't seem to move"
                 GOTO 655
             END IF
 
@@ -3473,9 +3268,7 @@ SUB ACT1
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 655
             END IF
         END IF
@@ -3484,9 +3277,7 @@ SUB ACT1
             IF A29StarSocket% = 1 THEN
                 A29StarSocket% = 0
                 Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
-                COLOR 5
-                PRINT "Got chaos star pendant"
-                COLOR 15
+                ColorPrint 5, "Got chaos star pendant"
                 GOTO 655
             END IF
             IF A29StarSocket% = 2 THEN
@@ -3498,9 +3289,7 @@ SUB ACT1
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 655
 END SUB
 
@@ -3591,15 +3380,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 665
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 665
 
     'Area 34
@@ -3684,9 +3469,7 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 675
             END IF
         END IF
@@ -3704,22 +3487,16 @@ SUB Act1Pt2
                 IF Save$ = "y" THEN
                     SavePos% = 1
                     SaveGame
-                    COLOR 5
-                    PRINT "Game Saved"
-                    COLOR 15
+                    ColorPrint 5, "Game Saved"
                     GOTO 675
                 END IF
 
                 IF Save$ = "n" GOTO 675
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 677
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 675
 
     'Area 35
@@ -3781,16 +3558,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 685
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 685
 
     'Area 36
@@ -3849,16 +3622,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 695
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 695
 
     'Area 37
@@ -3920,15 +3689,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 705
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 705
 
     'Area 38
@@ -3987,16 +3752,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 715
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 715
 
     'Area 39
@@ -4058,16 +3819,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 725
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 725
 
     'Area 40
@@ -4126,15 +3883,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 735
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 735
 
     'Area 41
@@ -4196,16 +3949,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 745
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 745
 
     'Area 42
@@ -4272,9 +4021,7 @@ SUB Act1Pt2
         IF A42$ = "west" GOTO 680
         IF A42$ = "south" THEN
             IF A42LockedGate% = 0 THEN
-                COLOR 5
-                PRINT "You are blocked by a locked gate"
-                COLOR 15
+                ColorPrint 5, "You are blocked by a locked gate"
                 GOTO 755
             END IF
             IF A42LockedGate% = 1 GOTO 800
@@ -4314,9 +4061,7 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 755
             END IF
         END IF
@@ -4332,9 +4077,7 @@ SUB Act1Pt2
                 GOTO 755
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 755
     'Area 43
     760 CLS
@@ -4393,16 +4136,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 765
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 765
 
     'Area 44
@@ -4462,16 +4201,12 @@ SUB Act1Pt2
                    HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 775
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 775
 
     'Area 45
@@ -4531,16 +4266,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 785
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 785
 
     'Area 46
@@ -4600,16 +4331,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 795
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 795
 
     'Area 47
@@ -4662,16 +4389,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 805
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 805
 
     ''''''''''''''''''''''''''''''''''''''''''''''''
@@ -4744,9 +4467,7 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 813
             END IF
         END IF
@@ -4762,9 +4483,7 @@ SUB Act1Pt2
                 GOTO 813
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 813
 
     'Area 49
@@ -4774,9 +4493,7 @@ SUB Act1Pt2
     PRINT "embedded in it."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 815
@@ -4800,15 +4517,11 @@ SUB Act1Pt2
                     GOTO 817
                 END IF
                 IF OGEM$ = "n" THEN GOTO 817
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 818
         END IF
         IF A49$ = "get orange gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 817
         END IF
 
@@ -4846,16 +4559,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 817
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 817
 
     'Area 50
@@ -4864,9 +4573,7 @@ SUB Act1Pt2
     PRINT "hasn't shown any bends or turns."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 820
@@ -4914,16 +4621,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 825
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 825
 
     'Area 51
@@ -4932,9 +4635,7 @@ SUB Act1Pt2
     PRINT "bending passageways.  To the south is the long passageway."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 830
@@ -4984,15 +4685,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 835
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 835
 
     'Area 52
@@ -5002,9 +4699,7 @@ SUB Act1Pt2
     PRINT "in the middle of the hall, which has the shape of a chaos star."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 840
@@ -5060,16 +4755,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 845
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 845
 
     'Area 53
@@ -5079,9 +4770,7 @@ SUB Act1Pt2
     PRINT "in the middle of the hall, which has the shape of a chaos star."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 850
@@ -5137,16 +4826,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 855
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 855
 
     'Area 54
@@ -5156,9 +4841,7 @@ SUB Act1Pt2
     PRINT "in the middle of the hall, which has the shape of a chaos star."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 860
@@ -5214,16 +4897,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 865
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 865
 
     'Area 55
@@ -5233,9 +4912,7 @@ SUB Act1Pt2
     PRINT "in the middle of the hall, which has the shape of a chaos star."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 870
@@ -5291,16 +4968,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 875
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 875
 
     'Area 56
@@ -5317,9 +4990,7 @@ SUB Act1Pt2
         GOTO 880
     END IF
     IF A56VampFight% = 2 THEN
-        COLOR 5
-        PRINT "The vampire is standing next to the symbol"
-        COLOR 15
+        ColorPrint 5, "The vampire is standing next to the symbol"
     END IF
     COLOR 5
     IF GemPuzzleDone% = 1 THEN
@@ -5385,16 +5056,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 885
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 885
 
     'Area 57
@@ -5404,9 +5071,7 @@ SUB Act1Pt2
     PRINT "north.  There is a short hallway to the east"
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 890
@@ -5456,16 +5121,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 895
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 895
 
     'Area 58
@@ -5474,9 +5135,7 @@ SUB Act1Pt2
     PRINT "it.  On the shrine a grey gem is displayed."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 900
@@ -5499,15 +5158,11 @@ SUB Act1Pt2
                     GOTO 905
                 END IF
                 IF GGEM$ = "n" THEN GOTO 905
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 907
         END IF
         IF A58$ = "get grey gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 905
         END IF
 
@@ -5545,16 +5200,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 905
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 905
 
     'Area 59
@@ -5563,9 +5214,7 @@ SUB Act1Pt2
     PRINT "wall is a shrine with a red gem displayed."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 910
@@ -5588,16 +5237,12 @@ SUB Act1Pt2
                     GOTO 915
                 END IF
                 IF RGEM$ = "n" THEN GOTO 915
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 917
         END IF
 
         IF A59$ = "get red gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 915
         END IF
 
@@ -5635,15 +5280,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 915
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 915
 
     'Area 60
@@ -5653,9 +5294,7 @@ SUB Act1Pt2
     PRINT "There is a short hallway to the north."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 920
@@ -5705,16 +5344,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 925
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 925
 
     'Area 61
@@ -5723,9 +5358,7 @@ SUB Act1Pt2
     PRINT "the nearby wall, on the shrine lies a black gem."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 930
@@ -5748,16 +5381,12 @@ SUB Act1Pt2
                     GOTO 935
                 END IF
                 IF BGEM$ = "n" THEN GOTO 935
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 937
         END IF
 
         IF A61$ = "get black gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 935
         END IF
 
@@ -5795,15 +5424,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 935
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 935
 
     'Area 62
@@ -5812,9 +5437,7 @@ SUB Act1Pt2
     PRINT "the wall, displayed on the shrine is a jade coloured gem."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 940
@@ -5837,16 +5460,12 @@ SUB Act1Pt2
                     GOTO 945
                 END IF
                 IF BGEM$ = "n" THEN GOTO 945
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 947
         END IF
 
         IF A62$ = "get jade gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 945
         END IF
 
@@ -5884,15 +5503,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 945
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 945
 
     'Area 63
@@ -5902,9 +5517,7 @@ SUB Act1Pt2
     PRINT "There is a short hallway to the west."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 950
@@ -5954,15 +5567,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 955
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 955
 
     'Area 64
@@ -5971,9 +5580,7 @@ SUB Act1Pt2
     PRINT "displayed on the shrine is a blood gem."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 960
@@ -5996,16 +5603,12 @@ SUB Act1Pt2
                     GOTO 965
                 END IF
                 IF BGEM$ = "n" THEN GOTO 965
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 967
         END IF
 
         IF A64$ = "get blood gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 965
         END IF
 
@@ -6043,15 +5646,11 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 965
             END IF
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 965
 
     'Area 65
@@ -6060,9 +5659,7 @@ SUB Act1Pt2
     PRINT "shrine.  On the shrine a white gem is displayed."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 970
@@ -6085,16 +5682,12 @@ SUB Act1Pt2
                     GOTO 975
                 END IF
                 IF BGEM$ = "n" THEN GOTO 975
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 977
         END IF
 
         IF A65$ = "get white gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 975
         END IF
 
@@ -6132,16 +5725,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 975
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 975
 
     'Area 66
@@ -6150,9 +5739,7 @@ SUB Act1Pt2
     PRINT "shrine.  Displayed on the shrine is a blue gem."
         BATTLECHANCE% = INT(RND * 100)
         IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            PRINT "BATTLE!"
-            COLOR 15
+            ColorPrint 4, "BATTLE!"
             SLEEP 2
             BATTLE2
             GOTO 980
@@ -6175,16 +5762,12 @@ SUB Act1Pt2
                     GOTO 985
                 END IF
                 IF BlueGEM$ = "n" THEN GOTO 985
-                    COLOR 5
-                    PRINT "Huh?"
-                    COLOR 15
+                    ColorPrint 5, "Huh?"
                     GOTO 987
         END IF
 
         IF A66$ = "get blue gem" THEN
-                COLOR 5
-                PRINT "You can't seem to take the gem out of it's socket"
-                COLOR 15
+                ColorPrint 5, "You can't seem to take the gem out of it's socket"
                 GOTO 985
         END IF
 
@@ -6222,16 +5805,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 985
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 985
 
     ''''''''''''''''''''''''''''''''''''''''''''''
@@ -6341,17 +5920,13 @@ SUB Act1Pt2
                 IF SirJacobA67$ = "y" THEN
                     SavePos% = 2
                     SaveGame
-                    COLOR 5
-                    PRINT "Game Saved"
-                    COLOR 15
+                    ColorPrint 5, "Game Saved"
                     GOTO 995
                 END IF
 
                 IF SirJacobA67$ = "n" GOTO 995
 
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 996
         END IF
 
@@ -6389,16 +5964,12 @@ SUB Act1Pt2
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
                 GOTO 995
             END IF
         END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 995
 
 END SUB
@@ -6600,9 +6171,7 @@ SUB BATTLE
     INPUT ">", ACTION$
     IF ACTION$ = "call familiar" THEN
         IF FAMILIARHP% <= 0 THEN
-            COLOR 5
-            PRINT "Your familiar has fainted."
-            COLOR 15
+            ColorPrint 5, "Your familiar has fainted."
             GOTO 1
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -6628,31 +6197,23 @@ SUB BATTLE
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 20
                 AI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 AI
                 GOTO 20
             END IF
         ELSE
             AI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 20
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 20
             END IF
     END IF
@@ -6735,9 +6296,7 @@ SUB BATTLE
     END IF
     IF ACTION$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 1
         END IF
         IF COMBATSPEED% >= ENEMYSPEED% THEN
@@ -6755,9 +6314,7 @@ SUB BATTLE
             GOTO 1
         END IF
     END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 1
     20 PRINT "What would you like to do?"
     IF Expertise% = CLASS_ROGUE THEN
@@ -6768,9 +6325,7 @@ SUB BATTLE
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
         IF Expertise% <> CLASS_THIEF THEN
-            COLOR 5
-            PRINT "Only thieves can steal."
-            COLOR 15
+            ColorPrint 5, "Only thieves can steal."
             GOTO 20
         END IF
         IF Expertise% = CLASS_THIEF THEN
@@ -6788,9 +6343,7 @@ SUB BATTLE
 
     IF ACTIONA$ = "throw weapon" THEN
         IF Expertise% <> CLASS_ROGUE THEN
-            COLOR 5
-            PRINT "Only rogues can throw weapons."
-            COLOR 15
+            ColorPrint 5, "Only rogues can throw weapons."
             GOTO 20
         END IF
         IF Expertise% = CLASS_ROGUE THEN
@@ -6834,9 +6387,7 @@ SUB BATTLE
 
     IF ACTIONA$ = "play music" THEN
         IF Expertise% <> CLASS_BARD THEN
-            COLOR 5
-            PRINT "Only bards can play music."
-            COLOR 15
+            ColorPrint 5, "Only bards can play music."
             GOTO 20
         END IF
         IF Expertise% = CLASS_BARD THEN
@@ -6853,9 +6404,7 @@ SUB BATTLE
     END IF
     IF ACTIONA$ = "call familiar" THEN
         IF FAMILIARHP% <= 0 THEN
-            COLOR 5
-            PRINT "Your familiar has fainted."
-            COLOR 15
+            ColorPrint 5, "Your familiar has fainted."
             GOTO 20
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -6871,9 +6420,7 @@ SUB BATTLE
             GOTO 20
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
-            COLOR 5
-            PRINT "you don't have a familiar flute"
-            COLOR 15
+            ColorPrint 5, "you don't have a familiar flute"
             GOTO 20
         END IF
     END IF
@@ -6881,31 +6428,23 @@ SUB BATTLE
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 20
                 AI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 AI
                 GOTO 20
             END IF
         ELSE
             AI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 20
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 20
             END IF
     END IF
@@ -6913,9 +6452,7 @@ SUB BATTLE
 
     IF ACTIONA$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 20
         END IF
         IF COMBATSPEED% >= ENEMYSPEED% THEN
@@ -7286,9 +6823,7 @@ SUB BATTLE2
     INPUT ">", ACTION$
     IF ACTION$ = "call familiar" THEN
         IF FAMILIARHP% <= 0 THEN
-            COLOR 5
-            PRINT "Your familiar has fainted."
-            COLOR 15
+            ColorPrint 5, "Your familiar has fainted."
             GOTO 1000
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -7314,31 +6849,23 @@ SUB BATTLE2
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 1020
                 AI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 AI
                 GOTO 1020
             END IF
         ELSE
             AI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 1020
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 1020
             END IF
     END IF
@@ -7431,9 +6958,7 @@ SUB BATTLE2
     END IF
     IF ACTION$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 1000
         END IF
 
@@ -7518,9 +7043,7 @@ SUB BATTLE2
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
         IF Expertise% <> CLASS_THIEF THEN
-            COLOR 5
-            PRINT "Only thieves can steal."
-            COLOR 15
+            ColorPrint 5, "Only thieves can steal."
             GOTO 1020
         END IF
         IF Expertise% = CLASS_THIEF THEN
@@ -7538,9 +7061,7 @@ SUB BATTLE2
 
     IF ACTIONA$ = "throw weapon" THEN
         IF Expertise% <> CLASS_ROGUE THEN
-            COLOR 5
-            PRINT "Only rogues can throw weapons."
-            COLOR 15
+            ColorPrint 5, "Only rogues can throw weapons."
             GOTO 1020
         END IF
         IF Expertise% = CLASS_ROGUE THEN
@@ -7614,9 +7135,7 @@ SUB BATTLE2
 
     IF ACTIONA$ = "play music" THEN
         IF Expertise% <> CLASS_BARD THEN
-            COLOR 5
-            PRINT "Only bards can play music."
-            COLOR 15
+            ColorPrint 5, "Only bards can play music."
             GOTO 1020
         END IF
         IF Expertise% = CLASS_BARD THEN
@@ -7633,9 +7152,7 @@ SUB BATTLE2
     END IF
     IF ACTIONA$ = "call familiar" THEN
         IF FAMILIARHP% <= 0 THEN
-            COLOR 5
-            PRINT "Your familiar has fainted."
-            COLOR 15
+            ColorPrint 5, "Your familiar has fainted."
             GOTO 1020
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -7651,9 +7168,7 @@ SUB BATTLE2
             GOTO 1020
         END IF
         IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
-            COLOR 5
-            PRINT "you don't have a familiar flute"
-            COLOR 15
+            ColorPrint 5, "you don't have a familiar flute"
             GOTO 1020
         END IF
     END IF
@@ -7661,31 +7176,23 @@ SUB BATTLE2
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 1020
                 AI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 AI
                 GOTO 1020
             END IF
         ELSE
             AI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 1020
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 1020
             END IF
     END IF
@@ -7693,9 +7200,7 @@ SUB BATTLE2
 
     IF ACTIONA$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 1020
         END IF
 
@@ -8115,9 +7620,7 @@ SUB CHARCREATE
         IF SexA$ = "m" THEN GOTO 21
         IF SexA$ = "f" THEN Sex$ = "her"
         IF SexA$ = "f" THEN GOTO 21
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 10
 
     21 PRINT "Please select "; Name$; "'s class."
@@ -8201,9 +7704,7 @@ SUB CHARCREATE
         GOTO 22
     END IF
 
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 21.5
 
     22
@@ -8263,9 +7764,7 @@ SUB CHARCREATE
     IF Redo$ = "Y" GOTO 0
     IF Redo$ = "n" GOTO 25
     IF Redo$ = "N" GOTO 25
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 24
     CLS
 25 END SUB
@@ -8281,7 +7780,7 @@ SUB CheckRunes (rune$)
                 PRINT "You don't have that rune"
                 RuneError% = 1
                 EXIT FOR
-            END IF 
+            END IF
         END IF
     NEXT i
 
@@ -8534,9 +8033,7 @@ SUB EndGame
         SaveGame
         MainMenu
     END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 1007
 END SUB
 
@@ -8624,9 +8121,7 @@ SUB EquipItem (equipType AS INTEGER)
                 END SELECT
                 Inventory(i).amount = Inventory(i).amount - 1
             ELSE
-                COLOR 5
-                PRINT "You don't have that"
-                COLOR 15
+                ColorPrint 5, "You don't have that"
             END IF
         END IF
     NEXT i
@@ -9104,9 +8599,7 @@ SUB FamiliarCall
             COLOR 15
             GOTO 1013
         END IF
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 1012
 1013 END SUB
 
@@ -9337,9 +8830,7 @@ SUB GetSaveLoadPos
         ELSE
             SavedGame% = VAL(Save$)
             IF SavedGame% <= 0 OR SavedGame% > limit% THEN
-                COLOR 5
-                PRINT "Huh?"
-                COLOR 15
+                ColorPrint 5, "Huh?"
                 GOTO 99998
             END IF
         END IF
@@ -9363,9 +8854,7 @@ SUB GetSaveLoadPos
         ELSE
             LoadedGame% = VAL(Load$)
             IF LoadedGame% <= 0 OR LoadedGame% > slotsInUse% THEN
-                COLOR 5
-                PRINT "Huh?"
-                COLOR 15
+                ColorPrint 5, "Huh?"
                 GOTO 99999
             END IF
         END IF
@@ -9527,138 +9016,138 @@ SUB MAGIC
     ELSEIF RUNE1$ = "ken" AND RUNE2$ = "yoo" AND RUNE3$ = "wir" THEN
         PRINT "Some of your wounds have healed!"
         HPS% = HPS% + 2
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN
         PRINT "You have gained super strength!!!"
         STR% = STR% + 5
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "rof" AND RUNE3$ = "sho" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "rof" AND RUNE3$ = "sho" THEN
         PRINT "A blast of raw magic erupts from your hands causing you to bleed profusely!"
         ENEMYPTS% = ENEMYPTS% - 15
         IF ENEMYPTS% > 0 THEN
             HPS% = HPS% - 4
         END IF
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN
         PRINT "Your opponent bursts into flames!"
         ENEMYPTS% = ENEMYPTS% - 50
-    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "uch" AND RUNE3$ = "wod" THEN 
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "uch" AND RUNE3$ = "wod" THEN
         PRINT "You have cast healing upon yourself!"
         HPS% = HPS% + 30
-    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "wod" AND RUNE3$ = "uch" THEN 
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "wod" AND RUNE3$ = "uch" THEN
         PRINT "You have summoned a greater power of destruction!!!"
         ENEMYPTS% = ENEMYPTS% - 17
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN
         PRINT "A swarm of hornets has attacked your opponent!"
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "wak" THEN
         PRINT "The ground starts rumbling from a massive earthquake!!!"
         ENEMYPTS% = ENEMYPTS% - 15
         IF ENEMYPTS% > 0 THEN
             HPS% = HPS% - 15
         END IF
-    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "pud" AND RUNE3$ = "pud" THEN 
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "pud" AND RUNE3$ = "pud" THEN
         PRINT "You have cast the spell of equality!"
         HPS% = HPS% / 2
         ENEMYPTS% = HPS%
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN
         PRINT "A cobra is attacking your opponent!"
         ENEMYPTS% = ENEMYPTS% - 12
-    ELSEIF RUNE1$ = "das" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN
         PRINT "There is a huge explosion between you and your opponent!"
         HPS% = HPS% - 11
         ENEMYPTS% = ENEMYPTS% - 11
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "fla" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "fla" THEN
         PRINT "A series of enchanted shruikens appear suddenly and hit your opponent!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "til" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "til" AND RUNE3$ = "tog" THEN
         PRINT "A flaming blast of fire erupts from your hands and engulfs the enemy in flames!"
         ENEMYPTS% = ENEMYPTS% - 16
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "poa" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "poa" THEN
         PRINT "You have summoned your familiar to your side!"
         ENEMYPTS% = ENEMYPTS% - 12
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "wir" THEN
         PRINT "You have summoned Sir Jacob to your side!!!"
         ENEMYPTS% = ENEMYPTS% - 13
-    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN
         PRINT "Suddenly it begins to rain frogs!"
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN
         PRINT "Nothing happens."
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "wod" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "wod" THEN
         PRINT "Raw magic whips out of your body and strangles your opponent."
         ENEMYPTS% = ENEMYPTS% - 13
-    ELSEIF RUNE1$ = "til" AND RUNE2$ = "sho" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "til" AND RUNE2$ = "sho" AND RUNE3$ = "pos" THEN
         PRINT "Your body begins to crack and blister while releasing raw pain into your enemy!!"
         ENEMYPTS% = ENEMYPTS% - 18
         HPS% = HPS% - 18
-    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN 
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN
         PRINT "You have poisoned your opponent!!!"
         ENEMYPTS% = ENEMYPTS% - 3
-    ELSEIF RUNE1$ = "dir" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN 
+    ELSEIF RUNE1$ = "dir" AND RUNE2$ = "ken" AND RUNE3$ = "wod" THEN
         PRINT "A magical Genie appears..."
         PRINT "What do you get when you cross a sheep with a kangaroo?"
         PRINT "Cast Pos-Coz-Vas for the answer."
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN
         PRINT "A wooly jumper!"
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "til" AND RUNE3$ = "vas" THEN
         PRINT "Your opponent is strangled by an invisible entity!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "wod" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "wod" AND RUNE3$ = "wir" THEN
         PRINT "A spell never includes two or more identical rune words."
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "fla" AND RUNE3$ = "sho" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "fla" AND RUNE3$ = "sho" THEN
         PRINT "Suddenly you have very bad cramp!"
         HPS% = HPS% - 1
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "wak" THEN
         PRINT "A great, black bat attacks your opponent!"
         ENEMYPTS% = ENEMYPTS% - 4
-    ELSEIF RUNE1$ = "rer" AND RUNE2$ = "sho" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "rer" AND RUNE2$ = "sho" AND RUNE3$ = "wir" THEN
         PRINT "Elvis is alive!!!"
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN
         PRINT "You have killed your opponent!!!"
         ENEMYPTS% = 0
-    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "uss" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "uss" AND RUNE3$ = "wir" THEN
         PRINT "Pulses of electricity run through your opponent's body!"
         ENEMYPTS% = ENEMYPTS% - 13
-    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "vas" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "vas" AND RUNE3$ = "vas" THEN
         PRINT "Your opponent is sucked into the ground!"
         ENEMYPTS% = ENEMYPTS% - 4
-    ELSEIF RUNE1$ = "oje" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "oje" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "poa" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "poa" THEN
         PRINT "Rock hard and hard rock!!!"
         ENEMYPTS% = 2
-    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "cal" AND RUNE3$ = "das" THEN 
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "cal" AND RUNE3$ = "das" THEN
         PRINT "You have cast a spell of holding!!!"
-    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN
         PRINT "You have entered a time warp!!!"
         ENEMYPTS% = ENEMYPTS% + 10
         HPS% = HP%
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN
         PRINT "KABOOM!!!!!!"
         ENEMYPTS% = 1
         HPS% = 1
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN
         PRINT "You have cast the spell of speed and may cast another spell!!!"
         GOTO 2999
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rer" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rer" AND RUNE3$ = "vas" THEN
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN
         PRINT "You have cast the spell of weakness!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "ken" AND RUNE3$ = "wak" THEN
         PRINT "Your opponent starts drowning on air!!!"
         ENEMYPTS% = ENEMYPTS% - 17
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "vas" THEN
         PRINT "Hdgwnconsan;o!!!"
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN
         PRINT "I'm sorry but I don't feel like casting that spell."
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "yoo" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "yoo" THEN
         PRINT "Sorry. That spell is out of order."
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "rof" AND RUNE3$ = "oje" THEN
         PRINT "Baboom!!!"
         ENEMYPTS% = ENEMYPTS% - 5
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "coz" AND RUNE3$ = "wir" THEN
         PRINT "What?"
-    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "cal" AND RUNE3$ = "oje" THEN 
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "cal" AND RUNE3$ = "oje" THEN
         BEEP
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "dir" AND RUNE3$ = "roc" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "dir" AND RUNE3$ = "roc" THEN
         PRINT "You have cast the spell of falling!!!"
         BEEP
         BEEP
@@ -9668,67 +9157,67 @@ SUB MAGIC
         BEEP
         PRINT "Ha, ha!!!"
         ENEMYPTS% = ENEMYPTS% - 10
-    ELSEIF RUNE1$ = "uch" AND RUNE2$ = "gnu" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "uch" AND RUNE2$ = "gnu" AND RUNE3$ = "tog" THEN
         PRINT "AAAAAAAAAAAAAAGGGGHHH!!!"
         ENEMYPTS% = ENEMYPTS% - 18
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "uss" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "uss" AND RUNE3$ = "tog" THEN
         PRINT "Wimp."
         BEEP
         HPS% = 1
-    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN 
+    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN
         PRINT "Your opponent's blood begins to boil!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "das" AND RUNE2$ = "pud" AND RUNE3$ = "yoo" THEN 
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "pud" AND RUNE3$ = "yoo" THEN
         PRINT "Your wounds have healed."
         HPS% = HPS% + 15
-    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "oje" AND RUNE3$ = "til" THEN 
+    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "oje" AND RUNE3$ = "til" THEN
         CLS
-    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "coz" THEN 
+    ELSEIF RUNE1$ = "vas" AND RUNE2$ = "sho" AND RUNE3$ = "coz" THEN
         PRINT "Finish him!!!"
         ENEMYPTS% = 1
         GOTO 2999
-    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "wod" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "roc" AND RUNE2$ = "wod" AND RUNE3$ = "wak" THEN
         PRINT "You have tilted the scales of Libra!"
         ENEMYPTS% = 1
         HPS% = HPS% + 10
-    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "poa" AND RUNE3$ = "yoo" THEN 
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "poa" AND RUNE3$ = "yoo" THEN
         PRINT "You cast the spell of love and have fallen in love"
         PRINT "with your opponent and decided not to try and kill them THIS TIME."
-    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "gnu" AND RUNE3$ = "oje" THEN 
+    ELSEIF RUNE1$ = "arp" AND RUNE2$ = "gnu" AND RUNE3$ = "oje" THEN
         PRINT "SYNTAX ERROR: IDIOT ATTEMPTING TO CAST SPELL>"
-    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "ken" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "ken" AND RUNE3$ = "tog" THEN
         PRINT "Your too dumb to be able to cast spell!!!"
-    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "pos" THEN
         PRINT "What ever your do, don't cast Til-Shi-Pos!"
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "pos" AND RUNE3$ = "cal" THEN
         PRINT "Laser beams flash from your eyes and kill your opponent!!!"
         ENEMYPTS% = 0
-    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN 
+    ELSEIF RUNE1$ = "sho" AND RUNE2$ = "ken" AND RUNE3$ = "rof" THEN
         PRINT "A thick poisonous fog surrounds your opponent!"
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "uss" AND RUNE3$ = "arp" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "uss" AND RUNE3$ = "arp" THEN
         PRINT "You freeze your opponent!"
         ENEMYPTS% = ENEMYPTS% - 3
-    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "dop" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN
         PRINT "Suddenly you are compelled to nut your opponent!"
         ENEMYPTS% = ENEMYPTS% - 2
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "cal" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "cal" THEN
         'TODO: compile error here
         'PLAY VARPTR$(cccd)
-    ELSEIF RUNE1$ = "wir" AND RUNE2$ = "pos" AND RUNE3$ = "uch" THEN 
+    ELSEIF RUNE1$ = "wir" AND RUNE2$ = "pos" AND RUNE3$ = "uch" THEN
         PRINT "A lemming falls from the sky and hits your opponent on the head!"
         ENEMYPTS% = ENEMYPTS% - 8
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "cal" AND RUNE3$ = "coz" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "cal" AND RUNE3$ = "coz" THEN
         PRINT "You summon a dragon and try to kill your opponent!!!"
         ENEMYPTS% = ENEMYPTS% - 10
-    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "sho" THEN 
+    ELSEIF RUNE1$ = "pos" AND RUNE2$ = "uch" AND RUNE3$ = "sho" THEN
         PRINT "You have cast the spell of suicide!!!"
         HPS% = 0
-    ELSEIF RUNE1$ = "cal" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "cal" AND RUNE2$ = "coz" AND RUNE3$ = "vas" THEN
         PRINT "???"
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "tog" AND RUNE3$ = "poa" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "tog" AND RUNE3$ = "poa" THEN
         PRINT "???"
-    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "gnu" AND RUNE3$ = "rer" THEN 
+    ELSEIF RUNE1$ = "uss" AND RUNE2$ = "gnu" AND RUNE3$ = "rer" THEN
         PRINT "W"
         PRINT "h"
         PRINT "a"
@@ -9743,76 +9232,76 @@ SUB MAGIC
         PRINT "?"
         PRINT "?"
         PRINT "?"
-    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "rer" AND RUNE3$ = "oje" THEN 
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "rer" AND RUNE3$ = "oje" THEN
         PRINT "Your opponent is electrocuted!"
         ENEMYPTS% = ENEMYPTS% - 16
-    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "arp" AND RUNE3$ = "til" THEN 
+    ELSEIF RUNE1$ = "poa" AND RUNE2$ = "arp" AND RUNE3$ = "til" THEN
         PRINT "You have raised an undead warrior!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "das" AND RUNE2$ = "yoo" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "das" AND RUNE2$ = "yoo" AND RUNE3$ = "wak" THEN
         PRINT "Babababooom!!!"
         ENEMYPTS% = 2
-    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "dir" AND RUNE3$ = "wod" THEN 
+    ELSEIF RUNE1$ = "pud" AND RUNE2$ = "dir" AND RUNE3$ = "wod" THEN
         PRINT "You have cast the spell of mirror!"
         HPS% = ENEMYPTS%
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "wak" AND RUNE3$ = "roc" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "wak" AND RUNE3$ = "roc" THEN
         PRINT "You have created an enchanted weapon!"
         DAMAGEADDED% = DAMAGEADDED% + 10
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "tog" AND RUNE3$ = "uss" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "tog" AND RUNE3$ = "uss" THEN
         PRINT "Splat!"
         BEEP
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "coz" AND RUNE3$ = "wak" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "coz" AND RUNE3$ = "wak" THEN
         PRINT "Your hair has turned red!"
         PRINT "Don't move buddy!"
-    ELSEIF RUNE1$ = "til" AND RUNE2$ = "ken" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "til" AND RUNE2$ = "ken" AND RUNE3$ = "vas" THEN
         PRINT "Don't move buddy!"
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN
         PRINT "Ready,"
         PRINT "Steady,"
         PRINT "GO!!!"
         ENEMYPTS% = ENEMYPTS% - 17
-    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "roc" AND RUNE3$ = "vas" THEN 
+    ELSEIF RUNE1$ = "wak" AND RUNE2$ = "roc" AND RUNE3$ = "vas" THEN
         PRINT "The X-Files is rather good."
         ENEMYPTS% = 2
         PRINT "Babylon 5 is great!"
     ELSEIF RUNE1$ = "fla" AND RUNE2$ = "ken" AND RUNE3$ = "dir" THEN
         PRINT "Babylon 5 is great!"
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "sho" THEN
         PRINT "Zzzzap!"
         ENEMYPTS% = ENEMYPTS% - 15
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "coz" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rof" AND RUNE3$ = "coz" THEN
         PRINT "You have turned your opponent into stone!"
         ENEMYPTS% = ENEMYPTS% - 19
-    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN 
+    ELSEIF RUNE1$ = "tog" AND RUNE2$ = "sho" AND RUNE3$ = "yoo" THEN
         PRINT "Red lasers flash from your eyes!"
         ENEMYPTS% = ENEMYPTS% - 14
-    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "ken" AND RUNE2$ = "rof" AND RUNE3$ = "pos" THEN
         PRINT "You have built a shield!"
         HPS% = HPS% + 4
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "pud" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "pud" THEN
         PRINT "You have gained magic armour!"
         HPS% = HPS% + 6
-    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "yoo" AND RUNE2$ = "sho" AND RUNE3$ = "tog" THEN
         CLS
-    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN
         PRINT "The ground swallows up your opponent!"
         ENEMYPTS% = ENEMYPTS% - 7
-    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN 
+    ELSEIF RUNE1$ = "rof" AND RUNE2$ = "wir" AND RUNE3$ = "tog" THEN
         PRINT "Lightning never strikes twice!"
-    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "uss" AND RUNE3$ = "ken" THEN 
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "uss" AND RUNE3$ = "ken" THEN
         PRINT "Wierd-a-loony-fantastic-eye-boggling-mania!!!"
         ENEMYPTS% = 1
         HPS% = 10
-    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wak" AND RUNE3$ = "coz" THEN 
+    ELSEIF RUNE1$ = "gnu" AND RUNE2$ = "wak" AND RUNE3$ = "coz" THEN
         PRINT "A tiger forms in the air and attacks your opponent!"
         ENEMYPTS% = ENEMYPTS% - 5
-    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "ken" THEN 
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "coz" AND RUNE3$ = "ken" THEN
         PRINT "You'll be the death of your opponent one day!"
         ENEMYPTS% = ENENYHPS% - HPS%
-    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "cal" THEN 
+    ELSEIF RUNE1$ = "fla" AND RUNE2$ = "rer" AND RUNE3$ = "cal" THEN
         PRINT "Fart the day of the right way!!!"
-    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN 
+    ELSEIF RUNE1$ = "wod" AND RUNE2$ = "wir" AND RUNE3$ = "pos" THEN
         PRINT
     ELSEIF RUNE1$ = "dop" AND RUNE2$ = "fla" AND RUNE3$ = "wir" THEN
         PRINT
@@ -9878,9 +9367,7 @@ SUB MainMenu
         CASE "5"
             IF GameOn% = 1 GOTO 10000
         CASE ELSE
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 9999
     END SELECT
     GOTO 9998
@@ -10014,9 +9501,7 @@ SUB NecrotaliaAI
         GOTO 39890
     END IF
     PRINT "You feel your strength fleeing from you."
-    COLOR 13
-    PRINT "Your strength is temporarily reduced by 1."
-    COLOR 15
+    ColorPrint 13, "Your strength is temporarily reduced by 1."
     STR% = STR% - 2
     GOTO 39900
 
@@ -10052,31 +9537,23 @@ SUB NecrotaliaBattle
     IF ACTION$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 35000
                 AI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 AI
                 GOTO 35000
             END IF
         ELSE
             AI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 35000
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 35000
             END IF
     END IF
@@ -10142,9 +9619,7 @@ SUB NecrotaliaBattle
     END IF
     IF ACTION$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 35000
         END IF
         IF COMBATSPEED% >= ENEMYSPEED% THEN
@@ -10185,9 +9660,7 @@ SUB NecrotaliaBattle
     INPUT ">", ACTIONA$
     IF ACTIONA$ = "steal" THEN
         IF Expertise% <> CLASS_THIEF THEN
-            COLOR 5
-            PRINT "Only thieves can steal."
-            COLOR 15
+            ColorPrint 5, "Only thieves can steal."
             GOTO 36000
         END IF
         IF Expertise% = CLASS_THIEF THEN
@@ -10205,9 +9678,7 @@ SUB NecrotaliaBattle
 
     IF ACTIONA$ = "throw weapon" THEN
         IF Expertise% <> CLASS_ROGUE THEN
-            COLOR 5
-            PRINT "Only rogues can throw weapons."
-            COLOR 15
+            ColorPrint 5, "Only rogues can throw weapons."
             GOTO 36000
         END IF
         IF Expertise% = CLASS_ROGUE THEN
@@ -10260,9 +9731,7 @@ SUB NecrotaliaBattle
 
     IF ACTIONA$ = "play music" THEN
         IF Expertise% <> CLASS_BARD THEN
-            COLOR 5
-            PRINT "Only bards can play music."
-            COLOR 15
+            ColorPrint 5, "Only bards can play music."
             GOTO 36000
         END IF
         IF Expertise% = CLASS_BARD THEN
@@ -10280,31 +9749,23 @@ SUB NecrotaliaBattle
     IF ACTIONA$ = "use potion" THEN
         IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 36000
                 NecrotaliaAI
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 NecrotaliaAI
                 GOTO 36000
             END IF
         ELSE
             NecrotaliaAI
             IF Inventory(ITEM_POTION).amount >= 1 THEN
-                COLOR 5
-                PRINT "used potion"
-                COLOR 15
+                ColorPrint 5, "used potion"
                 GOTO 36000
             END IF
             IF Inventory(ITEM_POTION).amount <= 0 THEN
-                COLOR 5
-                PRINT "you are out of potions"
-                COLOR 15
+                ColorPrint 5, "you are out of potions"
                 GOTO 36000
             END IF
     END IF
@@ -10321,9 +9782,7 @@ SUB NecrotaliaBattle
 
     IF ACTIONA$ = "use magic" THEN
         IF Expertise% <> CLASS_MAGE THEN
-            COLOR 5
-            PRINT "Only mages can use magic!"
-            COLOR 15
+            ColorPrint 5, "Only mages can use magic!"
             GOTO 35000
         END IF
         IF COMBATSPEED% >= ENEMYSPEED% THEN
@@ -10560,9 +10019,7 @@ SUB NecrotaliaFight
                 HPS% = HPS% + 15
                 IF HPS% > HP% THEN HPS% = HP%
                 Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                COLOR 15
+                ColorPrint 5, "Used potion"
             ELSE
                 GOTO 1000010
             END IF
@@ -10622,9 +10079,7 @@ SUB NecrotaliaFight
     END SELECT
     GOTO 1000005
   1000010
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 1000005
 END SUB
 
@@ -10660,15 +10115,11 @@ SUB Options
                     Diff% = 2
                     GOTO 1.05
                 END IF
-            COLOR 5
-            PRINT "Huh?"
-            COLOR 15
+            ColorPrint 5, "Huh?"
             GOTO 1.25
         CASE "2" : GOTO 1.7
     END SELECT
-    COLOR 5
-    PRINT "Huh?"
-    COLOR 15
+    ColorPrint 5, "Huh?"
     GOTO 1.1
   1.7
 END SUB
@@ -10732,9 +10183,7 @@ SUB PurchaseSamael
             END IF
             COLOR 15
         CASE "buy"
-            COLOR 5
-            PRINT "Samael>Good, here's what I got fer ya."
-            COLOR 15
+            ColorPrint 5, "Samael>Good, here's what I got fer ya."
             PRINT "Item                 Cost"
             PRINT "-------------------------"
             FOR i = 0 TO UBOUND(Inventory)
@@ -11014,7 +10463,7 @@ SUB SaveToSavegame
             END IF
         LOOP UNTIL EOF(1) OR slotsInUse% > UBOUND(SaveSlots)
     END IF
-    
+
     CLOSE #1
     OPEN "sgame.sav" FOR OUTPUT AS #2
 
@@ -11022,12 +10471,12 @@ SUB SaveToSavegame
         SaveSlots(SavedGame% - 1).playerName = Name$
         SaveSlots(SavedGame% - 1).playerClass = Class$
         SaveSlots(SavedGame% - 1).savePoint = SavePos%
-        
+
         IF SavedGame% = slotsInUse% + 1 THEN
             slotsInUse% = slotsInUse% + 1
         END IF
     END IF
-    
+
     FOR i = 0 TO slotsInUse% - 1
         WRITE #2, SaveSlots(i).playerName, SaveSlots(i).playerClass, SaveSlots(i).savePoint
     NEXT i
@@ -11286,9 +10735,7 @@ SUB XanathusBattle
     LHO$ = LH$
     XanathusFleeTime% = 6
     ENEMY$ = "Xanathus"
-    COLOR 14
-    PRINT "Xanathus> Argh! if you won't stop chasing me then you will die!"
-    COLOR 15
+    ColorPrint 14, "Xanathus> Argh! if you won't stop chasing me then you will die!"
     PRINT "Xanathus readies his staff"
 
     SPEED% = 10
@@ -11314,9 +10761,7 @@ SUB XanathusBattle
         SELECT CASE ACTIONA$
             CASE "steal"
                 IF Expertise% <> CLASS_THIEF THEN
-                    COLOR 5
-                    PRINT "Only thieves can steal."
-                    COLOR 15
+                    ColorPrint 5, "Only thieves can steal."
                 ELSE
                     IF COMBATSPEED% >= ENEMYSPEED% THEN
                         Steal
@@ -11328,9 +10773,7 @@ SUB XanathusBattle
                 END IF
             CASE "throw weapon"
                 IF Expertise% <> CLASS_ROGUE THEN
-                    COLOR 5
-                    PRINT "Only rogues can throw weapons."
-                    COLOR 15
+                    ColorPrint 5, "Only rogues can throw weapons."
                 ELSE
                     IF COMBATSPEED% < ENEMYSPEED% THEN
                         XanathusAI
@@ -11348,9 +10791,7 @@ SUB XanathusBattle
                     DAMAGEADDED% = 0
                     IF XanathusHP% <= 0 THEN
                         PRINT "Xanathus falls to the wound."
-                        COLOR 14
-                        PRINT "Xanathus> How could this be?"
-                        COLOR 15
+                        ColorPrint 14, "Xanathus> How could this be?"
                         PRINT "Obtained gate key from Xanathus' body!"
                         Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                         XanathusDead% = 1
@@ -11363,9 +10804,7 @@ SUB XanathusBattle
                 END IF
             CASE "play music"
                 IF Expertise% <> CLASS_BARD THEN
-                    COLOR 5
-                    PRINT "Only bards can play music."
-                    COLOR 15
+                    ColorPrint 5, "Only bards can play music."
                 ELSE
                     IF COMBATSPEED% >= ENEMYSPEED% THEN
                         BardMusic
@@ -11409,9 +10848,7 @@ SUB XanathusBattle
                 MAGIC
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
+                    ColorPrint 14, "Xanathus> How could this be?"
                     PRINT "Obtained gate key from Xanathus' body!"
                     Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
@@ -11441,9 +10878,7 @@ SUB XanathusBattle
                 XanathusHP% = XanathusHP% - (DAMAGEADDED% + STR% + 2)
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
+                    ColorPrint 14, "Xanathus> How could this be?"
                     PRINT "Obtained gate key from Xanathus' body!"
                     Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
@@ -11468,9 +10903,7 @@ SUB XanathusBattle
                 XanathusHP% = XanathusHP% - (STR% + 5 + DAMAGEADDED%)
                 IF XanathusHP% <= 0 THEN
                     PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
+                    ColorPrint 14, "Xanathus> How could this be?"
                     PRINT "Obtained gate key from Xanathus' body!"
                     Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
@@ -11535,9 +10968,7 @@ SUB XanathusBattle
                 IF XanathusHP% <= 3 THEN
                     PRINT "You grasp Xanathus' head, draw back and crush his skull."
                     PRINT "Xanathus falls to the wound."
-                    COLOR 14
-                    PRINT "Xanathus> How could this be?"
-                    COLOR 15
+                    ColorPrint 14, "Xanathus> How could this be?"
                     PRINT "Obtained gate key from Xanathus' body!"
                     Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                     XanathusDead% = 1
@@ -11548,9 +10979,7 @@ SUB XanathusBattle
                     USEOWLSPELL
                     IF XanathusHP% <= 0 THEN
                         PRINT "Xanathus falls to the wound."
-                        COLOR 14
-                        PRINT "Xanathus> How could this be?"
-                        COLOR 15
+                        ColorPrint 14, "Xanathus> How could this be?"
                         PRINT "Obtained gate key from Xanathus' body!"
                         Inventory(QITEM_GATE_KEY).amount = Inventory(QITEM_GATE_KEY).amount + 1
                         XanathusDead% = 1
@@ -11643,6 +11072,12 @@ SUB XanathusWorldFlee
         PRINT "Xanathus is moving from the area he was in!"
         XanathusFlee
     END IF
+END SUB
+
+SUB ColorPrint (outputColor%, outputStr$)
+    COLOR outputColor%
+    PRINT outputStr$
+    COLOR 15
 END SUB
 
 SUB InitGlobals
