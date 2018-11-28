@@ -8894,83 +8894,83 @@ End SUB
 SUB LoadGame
     Operation$ = "Load"
     GetSaveLoadPos
-    SELECT CASE LoadedGame%
-        CASE 1 : OPEN "mud.sav" FOR INPUT AS #2
-        CASE 2 : OPEN "mud1.sav" FOR INPUT AS #2
-        CASE 3 : OPEN "mud2.sav" FOR INPUT AS #2
-        CASE 4 : OPEN "mud3.sav" FOR INPUT AS #2
-        CASE 5 : OPEN "mud4.sav" FOR INPUT AS #2
-        CASE 6 : GOTO 100002
-    END SELECT
-        'Saving position
-        INPUT #2, SavePos%
 
-        'Player Stats
-        INPUT #2, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
+    loadStr$ = "mud"
+    IF LoadedGame% > 1 THEN
+        loadStr$ = loadStr$ & LTRIM$(STR$(LoadedGame%))
+    END IF
+    loadStr$ = loadStr$ & ".sav"
 
-        'Act 1 items, triggers, helmsburg
-        INPUT #2, HelmsburgBttl%, Inventory(QITEM_STRANGE_PENDANT).amount, Inventory(QITEM_BURNING_SPHERE).amount, Inventory(QITEM_GOLDEN_SKULL).amount, Inventory(QITEM_CHAOS_STAR).amount, Inventory(QITEM_KEY1).amount, Inventory(QITEM_KEY2).amount, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%,  _
+    OPEN loadStr$ FOR INPUT AS #2
+
+    'Saving position
+    INPUT #2, SavePos%
+
+    'Player Stats
+    INPUT #2, Name$, VIT%, STR%, ENG%, DEX%, HPS%, Gold&, EXPR%, STRO%, LH$, RH$, Armour$, DAMAGEADDED%, DamageLostArmour%, ShieldSave%, Sex$, Lvl%, HP%, Class$, MP%, MPS%, Helm$, DamageLostHelm%, STRO%, DEXO%, VITO%, ENGO%
+
+    'Act 1 items, triggers, helmsburg
+    INPUT #2, HelmsburgBttl%, Inventory(QITEM_STRANGE_PENDANT).amount, Inventory(QITEM_BURNING_SPHERE).amount, Inventory(QITEM_GOLDEN_SKULL).amount, Inventory(QITEM_CHAOS_STAR).amount, Inventory(QITEM_KEY1).amount, Inventory(QITEM_KEY2).amount, A1ShopEnter%, A1ShopPotion%, A1EnterPit%, Quest%, A3LS%, A3Corpse%, ThroneSwitch%, A12Potions%, A12ShieldPlusTwo%, GoldenSkullTaken%, A14Key2%,  _
     A19Lvl1Door%, A19Lvl2Door%, A20Lvl1Door%, A23FamiliarFlute%, A26ChaosStar%, A27GoldenSocket%, A27JadeSocket%, A29StarSocket%, Inventory(QITEM_FAMILIAR_FLUTE).amount, Inventory(QITEM_CHAOS_STAR).amount, A27AvengerSword, A28ChaosStarSocket%, Inventory(QITEM_JADE_SKULL).amount, WightLord%
 
-        'Weapon Inventory
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).equipType = EQUIP_WEAPON THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'Weapon Inventory
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_WEAPON THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        'Helms
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).equipType = EQUIP_HELM THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'Helms
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_HELM THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        'Shield Inventory
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).equipType = EQUIP_SHIELD THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'Shield Inventory
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_SHIELD THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        'Armour Inventory
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).equipType = EQUIP_ARMOUR THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'Armour Inventory
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).equipType = EQUIP_ARMOUR THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        'Potion Inventory
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).itemType = ITEM_TYPE_POTION THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'Potion Inventory
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_POTION THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        'Act1Pt2 SUB Triggers, Quest Items
-        INPUT #2, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, Inventory(QITEM_GATE_KEY).amount _
-    , A67PillarOn%
+    'Act1Pt2 SUB Triggers, Quest Items
+    INPUT #2, A34Cutscene%, A34CutsceneDone%, A34SecretDoor%, A42Cutscene%, A42LockedGate%, XanathusDead%, XanathusArea$, XanathusHP%, A48BSphere%, A56VampFight, Hint%, GemNum%, GemPuzzleDone%, A67SwordPuzzle%, A67SwordTaken%, RustedSword%, Inventory(QITEM_GATE_KEY).amount, A67PillarOn%
 
-        'Familiar Flute
-        INPUT #2, Inventory(QITEM_FAMILIAR_FLUTE).amount
+    'Familiar Flute
+    INPUT #2, Inventory(QITEM_FAMILIAR_FLUTE).amount
 
-        'Familiar Stuff
-        INPUT #2, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
+    'Familiar Stuff
+    INPUT #2, Familiar$, FAMILIARHP%, FAMILIARDAMAGE%, Owl%, OWLSPELLE$, OwlSpells(0).hasIt, OwlSpells(1).hasIt, OwlSpells(2).hasIt, OwlSpells(3).hasIt, OwlSpells(4).hasIt, OwlSpells(5).hasIt, OwlSpells(6).hasIt, OwlSpells(7).hasIt, OwlSpells(8).hasIt, LEARNOWLSPELL$, AL%, OwlSpells(9).hasIt, OwlSpells(10).hasIt, OwlSpells(11).hasIt, FamiliarHPS%
 
-        'Class stuff
-        INPUT #2, Expertise%
+    'Class stuff
+    INPUT #2, Expertise%
 
-        'All The runestuff
-        FOR i = 0 TO 26
-            INPUT #2, dummy$
-        NEXT i
-        FOR i = 0 TO UBOUND(Inventory)
-            IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
-                INPUT #2, Inventory(i).amount
-            END IF
-        NEXT i
+    'All The runestuff
+    FOR i = 0 TO 26
+        INPUT #2, dummy$
+    NEXT i
+    FOR i = 0 TO UBOUND(Inventory)
+        IF Inventory(i).itemType = ITEM_TYPE_RUNE THEN
+            INPUT #2, Inventory(i).amount
+        END IF
+    NEXT i
 
-        CLOSE #2
+    CLOSE #2
 
     JustLoaded% = 1
     SELECT CASE SavePos%
@@ -10305,14 +10305,13 @@ SUB SaveGame
     Operation$ = "Save"
     GetSaveLoadPos
 
-    SELECT CASE SavedGame%
-        CASE 1 : OPEN "mud.sav" FOR OUTPUT AS #1
-        CASE 2 : OPEN "mud1.sav" FOR OUTPUT AS #1
-        CASE 3 : OPEN "mud2.sav" FOR OUTPUT AS #1
-        CASE 4 : OPEN "mud3.sav" FOR OUTPUT AS #1
-        CASE 5 : OPEN "mud4.sav" FOR OUTPUT AS #1
-        CASE 6 : GOTO 100001
-    END SELECT
+    saveStr$ = "mud"
+    IF SavedGame% > 1 THEN
+        saveStr$ = saveStr$ & LTRIM$(STR$(SavedGame%))
+    END IF
+    saveStr$ = saveStr$ & ".sav"
+
+    OPEN saveStr$ FOR OUTPUT AS #1
 
     'Saving position
     WRITE #1, SavePos%
@@ -10553,8 +10552,6 @@ SUB USEOWLSPELL
     index% = -1
 
   spellLoop:
-    loopDone = TRUE
-
     PRINT "Your owl spell list:"
     FOR i = LBOUND(OwlSpells) TO UBOUND(OwlSpells)
         IF OwlSpells(i).hasIt THEN PRINT OwlSpells(i).name
