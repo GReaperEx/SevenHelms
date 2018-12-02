@@ -10099,25 +10099,23 @@ SUB Options
           1.25
             PRINT "What is your choice?"
             INPUT ">", Difficulty$
-                IF Difficulty$ = "e" THEN
+            SELECT CASE Difficulty$
+                CASE "e"
                     Diff% = 0
-                    GOTO 1.05
-                END IF
-                IF Difficulty$ = "m" THEN
+                CASE "m"
                     Diff% = 1
-                    GOTO 1.05
-                END IF
-                IF Difficulty$ = "h" THEN
+                CASE "h"
                     Diff% = 2
-                    GOTO 1.05
-                END IF
+                CASE ELSE
+                    ColorPrint 5, "Huh?"
+                    GOTO 1.25
+            END SELECT
+            GOTO 1.05
+        CASE "2"
+        CASE ELSE
             ColorPrint 5, "Huh?"
-            GOTO 1.25
-        CASE "2" : GOTO 1.7
+            GOTO 1.1
     END SELECT
-    ColorPrint 5, "Huh?"
-    GOTO 1.1
-  1.7
 END SUB
 
 REM $DYNAMIC

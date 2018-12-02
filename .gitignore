@@ -1,15 +1,18 @@
 # Don't add any binaries
 *.exe
 seven-helms
+MUD2
 *.o
 *.so
 
 # don't add save games
-MUD.sav
-sgame.sav
+*.sav
 
 # Do not include FbEdit backup directory
 Bak/*
+
+# Don't include Vim backup files
+*.swp
 
 # Don't include the undo file for the project
 *.undo
