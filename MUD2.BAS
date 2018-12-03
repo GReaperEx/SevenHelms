@@ -7607,7 +7607,8 @@ END SUB
 REM $DYNAMIC
 SUB CHARCREATE
     ' MAKE THE CHARACTERS HERE
-    0 CLS
+  0
+    CLS
 
     'character creation begins
     PRINT "What is the name of the young warrior?"
@@ -7615,104 +7616,85 @@ SUB CHARCREATE
     IF Name$ = "" THEN GOTO 0
 
     PRINT "Is "; Name$; " Male or Female <M/F>?"
-    10 INPUT ">", SexA$
-        IF SexA$ = "m" THEN Sex$ = "his"
-        IF SexA$ = "m" THEN GOTO 21
-        IF SexA$ = "f" THEN Sex$ = "her"
-        IF SexA$ = "f" THEN GOTO 21
-    ColorPrint 5, "Huh?"
-    GOTO 10
+  10
+    INPUT ">", SexA$
+    SELECT CASE LCASE$(SexA$)
+        CASE "m" : Sex$ = "his"
+        CASE "f" : Sex$ = "her"
+        CASE ELSE
+            ColorPrint 5, "Huh?"
+            GOTO 10
+    END SELECT 
 
-    21 PRINT "Please select "; Name$; "'s class."
+  21
+    PRINT "Please select "; Name$; "'s class."
     PRINT "0-Fighter"
     PRINT "1-Mage"
     PRINT "2-Rogue"
     PRINT "3-Thief"
     PRINT "4-Bard"
     INPUT ">", CLASSDECISION$
-    'Fighter Setup
-        IF CLASSDECISION$ = "0" THEN
+    SELECT CASE CLASSDECISION$
+        CASE "0"
             Class$ = "Fighter"
             Expertise% = CLASS_FIGHTER
-            GOTO 21.5
-        END IF
-
-    'Mage Setup
-        IF CLASSDECISION$ = "1" THEN
+        CASE "1"
             Class$ = "Mage"
-             Expertise% = CLASS_MAGE
-            GOTO 21.5
-        END IF
-
-    'Rogue Setup
-        IF CLASSDECISION$ = "2" THEN
+            Expertise% = CLASS_MAGE
+        CASE "2"
             Class$ = "Rogue"
             Expertise% = CLASS_ROGUE
-            GOTO 21.5
-        END IF
-
-    'Thief Setup
-        IF CLASSDECISION$ = "3" THEN
+        CASE "3"
             Class$ = "Thief"
             Expertise% = CLASS_THIEF
-            GOTO 21.5
-        END IF
-
-    'Bard Setup
-        IF CLASSDECISION$ = "4" THEN
+        CASE "4"
             Class$ = "Bard"
             Expertise% = CLASS_BARD
-            GOTO 21.5
-        END IF
+        CASE ELSE
+            PRINT "Huh?"
+            GOTO 21
+    END SELECT
 
-    PRINT "Huh?"
-    GOTO 21
-
-    21.5 PRINT "Choose your familiar:"
+  21.5
+    PRINT "Choose your familiar:"
     PRINT "C>at"
     PRINT "T>oad"
     PRINT "O>wl"
     INPUT "Decide:", FAMILIARCHOOSE$
-    IF FAMILIARCHOOSE$ = "c" THEN
-        Familiar$ = "Cat"
-        FAMILIARDAMAGE% = 20
-        FamiliarHPS% = 10
-        FAMILIARHP% = 10
-        MP% = 10
-        MPS% = 10
-        GOTO 22
-    END IF
+    SELECT CASE LCASE$(FAMILIARCHOOSE$)
+        CASE "c"
+            Familiar$ = "Cat"
+            FAMILIARDAMAGE% = 20
+            FamiliarHPS% = 10
+            FAMILIARHP% = 10
+            MP% = 10
+            MPS% = 10
+        CASE "t"
+            Familiar$ = "Toad"
+            FAMILIARDAMAGE% = 10
+            FamiliarHPS% = 20
+            FAMILIARHP% = 20
+            MP% = 15
+            MP% = 15
+        CASE "o"
+            Familiar$ = "Owl"
+            FAMILIARDAMAGE% = 15
+            FamiliarHPS% = 15
+            FAMILIARHP% = 15
+            MP% = 30
+            MPS% = 30
+            Owl% = 1
+        CASE ELSE
+            ColorPrint 5, "Huh?"
+            GOTO 21.5
+    END SELECT
 
-    IF FAMILIARCHOOSE$ = "t" THEN
-        Familiar$ = "Toad"
-        FAMILIARDAMAGE% = 10
-        FamiliarHPS% = 20
-        FAMILIARHP% = 20
-        MP% = 15
-        MP% = 15
-        GOTO 22
-    END IF
-
-    IF FAMILIARCHOOSE$ = "o" THEN
-        Familiar$ = "Owl"
-        FAMILIARDAMAGE% = 15
-        FamiliarHPS% = 15
-        FAMILIARHP% = 15
-        MP% = 30
-        MPS% = 30
-        Owl% = 1
-        GOTO 22
-    END IF
-
-    ColorPrint 5, "Huh?"
-    GOTO 21.5
-
-    22
-        STR% = INT(RND * 20) + 1
-        DEX% = INT(RND * 20) + 1
-        VIT% = INT(RND * 20) + 1
-        ENG% = INT(RND * 20) + 1
-        HP% = INT(RND * 35) + 1
+  22
+    STR% = INT(RND * 20) + 1
+    DEX% = INT(RND * 20) + 1
+    VIT% = INT(RND * 20) + 1
+    ENG% = INT(RND * 20) + 1
+    HP% = INT(RND * 35) + 1
 
     IF Diff% = 0 THEN
         STR% = STR% + 5
@@ -7720,9 +7702,7 @@ SUB CHARCREATE
         VIT% = VIT% + 5
         ENG% = ENG% + 5
         HP% = HP% + 10
-        END IF
-
-    IF Diff% = 3 THEN
+    ELSEIF Diff% = 3 THEN
         STR% = STR% - 5
         DEX% = DEX% - 5
         VIT% = VIT% - 5
@@ -7733,41 +7713,44 @@ SUB CHARCREATE
         IF VIT% <= 0 THEN VIT% = 5
         IF ENG% <= 0 THEN ENG% = 5
         IF HP% <= 0 THEN HP% = 7
-        END IF
+    END IF
 
-        HPS% = HP%
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        PRINT "Strength ="; STR%;
-        PRINT "Dexterity ="; DEX%;
-        PRINT "Vitality ="; VIT%;
-        PRINT "Energy ="; ENG%;
-        PRINT "Hit Points ="; HP%;
-        PRINT ""
-        PRINT "Are these stats acceptable? <Y/N>"
+    HPS% = HP%
+    STRO% = STR%
+    DEXO% = DEX%
+    VITO% = VIT%
+    ENGO% = ENG%
+    PRINT "Strength ="; STR%;
+    PRINT "Dexterity ="; DEX%;
+    PRINT "Vitality ="; VIT%;
+    PRINT "Energy ="; ENG%;
+    PRINT "Hit Points ="; HP%;
+    PRINT ""
+    PRINT "Are these stats acceptable? <Y/N>"
 
     INPUT ">", Accept$
-    IF Accept$ = "y" GOTO 24
-    IF Accept$ = "Y" GOTO 24
-    IF Accept$ = "n" GOTO 22
-    IF Accept$ = "N" GOTO 22
-    PRINT "Huh?"
+    SELECT CASE LCASE$(Accept$)
+        CASE "y" : GOTO 24
+        CASE "n"
+        CASE ELSE
+            PRINT "Huh?"
+    END SELECT
     GOTO 22
 
     'Character creation ends
 
-    24 PRINT "Do you wish to redo the character creation <Y/N>?"
+  24 
+    PRINT "Do you wish to redo the character creation <Y/N>?"
     INPUT ">", Redo$
-    IF Redo$ = "y" GOTO 0
-    IF Redo$ = "Y" GOTO 0
-    IF Redo$ = "n" GOTO 25
-    IF Redo$ = "N" GOTO 25
-    ColorPrint 5, "Huh?"
-    GOTO 24
+    SELECT CASE LCASE$(Redo$)
+        CASE "y" : GOTO 0
+        CASE "n"
+        CASE ELSE
+            ColorPrint 5, "Huh?"
+            GOTO 24
+    END SELECT 
     CLS
-25 END SUB
+END SUB
 
 REM $STATIC
 SUB CheckRunes (rune$)
@@ -7980,13 +7963,13 @@ SUB displaystats
     PRINT "Familiar hit points: "; FAMILIARHP%; "/"; FamiliarHPS%
     PRINT "Familiar mana points: "; MP%; "/"; MPS%
     IF Owl% = 1 THEN
-    PRINT "Spells your familiar knows: "; OWLSPELLE$
-    FOR i = 0 TO 11
-        IF OwlSpells(i).hasIt THEN
-            PRINT OwlSpells(i).name; ", ";
-        END IF
-    NEXT i
-    PRINT ""
+        PRINT "Spells your familiar knows: "; OWLSPELLE$
+        FOR i = 0 TO 11
+            IF OwlSpells(i).hasIt THEN
+                PRINT OwlSpells(i).name; ", ";
+            END IF
+        NEXT i
+        PRINT ""
     END IF
 END SUB
 
@@ -8180,6 +8163,7 @@ SUB EXPERIENCELVLUP
     END IF
 END SUB
 
+REM $STATIC
 SUB VampireBeaten
     COLOR 14
     PRINT "Vampire> No! no more! I yield!"
@@ -8206,9 +8190,8 @@ FUNCTION EnemyKilled () AS INTEGER
     ELSE
         EnemyKilled = 0
     END IF
-END SUB
+END FUNCTION
 
-REM $STATIC
 SUB FamiliarCall
     FamiliarCalled% = 1
     SELECT CASE Familiar$
