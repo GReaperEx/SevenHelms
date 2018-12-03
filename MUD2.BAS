@@ -84,6 +84,7 @@ DECLARE SUB ToadSteal ()
 DECLARE SUB CallFamiliar ()
 
 DECLARE SUB VampireBeaten ()
+DECLARE FUNCTION EnemyKilled () AS INTEGER
 DECLARE SUB ColorPrint (outputColor%, outputStr$)
 DECLARE SUB InitGlobals ()
 
@@ -6736,69 +6737,56 @@ SUB BATTLE2
     SPEED% = INT(RND * 20) + 1
     SPDBONUS% = ENEMY% + SPEED%
 
-    M% = INT(RND * 9) + 1
-    IF M% = 1 THEN
-        ENEMY$ = "Skeleton"
-        ENEMYPTS% = ENEMYHPB% + 5
-    END IF
-    IF M% = 2 THEN
-        ENEMY$ = "Wight"
-        ENEMYPTS% = ENEMYHPB% + 15
-    END IF
-    IF M% = 3 THEN
-        ENEMY$ = "Fell Bat"
-        ENEMYPTS% = ENEMYHPB% + 10
-    END IF
-    IF M% = 4 THEN
-        ENEMY$ = "Zombie"
-        ENEMYPTS% = ENEMYHPB% + 5
-    END IF
-    IF M% = 5 THEN
-        'Scary!
-        ENEMY$ = "Wraith"
-        ENEMYPTS% = ENEMYHPB% + 30
-        ENEMYPTSO% = ENEMYPTS%
-        STRBONUS% = 5
-        Ethereal% = 1
-    END IF
-    IF M% = 6 THEN
-        'very scary!
-        ENEMY$ = "Dire Wolf"
-        ENEMYPTS% = ENEMYHPB% + 40
-        ENEMYSPEED% = SPDBONUS% + 5
-    END IF
-
-    IF M% = 7 THEN
-        'Don't hurt meeee!
-        ENEMY$ = "Lesser Vampire"
-        ENEMYPTS% = ENEMYHPB% + 50
-        ENEMYSPEED% = SPDBONUS% + 15
-        STRBONUS% = 20
-    END IF
-
-    IF M% = 8 THEN
-        'can't be hurt by physical attacks!
-        ENEMY$ = "Banshee"
-        Ethereal% = 1
-        ENEMYPTS% = 5
-        ENEMYPTSO% = ENEMYPTS%
-        STRBONUS% = 5
-    END IF
-
-    IF M% = 9 THEN
-        'can't be hurt by physical attacks!
-        ENEMY$ = "Phantom"
-        Ethereal% = 1
-        ENEMYPTS% = 1
-        ENEMYPTSO% = ENEMYPTS%
-    END IF
-
-    IF M% = 10 THEN
-        'heeeeeeeeelelllllllllppppppp meeeeeeeee!
-        ENEMY$ = "Zombie Dragon"
-        ENEMYPTS% = ENEMYHPB% + 100
-        STRBONUS% = 20
-    END IF
+    SELECT CASE INT(RND * 10)
+        CASE 0
+            ENEMY$ = "Skeleton"
+            ENEMYPTS% = ENEMYHPB% + 5
+        CASE 1
+            ENEMY$ = "Wight"
+            ENEMYPTS% = ENEMYHPB% + 15
+        CASE 2
+            ENEMY$ = "Fell Bat"
+            ENEMYPTS% = ENEMYHPB% + 10
+        CASE 3
+            ENEMY$ = "Zombie"
+            ENEMYPTS% = ENEMYHPB% + 5
+        CASE 4
+            'Scary!
+            ENEMY$ = "Wraith"
+            ENEMYPTS% = ENEMYHPB% + 30
+            ENEMYPTSO% = ENEMYPTS%
+            STRBONUS% = 5
+            Ethereal% = 1
+        CASE 5
+            'very scary!
+            ENEMY$ = "Dire Wolf"
+            ENEMYPTS% = ENEMYHPB% + 40
+            ENEMYSPEED% = SPDBONUS% + 5
+        CASE 6
+            'Don't hurt meeee!
+            ENEMY$ = "Lesser Vampire"
+            ENEMYPTS% = ENEMYHPB% + 50
+            ENEMYSPEED% = SPDBONUS% + 15
+            STRBONUS% = 20
+        CASE 7
+            'can't be hurt by physical attacks!
+            ENEMY$ = "Banshee"
+            Ethereal% = 1
+            ENEMYPTS% = 5
+            ENEMYPTSO% = ENEMYPTS%
+            STRBONUS% = 5
+        CASE 8
+            'can't be hurt by physical attacks!
+            ENEMY$ = "Phantom"
+            Ethereal% = 1
+            ENEMYPTS% = 1
+            ENEMYPTSO% = ENEMYPTS%
+        CASE 9
+            'heeeeeeeeelelllllllllppppppp meeeeeeeee!
+            ENEMY$ = "Zombie Dragon"
+            ENEMYPTS% = ENEMYHPB% + 100
+            STRBONUS% = 20
+    END SELECT
 
     IF A56VampFight% = 1 THEN
         Boss% = 1
@@ -6813,790 +6801,425 @@ SUB BATTLE2
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
-    1000 PRINT "What would you like to do?"
+  1000
+    PRINT "What would you like to do?"
     WeaponThrown = -1
     IF Expertise% = CLASS_ROGUE THEN
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
+        IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
+        IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
     END IF
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTION$
-    IF ACTION$ = "call familiar" THEN
-        IF FAMILIARHP% <= 0 THEN
-            ColorPrint 5, "Your familiar has fainted."
-            GOTO 1000
-        END IF
-        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            FamiliarCall
-            IF ENEMYPTS% <= 0 THEN GOTO 102000
-            GOTO 1000
-        IF COMBATSPEED% < ENEMYSPEED% THEN
-            AI
-            FamiliarCall
-            IF ENEMYPTS% <= 0 THEN GOTO 102000
-            GOTO 1000
-        END IF
-        END IF
-        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
-            COLOR 5
-            PRINT "You don't have a familiar flute"
-            GOTO 1000
-            COLOR 15
-        END IF
-    END IF
-    END IF
-    IF ACTION$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 1020
-                AI
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                AI
-                GOTO 1020
-            END IF
-        ELSE
-            AI
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 1020
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                GOTO 1020
-            END IF
-    END IF
-    END IF
-    IF ACTION$ = "spit" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            PRINT "You spit at the "; ENEMY$; "'s face."
-            PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
-            AI
-            GOTO 1000
-    ELSE
-            AI
-            PRINT "You spit at the "; ENEMY$; "'s face."
-            PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
-            GOTO 1000
-        END IF
-    END IF
-    IF ACTION$ = "help" THEN
-        HELP
-        GOTO 1000
-    END IF
-    IF ACTION$ = "ready weapon" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-        PRINT "You readied your weapon."
-        AI
-        GOTO 1020
-        ELSE
-        AI
-        PRINT "You readied your weapon."
-        GOTO 1020
-        END IF
-    END IF
-    IF ACTION$ = "run" THEN
-        PRINT "You ran away."
-        GOTO 102000
-        END IF
-    IF ACTION$ = "kick" THEN
-        PRINT "Aming your foot, you lash out towards his groin."
-        KICKCHANCE% = INT(RND * 100) + 1
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1000
-        END IF
-        IF KICKCHANCE% >= 50 THEN
-            PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
-            PRINT "back up."
-            ENEMYPTS% = 0
-            GOTO 102000
-        ELSE PRINT "The "; ENEMY$; " is rather upset that his crown jewels were threatened."
-            PRINT "He is really PISSED."
-            GOTO 1020
-            AI
-        END IF
-    END IF
-    IF ACTION$ = "punch" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        PUNCHCHANCE% = INT(RND * 100) + 1
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1000
-        END IF
-        IF PUNCHCHANCE% >= 50 THEN
-            PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
-            ENEMYPTS% = 0
-            GOTO 102000
-        ELSE PRINT "The "; ENEMY$; " is really upset that you dared to try to punch him."
-            PRINT "He is really PISSED."
-            AI
-            GOTO 1020
-        END IF
-    END IF
-    END IF
-    IF ACTION$ = "judge enemy" THEN
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
-            GOTO 1000
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
-                PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS% + 10; "."
+    SELECT CASE ACTION$
+        CASE "call familiar" 
+            IF FAMILIARHP% <= 0 THEN
+                ColorPrint 5, "Your familiar has fainted."
                 GOTO 1000
-            END IF
-        PRINT "The "; ENEMY$; "'s hit points appear to be "; ENEMYPTS% + 5; "."
-        GOTO 1000
-    END IF
-    END IF
-    IF ACTION$ = "use magic" THEN
-        IF Expertise% <> CLASS_MAGE THEN
-            ColorPrint 5, "Only mages can use magic!"
-            GOTO 1000
-        END IF
+            ELSEIF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    AI
+                END IF
 
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
+                FamiliarCall
+                IF ENEMYPTS% <= 0 THEN GOTO 102000
 
-                GOTO 102000
-            END IF
-            AI
-        ELSE
-            AI
-            MAGIC
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                GOTO 102000
-            END IF
-            GOTO 1000
-        END IF
-    END IF
-    IF ACTION$ = "use owl spell" THEN
-        IF Owl% = 1 THEN
-            USEOWLSPELL
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                GOTO 102000
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    AI
+                END IF
             ELSE
-                GOTO 1020
+                COLOR 5
+                PRINT "You don't have a familiar flute"
             END IF
-        ELSE
-            PRINT "You don't have an owl."
-            GOTO 1020
-        END IF
-    END IF
-    PRINT "Huh?"
-    GOTO 1000
-    1020 PRINT "What would you like to do?"
-    IF Expertise% = CLASS_ROGUE THEN
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
-    END IF
-    PRINT "Hitpoints: "; HPS%; "/"; HP%
-    INPUT ">", ACTIONA$
-    IF ACTIONA$ = "steal" THEN
-        IF Expertise% <> CLASS_THIEF THEN
-            ColorPrint 5, "Only thieves can steal."
-            GOTO 1020
-        END IF
-        IF Expertise% = CLASS_THIEF THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                Steal
+        CASE "use potion" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
-                GOTO 1020
-            ELSE
-                AI
-                Steal
-                GOTO 1020
             END IF
-        END IF
-    END IF
 
-    IF ACTIONA$ = "throw weapon" THEN
-        IF Expertise% <> CLASS_ROGUE THEN
-            ColorPrint 5, "Only rogues can throw weapons."
-            GOTO 1020
-        END IF
-        IF Expertise% = CLASS_ROGUE THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                ENEMYPTS% = ENEMYPTS% - DAMAGEDONE%
-                DAMAGEADDED% = 0
-                    IF ENEMYPTS% <= 0 THEN
-                        ReturnWeapon
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound."
-                        GOTO 102000
-                    END IF
-                AI
-                GOTO 102000
-                ELSE
-                AI
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                ENEMYPTS% = ENEMYPTS% - DAMAGEDONE%
-                DAMAGEADDED% = 0
-                    IF ENEMYPTS% <= 0 THEN
-                    ReturnWeapon
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound."
-                        GOTO 102000
-                    END IF
-                GOTO 1020
-            END IF
-        END IF
-    END IF
-
-    IF ACTIONA$ = "play music" THEN
-        IF Expertise% <> CLASS_BARD THEN
-            ColorPrint 5, "Only bards can play music."
-            GOTO 1020
-        END IF
-        IF Expertise% = CLASS_BARD THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                BardMusic
-                AI
-                GOTO 1020
-            ELSE
-                AI
-                BardMusic
-                GOTO 1020
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "call familiar" THEN
-        IF FAMILIARHP% <= 0 THEN
-            ColorPrint 5, "Your familiar has fainted."
-            GOTO 1020
-        END IF
-        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            FamiliarCall
-            IF ENEMYPTS% <= 0 THEN GOTO 102000
-            GOTO 1020
-        END IF
-        IF COMBATSPEED% < ENEMYSPEED% THEN
-            AI
-            FamiliarCall
-            IF ENEMYPTS% <= 0 THEN GOTO 102000
-            GOTO 1020
-        END IF
-        IF Inventory(QITEM_FAMILIAR_FLUTE).amount = 0 THEN
-            ColorPrint 5, "you don't have a familiar flute"
-            GOTO 1020
-        END IF
-    END IF
-    END IF
-    IF ACTIONA$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
             IF Inventory(ITEM_POTION).amount >= 1 THEN
                 ColorPrint 5, "used potion"
-                GOTO 1020
-                AI
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
+            ELSE
                 ColorPrint 5, "you are out of potions"
-                AI
-                GOTO 1020
             END IF
-        ELSE
-            AI
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 1020
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                GOTO 1020
-            END IF
-    END IF
-    END IF
 
-    IF ACTIONA$ = "use magic" THEN
-        IF Expertise% <> CLASS_MAGE THEN
-            ColorPrint 5, "Only mages can use magic!"
-            GOTO 1020
-        END IF
-
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                GOTO 102000
-            END IF
-            AI
-        ELSE
-            AI
-            MAGIC
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                GOTO 102000
-            END IF
-            GOTO 1020
-        END IF
-    END IF
-    IF ACTIONA$ = "spit" THEN
-        PRINT "You spit at the "; ENEMY$; "'s face."
-        PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
-        GOTO 1020
-    END IF
-    IF ACTIONA$ = "help" THEN
-        HELP
-        GOTO 1020
-    END IF
-    IF ACTIONA$ = "slash" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-        PRINT "You slashed the "; ENEMY$; " in the chest and he doesn't SEEM to LET"
-            PRINT "it affect him."
-            ENEMYPTS% = ENEMYPTS% - (DAMAGEADDED% + STR% + 2)
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                PRINT "The "; ENEMY$; " has died."
-                GOTO 102000
-            ELSE
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
+            
             GOTO 1020
-        ELSE
-            AI
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-            PRINT "You slashed the "; ENEMY$; " in the chest and he doesn't SEEM to LET"
-            PRINT "it affect him."
-            ENEMYPTS% = ENEMYPTS% - (STR% + 2 + DAMAGEADDED%)
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                PRINT "The "; ENEMY$; " has died."
-                GOTO 102000
-            ELSE
-                GOTO 1020
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "thrust" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-            PRINT "You lunged forward and skewered the "; ENEMY$; " in the chest and"
-            PRINT "splashed blood all over."
-            ENEMYPTS% = ENEMYPTS% - (STR% + 5 + DAMAGEADDED%)
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                PRINT "The "; ENEMY$; " has died."
-                GOTO 102000
-            ELSE
+        CASE "spit" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
-            GOTO 1020
-        ELSE
-            AI
+
+            PRINT "You spit at the "; ENEMY$; "'s face."
+            PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "help" 
+            HELP
+        CASE "ready weapon" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            PRINT "You readied your weapon."
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "run" 
+            PRINT "You ran away."
+            GOTO 102000
+        CASE "kick" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            PRINT "Aming your foot, you lash out towards his groin."
+            KICKCHANCE% = INT(RND * 100) + 1
             IF Ethereal% = 1 THEN
                 PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
                 ENEMYPTS% = ENEMYPTSO%
+                GOTO 1000
+            ELSEIF KICKCHANCE% >= 50 THEN
+                PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
+                PRINT "back up."
+                ENEMYPTS% = 0
+                GOTO 102000
+            ELSE 
+                PRINT "The "; ENEMY$; " is rather upset that his crown jewels were threatened."
+                PRINT "He is really PISSED."
                 GOTO 1020
             END IF
-            PRINT "You lunged forward and skewered the "; ENEMY$; " in the chest and"
-            PRINT "splashed blood all over."
-            ENEMYPTS% = ENEMYPTS% - (STR% + 5 + DAMAGEADDED%)
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
+        CASE "punch" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
 
-                PRINT "The "; ENEMY$; " has died."
+            PRINT "You aim your punch at the "; ENEMY$; "'s face."
+            PUNCHCHANCE% = INT(RND * 100) + 1
+            IF Ethereal% = 1 THEN
+                PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                ENEMYPTS% = ENEMYPTSO%
+                GOTO 1000
+            ELSEIF PUNCHCHANCE% >= 50 THEN
+                PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
+                ENEMYPTS% = 0
                 GOTO 102000
             ELSE
+                PRINT "The "; ENEMY$; " is really upset that you dared to try to punch him."
+                PRINT "He is really PISSED."
                 GOTO 1020
             END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "parry" THEN
-        GOTO 1070
-    END IF
-    IF ACTIONA$ = "punch" THEN
-        GOTO 1080
-    END IF
-    IF ACTIONA$ = "kick" THEN
-        GOTO 1090
-    END IF
-    IF ACTIONA$ = "dodge" THEN
-        GOTO 10100
-    END IF
-    IF ACTIONA$ = "coup de grace" THEN
-        IF ENEMYPTS% = 3 THEN
-            GOTO 10110
-        END IF
-    END IF
-    IF ACTIONA$ = "use owl spell" THEN
-        IF Owl% = 1 THEN
-            USEOWLSPELL
-            IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 102000
-                    END IF
-
-                GOTO 102000
-            ELSE
-                GOTO 1020
-            END IF
-        ELSE
-            PRINT "You don't have an owl."
-            GOTO 1020
-        END IF
-    END IF
-    IF ACTIONA$ = "run" THEN
-        PRINT "You ran away."
-        GOTO 102001
-    END IF
-    IF ACTIONA$ = "judge enemy" THEN
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
-            GOTO 1020
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
+        CASE "judge enemy" 
+            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+            IF CORRECTJUDGECHANCE% <= 35 THEN
+                PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
+            ELSEIF CORRECTJUDGECHANCE% >= 65 THEN
                 PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS% + 10; "."
-                GOTO 1020
+            ELSE
+                PRINT "The "; ENEMY$; "'s hit points appear to be "; ENEMYPTS% + 5; "."
             END IF
-            PRINT "The "; ENEMY$; "'s hit points appear to be "; ENEMYPTS% + 5; "."
-            GOTO 1020
-        END IF
+        CASE "use magic" 
+            IF Expertise% <> CLASS_MAGE THEN
+                ColorPrint 5, "Only mages can use magic!"
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    AI
+                END IF
+
+                MAGIC
+                IF EnemyKilled() THEN GOTO 102000
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    AI
+                END IF
+        CASE "use owl spell" 
+            IF Owl% = 1 THEN
+                USEOWLSPELL
+                IF EnemyKilled() THEN GOTO 102000
+            ELSE
+                PRINT "You don't have an owl."
+            END IF
+        CASE ELSE
+            PRINT "Huh?"
     END IF
-    PRINT "Huh?"
+    GOTO 1000
+
+  1020
+    PRINT "What would you like to do?"
+    IF Expertise% = CLASS_ROGUE THEN
+        IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
+        IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
+    END IF
+    PRINT "Hitpoints: "; HPS%; "/"; HP%
+    INPUT ">", ACTIONA$
+    SELECT CASE ACTIONA$
+        CASE "steal" 
+            IF Expertise% <> CLASS_THIEF THEN
+                ColorPrint 5, "Only thieves can steal."
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    Steal
+                    AI
+                ELSE
+                    AI
+                    Steal
+                END IF
+            END IF
+        CASE "throw weapon" 
+            IF Expertise% <> CLASS_ROGUE THEN
+                ColorPrint 5, "Only rogues can throw weapons."
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    AI
+                END IF
+
+                LHO$ = LH$
+                IF LH$ = "Long Staff" THEN RH$ = ""
+                IF LH$ = "Short Staff" THEN RH$ = ""
+                LH$ = ""
+                WeaponThrown% = 3
+                DAMAGEADDED% = DAMAGEADDED% * 3
+                PRINT "You throw your weapon at the "; ENEMY$
+                DAMAGEDONE% = STR% + DAMAGEADDED%
+                ENEMYPTS% = ENEMYPTS% - DAMAGEDONE%
+                DAMAGEADDED% = 0
+                IF EnemyKilled() THEN GOTO 102000
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    AI
+                END IF
+        CASE "play music" 
+            IF Expertise% <> CLASS_BARD THEN
+                ColorPrint 5, "Only bards can play music."
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    BardMusic
+                    AI
+                ELSE
+                    AI
+                    BardMusic
+                END IF
+            END IF
+        CASE "call familiar" 
+            IF FAMILIARHP% <= 0 THEN
+                ColorPrint 5, "Your familiar has fainted."
+            ELSEIF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    FamiliarCall
+                    IF ENEMYPTS% <= 0 THEN GOTO 102000
+                ELSE
+                    AI
+                    FamiliarCall
+                    IF ENEMYPTS% <= 0 THEN GOTO 102000
+                END IF
+            ELSE
+                ColorPrint 5, "you don't have a familiar flute"
+            END IF
+        CASE "use potion" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
+                ColorPrint 5, "used potion"
+            ELSE
+                ColorPrint 5, "you are out of potions"
+            END IF
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "use magic" 
+            IF Expertise% <> CLASS_MAGE THEN
+                ColorPrint 5, "Only mages can use magic!"
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    AI
+                END IF
+
+                MAGIC
+                IF EnemyKilled() THEN GOTO 102000
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    AI
+                END IF
+            END IF
+        CASE "spit"
+            PRINT "You spit at the "; ENEMY$; "'s face."
+            PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
+        CASE "help"
+            HELP
+        CASE "slash" 
+            IF COMBATSPEED% <= ENEMYSPEED% THEN
+                AI
+            END IF
+
+            IF Ethereal% = 1 THEN
+                PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                ENEMYPTS% = ENEMYPTSO%
+            ELSE
+                PRINT "You slashed the "; ENEMY$; " in the chest and he doesn't SEEM to LET"
+                PRINT "it affect him."
+                ENEMYPTS% = ENEMYPTS% - (DAMAGEADDED% + STR% + 2)
+                IF EnemyKilled() THEN GOTO 102000
+            END IF
+
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "thrust" 
+            IF COMBATSPEED% <= ENEMYSPEED% THEN
+                AI
+            END IF
+
+            IF Ethereal% = 1 THEN
+                PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                ENEMYPTS% = ENEMYPTSO%
+            ELSE
+                PRINT "You lunged forward and skewered the "; ENEMY$; " in the chest and"
+                PRINT "splashed blood all over."
+                ENEMYPTS% = ENEMYPTS% - (STR% + 5 + DAMAGEADDED%)
+                IF EnemyKilled() THEN GOTO 102000
+            END IF
+
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "parry" 
+            PRINT "You attempt to parry the "; ENEMY$; "'s blow."
+            PC% = INT(RND * 100) + 1
+            PARRYCHANCE% = PC% + ShieldSave%
+            IF PARRYCHANCE% >= 50 THEN
+                PRINT "You were successful in parrying the "; ENEMY$; "'s blow."
+            ELSE
+                PRINT "You failed to parry the "; ENEMY$; "'s blow.  You take 2 damage."
+                HPS% = HPS% - 2
+            END IF
+        CASE "punch"
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            IF Ethereal% = 1 THEN
+                PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                ENEMYPTS% = ENEMYPTSO%
+            ELSE
+                PRINT "You aim your punch at the "; ENEMY$; "'s face."
+                PUNCHCHANCE% = INT(RND * 100) + 1
+                IF PUNCHCHANCE% >= 50 THEN
+                    PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
+                    ENEMYPTS% = 0
+                    GOTO 102000
+                ELSE
+                    PRINT "The "; ENEMY$; " is really upset that you dared to try to punch him."
+                    PRINT "He is really PISSED."
+                END IF
+            END IF
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "kick" 
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            PRINT "Aming your foot, you lash out towards his groin."
+            KICKCHANCE% = INT(RND * 100) + 1
+            IF Ethereal% = 1 THEN
+                PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                ENEMYPTS% = ENEMYPTSO%
+            ELSE
+                IF KICKCHANCE% >= 50 THEN
+                    PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
+                    PRINT "back up."
+                    ENEMYPTS% = 0
+                    GOTO 102000
+                ELSE
+                    PRINT "The "; ENEMY$; " is rather upset that his crown jewels were threatened."
+                    PRINT "He is really PISSED."
+                END IF
+            END IF
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "dodge" 
+            PRINT "As the "; ENEMY$; " attacks, you attempt to dodge his attack."
+            DC% = INT(RND * 100) + 1
+            DODGECHANCE% = DC% - DEX%
+            IF DODGECHANCE% >= 45 THEN
+                PRINT "You were successfully able to dodge the "; ENEMY$; "'s attack."
+            ELSE
+                PRINT "You were not successful at dodging the "; ENEMY$; "'s attack. You take 2 damage."
+                HPS% = HPS% - 1
+            END IF
+        CASE "coup de grace" 
+            IF ENEMYPTS% <= 3 THEN
+                IF Ethereal% = 1 THEN
+                    PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
+                    ENEMYPTS% = ENEMYPTSO%
+                ELSE
+                    PRINT "You grasp the victim's head, draw back and lop off the "; ENEMY$; " head."
+                    ENEMYPTS% = 0
+                    PRINT "The "; ENEMY$; " is dead."
+                    GOTO 102000
+                END IF
+            END IF
+        CASE "use owl spell" 
+            IF Owl% = 1 THEN
+                USEOWLSPELL
+                IF EnemyKilled() THEN GOTO 102000
+            ELSE
+                PRINT "You don't have an owl."
+            END IF
+        CASE "run" 
+            PRINT "You ran away."
+            GOTO 102001
+        CASE "judge enemy" 
+            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+            IF CORRECTJUDGECHANCE% <= 35 THEN
+                PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
+            ELSEIF CORRECTJUDGECHANCE% >= 65 THEN
+                PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS% + 10; "."
+            ELSE
+                PRINT "The "; ENEMY$; "'s hit points appear to be "; ENEMYPTS% + 5; "."
+            END IF
+        CASE ELSE
+            PRINT "Huh?"
+    END SELECT
     GOTO 1020
-    1070 PRINT "You attempt to parry the "; ENEMY$; "'s blow."
-    PC% = INT(RND * 100) + 1
-    PARRYCHANCE% = PC% + ShieldSave%
-    IF PARRYCHANCE% >= 50 THEN
-        PRINT "You were successful in parrying the "; ENEMY$; "'s blow."
-        GOTO 1020
-    ELSE PRINT "You failed to parry the "; ENEMY$; "'s blow.  You take 2 damage."
-        HPS% = HPS% - 2
-    END IF
-    1080
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-        PRINT "You aim your punch at the "; ENEMY$; "'s face."
-        PUNCHCHANCE% = INT(RND * 100) + 1
-        IF PUNCHCHANCE% >= 50 THEN
-            PRINT "You clock the "; ENEMY$; " in the jaw.  He goes down with a woof."
-            ENEMYPTS% = 0
-            GOTO 102000
-        ELSE PRINT "The "; ENEMY$; " is really upset that you dared to try to punch him."
-            PRINT "He is really PISSED."
-            AI
-            GOTO 1020
-        END IF
-        END IF
-    1090
-        PRINT "Aming your foot, you lash out towards his groin."
-        KICKCHANCE% = INT(RND * 100) + 1
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-        IF KICKCHANCE% >= 50 THEN
-            PRINT "You nail the poor guy right in the groin.  He goes down and isn't coming"
-            PRINT "back up."
-            ENEMYPTS% = 0
-            GOTO 102000
-        ELSE PRINT "The "; ENEMY$; " is rather upset that his crown jewels were threatened."
-            PRINT "He is really PISSED."
-            GOTO 1020
-            AI
-        END IF
-    10100 PRINT "As the "; ENEMY$; " attacks, you attempt to dodge his attack."
-    DC% = INT(RND * 100) + 1
-    DODGECHANCE% = DC% - DEX%
-    IF DODGECHANCE% >= 45 THEN
-        PRINT "You were successfully able to dodge the "; ENEMY$; "'s attack."
-        GOTO 1020
-    ELSE PRINT "You were not successful at dodging the "; ENEMY$; "'s attack. You take 2 damage."
-        HPS% = HPS% - 1
-        GOTO 1020
-    END IF
-    10110 IF ENEMYPTS% <= 3 THEN
-        IF Ethereal% = 1 THEN
-            PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
-            ENEMYPTS% = ENEMYPTSO%
-            GOTO 1020
-        END IF
-        PRINT "You grasp the victim's head, draw back and lop off the "; ENEMY$; " head."
-        ENEMYPTS% = 0
-        PRINT "The "; ENEMY$; " is dead."
-        GOTO 102000
-    END IF
-    102000
+
+  102000
     RANDOMEXPR% = INT(RND * 500) + 1
     PRINT "And you have gained "; RANDOMEXPR%; " experience."
     EXPR% = EXPR% + RANDOMEXPR%
     EXPERIENCELVLUP
+
     IF Expertise% = CLASS_MAGE THEN
         RANDOMRUNEDROP
         PRINT "You have picked up this rune:"; RANDOMRUNE$
         RUNE$ = RUNE$ + RANDOMRUNE$
-        GOLDDROP% = INT(RND * 10) + 1
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STR% = STRO%
-        DEX% = DEXO%
-        ENG% = ENGO%
-        VIT% = VITO%
-        GOTO 102001
     END IF
 
-    IF Expertise% = CLASS_FIGHTER THEN
-        GOLDDROP% = INT(RND * 10) + 1
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 102001
+    GOLDDROP% = INT(RND * 10) + 1
+    PRINT "You picked up"; GOLDDROP%; "gold."
+    Gold& = Gold& + GOLDDROP%
+    IF Owl% = 1 THEN
+        OWLSPELL
     END IF
+    SLEEP 10
+    STR% = STRO%
+    DEX% = DEXO%
+    ENG% = ENGO%
+    VIT% = VITO%
 
-    IF Expertise% = CLASS_ROGUE THEN
-        GOLDDROP% = INT(RND * 10) + 1
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 102001
-    END IF
-
-    IF Expertise% = CLASS_THIEF THEN
-        GOLDDROP% = INT(RND * 10) + 1
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 102001
-    END IF
-
-    IF Expertise% = CLASS_BARD THEN
-        GOLDDROP% = INT(RND * 10) + 1
-        PRINT "You picked up"; GOLDDROP%; "gold."
-        Gold& = Gold& + GOLDDROP%
-        IF Owl% = 1 THEN
-            OWLSPELL
-        END IF
-        SLEEP 10
-        STRO% = STR%
-        DEXO% = DEX%
-        VITO% = VIT%
-        ENGO% = ENG%
-        GOTO 102001
-    END IF
-    102001 PlayerReflect% = 0
+  102001
+    PlayerReflect% = 0
     Boss% = 0
     Ethereal% = 0
     Undead% = 0
