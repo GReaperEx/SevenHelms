@@ -5976,103 +5976,72 @@ SUB Act1Pt2
 END SUB
 
 SUB AI
-    AII% = INT(RND * 10) + 1
-    IF AII% = 1 THEN
-        GOTO 11
-    END IF
-    IF AII% = 2 THEN
-        GOTO 12
-    END IF
-    IF AII% = 3 THEN
-        GOTO 12
-    END IF
-    IF AII% = 4 THEN
-        GOTO 12
-    END IF
-    IF AII% = 5 THEN
-        GOTO 12
-    END IF
-    IF AII% = 6 THEN
-        GOTO 12
-    END IF
-    IF AII% = 7 THEN
-        GOTO 12
-    END IF
-    IF AII% = 8 THEN
-        GOTO 13
-    END IF
-    IF AII% = 9 THEN
-        GOTO 14
-    END IF
-    IF AII% = 10 THEN
-        GOTO 16
-    END IF
-    11 PRINT "The "; ENEMY$; " starts circling "; Name$; "."
-    GOTO 2500
-    12 PRINT "The "; ENEMY$; " attacks."
-    ENEMYDAMAGECHANCE% = INT(RND * 100) + 1
-    IF ENEMYDAMAGECHANCE% <= 75 THEN
-        ENEMYDAMAGE% = INT(RND * 5) + 1
-        IF A27JadeSocket% = 2 THEN ENEMYDAMAGE% = ENEMYDAMAGE% + 20
-        PRINT "The "; ENEMY$; " has caused you"; ENEMYDAMAGE%; " damage."
-        TotalDamage% = ENEMYDAMAGE% - DamageLostArmour% - DamageLostHelm%
-        IF TotalDamage% <= 0 THEN TotalDamage% = 1
-        IF FamiliarCalled% = 1 THEN
-            FAMILIARHP% = FAMILIARHP% - (TotalDamage% / 2)
-            GOTO 2500
-        END IF
-        HPS% = HPS% - TotalDamage%
-        IF HPS% > HP% THEN
-            HPS% = HP%
-        END IF
-        IF HPS% <= 0 THEN
-            PRINT "You have died."
-            END
-        ELSE
-            GOTO 2500
-        END IF
-    ELSE
-        PRINT "The "; ENEMY$; " missed his attack."
-        GOTO 2500
-    END IF
-    13 PRINT "The "; ENEMY$; " steps back and seems to consider his options.  Thus, he"
-    PRINT "gives "; Name$; " an open attack."
-    GOTO 2500
-    14 PRINT "The "; ENEMY$; " feels disgusted that "; Name$; " would engage him."
-    PRINT "He walks away."
-    15 INPUT "Do you wish to run and cut him down"; DECISION$
-    IF DECISION$ = "yes" THEN
-        PRINT "As you run up to him he challenges you with a roar."
-        ACTION$ = ""
-        GOTO 2500
-    END IF
-    IF DECISION$ = "no" THEN
-        PRINT "You let him get away."
-        GOTO 2500
-    END IF
-    PRINT "Huh?"
-    GOTO 15
-    16 PRINT "The "; ENEMY$; " leaps in close and starts swinging."
-    PRINT "As he swipes through your flesh, you become angered."
-    PRINT "As such, your strength is improved."
-    PRINT "Yet you still are injured."
-        TotalDamage% = 2 - DamageLostArmour% - DamageLostHelm%
-        IF TotalDamage% <= 0 THEN TotalDamage% = 1
-        IF FamiliarCalled% = 1 THEN
-            FAMILIARHP% = FAMILIARHP% - (TotalDamage% / 2)
-            FAMILIARDAMAGE% = FAMILIARDAMAGE% + 5
-            GOTO 2500
-        END IF
-        HPS% = HPS% - TotalDamage%
-    STR% = STR% + 5
-    IF HPS% > HP% THEN
-        HPS% = HP%
-    END IF
-    IF HPS% <= 0 THEN
-        PRINT "You have died."
-        END
-    END IF
-2500 END SUB
+    SELECT CASE INT(RND * 10)
+        CASE 0
+            PRINT "The "; ENEMY$; " starts circling "; Name$; "."
+        CASE 1 TO 6
+            PRINT "The "; ENEMY$; " attacks."
+            ENEMYDAMAGECHANCE% = INT(RND * 100) + 1
+            IF ENEMYDAMAGECHANCE% <= 75 THEN
+                ENEMYDAMAGE% = INT(RND * 5) + 1
+                IF A27JadeSocket% = 2 THEN ENEMYDAMAGE% = ENEMYDAMAGE% + 20
+                PRINT "The "; ENEMY$; " has caused you"; ENEMYDAMAGE%; " damage."
+                TotalDamage% = ENEMYDAMAGE% - DamageLostArmour% - DamageLostHelm%
+                IF TotalDamage% <= 0 THEN TotalDamage% = 1
+                IF FamiliarCalled% = 1 THEN
+                    FAMILIARHP% = FAMILIARHP% - (TotalDamage% / 2)
+                ELSE
+                    HPS% = HPS% - TotalDamage%
+                    IF HPS% > HP% THEN
+                        HPS% = HP%
+                    ELSE
+                        PRINT "You have died."
+                        END
+                    END IF
+                END IF
+            ELSE
+                PRINT "The "; ENEMY$; " missed his attack."
+            END IF
+        CASE 7
+            PRINT "The "; ENEMY$; " steps back and seems to consider his options.  Thus, he"
+            PRINT "gives "; Name$; " an open attack."
+        CASE 8
+            PRINT "The "; ENEMY$; " feels disgusted that "; Name$; " would engage him."
+            PRINT "He walks away."
+          15
+            INPUT "Do you wish to run and cut him down"; DECISION$
+            SELECT CASE DECISION$
+                CASE "yes"
+                    PRINT "As you run up to him he challenges you with a roar."
+                    ACTION$ = ""
+                CASE "no"
+                    PRINT "You let him get away."
+                CASE ELSE
+                    PRINT "Huh?"
+                    GOTO 15
+            END SELECT
+        CASE 9
+            PRINT "The "; ENEMY$; " leaps in close and starts swinging."
+            PRINT "As he swipes through your flesh, you become angered."
+            PRINT "As such, your strength is improved."
+            PRINT "Yet you still are injured."
+            TotalDamage% = 2 - DamageLostArmour% - DamageLostHelm%
+            IF TotalDamage% <= 0 THEN TotalDamage% = 1
+            IF FamiliarCalled% = 1 THEN
+                FAMILIARHP% = FAMILIARHP% - (TotalDamage% / 2)
+                FAMILIARDAMAGE% = FAMILIARDAMAGE% + 5
+            ELSE
+                HPS% = HPS% - TotalDamage%
+                STR% = STR% + 5
+                IF HPS% > HP% THEN
+                    HPS% = HP%
+                ELSE
+                    PRINT "You have died."
+                    END
+                END IF
+            END IF
+    END SELECT
+END SUB
 
 SUB BardMusic
     MusicChance% = INT(RND * 100) - VIT%
