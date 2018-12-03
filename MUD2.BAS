@@ -9517,110 +9517,91 @@ SUB NecrotaliaBattle
     cs% = INT(RND * 20) + 1
     COMBATSPEED% = ENG% + cs%
 
-    35000 PRINT "What would you like to do?"
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
+  35000
+    PRINT "What would you like to do?"
+    IF WeaponThrown% > 0 THEN
+        WeaponThrown% = WeaponThrown% - 1
+    ELSE
+        ReturnWeapon
+        PRINT "You grab your fallen weapon."
+    END IF
+
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTION$
-    IF ACTION$ = "call familiar" THEN
-        PRINT Familiar$; " arrives and takes your place."
-        SLEEP 2
-        PRINT "Necrotalia casts a banishment!"
-        PRINT "you're familiar falls to the ground!"
-        FAMILIARHP% = 0
-        GOTO 35000
-
-    IF ACTION$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 35000
+    SELECT CASE ACTION$
+        CASE "call familiar"
+            PRINT Familiar$; " arrives and takes your place."
+            SLEEP 2
+            PRINT "Necrotalia casts a banishment!"
+            PRINT "you're familiar falls to the ground!"
+            FAMILIARHP% = 0
+        CASE "use potion"
+            IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                AI
-                GOTO 35000
-            END IF
-        ELSE
-            AI
+
             IF Inventory(ITEM_POTION).amount >= 1 THEN
                 ColorPrint 5, "used potion"
-                GOTO 35000
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
+            ELSE
                 ColorPrint 5, "you are out of potions"
-                GOTO 35000
             END IF
-    END IF
-    END IF
 
-    IF ACTION$ = "spit" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                AI
+            END IF
+        CASE "spit"
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+
             PRINT "You spit in Necrotalia's face."
             PRINT "Necrotalia wipes it off and laughs"
-            NecrotaliaAI
-            GOTO 35000
-    ELSE
-            NecrotaliaAI
-            PRINT "You spit in Necrotalia's face."
-            PRINT "Necrotalia wipes it off and laughs"
-            GOTO 35000
-        END IF
-    END IF
-    IF ACTION$ = "help" THEN
-        HELP
-        GOTO 35000
-    END IF
-    IF ACTION$ = "ready weapon" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-        PRINT "You readied your weapon."
-        NecrotaliaAI
-        GOTO 36000
-        ELSE
-        NecrotaliaAI
 
-        PRINT "You readied your weapon."
-        GOTO 36000
-        END IF
-    END IF
-    IF ACTION$ = "run" THEN
-        PRINT "You won't run from Necrotalia!."
-        GOTO 35000
-        END IF
-    IF ACTION$ = "kick" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "Necrotalia evades the kick."
-        END IF
-    END IF
-    IF ACTION$ = "punch" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "Necrotalia ignores the punch."
-        END IF
-    END IF
-    IF ACTION$ = "judge enemy" THEN
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
-            GOTO 35000
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+        CASE "help"
+            HELP
+        CASE "ready weapon"
+            IF COMBATSPEED% <= ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+
+            PRINT "You readied your weapon."
+            GOTO 36000
+
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+        CASE "run"
+            PRINT "You won't run from Necrotalia!."
+        CASE "kick"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "Necrotalia evades the kick."
+            END IF
+        CASE "punch"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "Necrotalia ignores the punch."
+            END IF
+        CASE "judge enemy"
+            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+            IF CORRECTJUDGECHANCE% <= 35 THEN
+                PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
+            ELSEIF CORRECTJUDGECHANCE% >= 65 THEN
                 PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP% + 10; "."
-                GOTO 35000
+            ELSE
+                PRINT "Necrotalia's hit points appear to be "; NecrotaliaHP% + 5; "."
             END IF
-        PRINT "Necrotalia's hit points appear to be "; NecrotaliaHP% + 5; "."
-        GOTO 35000
-    END IF
-    END IF
-    IF ACTION$ = "use magic" THEN
-        IF Expertise% <> CLASS_MAGE THEN
-            ColorPrint 5, "Only mages can use magic!"
-            GOTO 35000
-        END IF
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
-            IF NecrotaliaHP% <= 0 THEN
+        CASE "use magic"
+            IF Expertise% <> CLASS_MAGE THEN
+                ColorPrint 5, "Only mages can use magic!"
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+
+                MAGIC
+                IF NecrotaliaHP% <= 0 THEN
                     COLOR 14
                     PRINT "Necrotalia> Enough!"
                     SLEEP 2
@@ -9628,12 +9609,141 @@ SUB NecrotaliaBattle
                     PRINT "Necrotalia casts Storm of Death!"
                     PRINT "You fall to one knee!"
                     GOTO 40000
+                END IF
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+            END IF
+        CASE ELSE
+            PRINT "Huh?"
+    END SELECT
+    GOTO 35000
+
+  36000
+    PRINT "What would you like to do?"
+    IF WeaponThrown% > 0 THEN
+        WeaponThrown% = WeaponThrown% - 1
+    ELSE
+        ReturnWeapon
+        PRINT "You grab your fallen weapon."
+    END IF
+
+    PRINT "Hitpoints: "; HPS%; "/"; HP%
+    INPUT ">", ACTIONA$
+    SELECT CASE ACTIONA$
+        CASE "steal"
+            IF Expertise% <> CLASS_THIEF THEN
+                ColorPrint 5, "Only thieves can steal."
+                GOTO 36000
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    Steal
+                    NecrotaliaAI
+                ELSE
+                    NecrotaliaAI
+                    Steal
+                END IF
+            END IF
+        CASE "throw weapon"
+            IF Expertise% <> CLASS_ROGUE THEN
+                ColorPrint 5, "Only rogues can throw weapons."
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+
+                LHO$ = LH$
+                IF LH$ = "Long Staff" THEN RH$ = ""
+                IF LH$ = "Short Staff" THEN RH$ = ""
+                LH$ = ""
+                WeaponThrown% = 3
+                DAMAGEADDED% = DAMAGEADDED% * 3
+                PRINT "You throw your weapon at the "; ENEMY$
+                DAMAGEDONE% = STR% + DAMAGEADDED%
+                NecrotaliaHP% = NecrotaliaHP% - DAMAGEDONE%
+                DAMAGEADDED% = 0
+                IF NecrotaliaHP% <= 0 THEN
+                    COLOR 14
+                    PRINT "Necrotalia> Enough!"
+                    SLEEP 2
+                    COLOR 15
+                    PRINT "Necrotalia casts Storm of Death!"
+                    PRINT "You fall to one knee!"
+                    GOTO 40000
+                 END IF
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+            END IF
+        CASE "play music"
+            IF Expertise% <> CLASS_BARD THEN
+                ColorPrint 5, "Only bards can play music."
+            ELSE
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    BardMusic
+                    NecrotaliaAI
+                ELSE
+                    NecrotaliaAI
+                    BardMusic
+                END IF
+            END IF
+        CASE "use potion"
+            IF COMBATSPEED% < ENEMYSPEED% THEN
+                NecrotaliaAI
             END IF
 
-            NecrotaliaAI
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
+                ColorPrint 5, "used potion"
             ELSE
-            NecrotaliaAI
-            MAGIC
+                ColorPrint 5, "you are out of potions"
+            END IF
+
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+        CASE "call familiar"
+            PRINT Familiar$; " arrives and takes your place."
+            SLEEP 2
+            PRINT "Necrotalia casts a banishment!"
+            PRINT "you're familiar falls to the ground!"
+            FAMILIARHP% = 0
+        CASE "use magic"
+            IF Expertise% <> CLASS_MAGE THEN
+                ColorPrint 5, "Only mages can use magic!"
+            ELSE
+                IF COMBATSPEED% < ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+
+                MAGIC
+                IF NecrotaliaHP% <= 0 THEN
+                    COLOR 14
+                    PRINT "Necrotalia> Enough!"
+                    SLEEP 2
+                    COLOR 15
+                    PRINT "Necrotalia casts Storm of Death!"
+                    PRINT "You fall to one knee!"
+                    GOTO 40000
+                END IF
+
+                IF COMBATSPEED% >= ENEMYSPEED% THEN
+                    NecrotaliaAI
+                END IF
+            END IF
+        CASE "spit"
+            PRINT "You spit in Necrotalia's face."
+            PRINT "Necrotalia wipes it off and laughs."
+        CASE "help"
+            HELP
+        CASE "slash"
+            IF COMBATSPEED% <= ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+
+            PRINT "You slashed Necrotalia in the chest, she staggers back in pain"
+            NecrotaliaHP% = NecrotaliaHP% - (DAMAGEADDED% + STR% + 2)
             IF NecrotaliaHP% <= 0 THEN
                 COLOR 14
                 PRINT "Necrotalia> Enough!"
@@ -9643,147 +9753,75 @@ SUB NecrotaliaBattle
                 PRINT "You fall to one knee!"
                 GOTO 40000
             END IF
-            GOTO 35000
-        END IF
-    END IF
-    END IF
-    PRINT "Huh?"
-    GOTO 35000
-    36000 PRINT "What would you like to do?"
-    IF WeaponThrown% > 0 THEN WeaponThrown% = WeaponThrown% - 1
-    IF WeaponThrown% = 0 THEN ReturnWeapon: PRINT "You grab your fallen weapon."
-    PRINT "Hitpoints: "; HPS%; "/"; HP%
-    INPUT ">", ACTIONA$
-    IF ACTIONA$ = "steal" THEN
-        IF Expertise% <> CLASS_THIEF THEN
-            ColorPrint 5, "Only thieves can steal."
-            GOTO 36000
-        END IF
-        IF Expertise% = CLASS_THIEF THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                Steal
-                NecrotaliaAI
-                GOTO 36000
-            ELSE
-                NecrotaliaAI
-                Steal
-                GOTO 36000
-            END IF
-        END IF
-    END IF
 
-    IF ACTIONA$ = "throw weapon" THEN
-        IF Expertise% <> CLASS_ROGUE THEN
-            ColorPrint 5, "Only rogues can throw weapons."
-            GOTO 36000
-        END IF
-        IF Expertise% = CLASS_ROGUE THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                NecrotaliaHP% = NecrotaliaHP% - DAMAGEDONE%
-                DAMAGEADDED% = 0
-                    IF NecrotaliaHP% <= 0 THEN
-                        COLOR 14
-                        PRINT "Necrotalia> Enough!"
-                        SLEEP 2
-                        COLOR 15
-                        PRINT "Necrotalia casts Storm of Death!"
-                        PRINT "You fall to one knee!"
-                        GOTO 40000
-                     END IF
+            IF COMBATSPEED% > ENEMYSPEED% THEN
                 NecrotaliaAI
-                ELSE
-                NecrotaliaAI
-                LHO$ = LH$
-                IF LH$ = "Long Staff" THEN RH$ = ""
-                IF LH$ = "Short Staff" THEN RH$ = ""
-                LH$ = ""
-                WeaponThrown% = 3
-                DAMAGEADDED% = DAMAGEADDED% * 3
-                PRINT "You throw your weapon at the "; ENEMY$
-                DAMAGEDONE% = STR% + DAMAGEADDED%
-                NecrotaliaHP% = NecrotaliaHP% - DAMAGEDONE%
-                DAMAGEADDED% = 0
-                    IF NecrotaliaHP% <= 0 THEN
-                        COLOR 14
-                        PRINT "Necrotalia> Enough!"
-                        SLEEP 2
-                        COLOR 15
-                        PRINT "Necrotalia casts Storm of Death!"
-                        PRINT "You fall to one knee!"
-                        GOTO 40000
-                    END IF
-                GOTO 36000
             END IF
-        END IF
-    END IF
+        CASE "thrust"
+            IF COMBATSPEED% <= ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
 
-    IF ACTIONA$ = "play music" THEN
-        IF Expertise% <> CLASS_BARD THEN
-            ColorPrint 5, "Only bards can play music."
-            GOTO 36000
-        END IF
-        IF Expertise% = CLASS_BARD THEN
-            IF COMBATSPEED% >= ENEMYSPEED% THEN
-                BardMusic
-                NecrotaliaAI
-                GOTO 36000
-            ELSE
-                NecrotaliaAI
-                BardMusic
-                GOTO 36000
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "use potion" THEN
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 36000
-                NecrotaliaAI
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                NecrotaliaAI
-                GOTO 36000
-            END IF
-        ELSE
-            NecrotaliaAI
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                ColorPrint 5, "used potion"
-                GOTO 36000
-            END IF
-            IF Inventory(ITEM_POTION).amount <= 0 THEN
-                ColorPrint 5, "you are out of potions"
-                GOTO 36000
-            END IF
-    END IF
-    END IF
-
-    IF ACTIONA$ = "call familiar" THEN
-        PRINT Familiar$; " arrives and takes your place."
-        SLEEP 2
-        PRINT "Necrotalia casts a banishment!"
-        PRINT "you're familiar falls to the ground!"
-        FAMILIARHP% = 0
-        GOTO 36000
-        END IF
-
-    IF ACTIONA$ = "use magic" THEN
-        IF Expertise% <> CLASS_MAGE THEN
-            ColorPrint 5, "Only mages can use magic!"
-            GOTO 35000
-        END IF
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-            MAGIC
+            PRINT "You lunge forward and pierce Necrotalia, she staggers back in pain."
+            NecrotaliaHP% = NecrotaliaHP% - (STR% + 5 + DAMAGEADDED%)
             IF NecrotaliaHP% <= 0 THEN
+                    COLOR 14
+                    PRINT "Necrotalia> Enough!"
+                    SLEEP 2
+                    COLOR 15
+                    PRINT "Necrotalia casts Storm of Death!"
+                    PRINT "You fall to one knee!"
+                    GOTO 40000
+            END IF
+
+            IF COMBATSPEED% > ENEMYSPEED% THEN
+                NecrotaliaAI
+            END IF
+        CASE "parry"
+            PRINT "You attempt to parry Necrotalia's blow."
+            PC% = INT(RND * 100) + 1
+            PARRYCHANCE% = PC% + ShieldSave%
+            IF PARRYCHANCE% >= 50 THEN
+                PRINT "You were successful in parrying Necrotalia's blow."
+            ELSE
+                PRINT "You failed to parry Necrotalia's blow.  You take 2 damage."
+                HPS% = HPS% - 2
+            END IF
+        CASE "punch"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "Necrotalia ignores the punch."
+            END IF
+            NecrotaliaAI
+        CASE "kick"
+            IF COMBATSPEED% >= ENEMYSPEED% THEN
+                PRINT "You aim your foot and strike Necrotalia in the groin."
+                PRINT "Necrotalia evades the kick."
+            END IF
+        CASE "dodge"
+            PRINT "As Necrotalia attacks, you attempt to dodge her attack."
+            DC% = INT(RND * 100) + 1
+            DODGECHANCE% = DC% - DEX%
+            IF DODGECHANCE% >= 45 THEN
+                PRINT "You were successfully able to dodge Necrotalia's attack."
+            ELSE
+                PRINT "You were not successful at dodging the Necrotalia's attack. You take 2 damage."
+                HPS% = HPS% - 1
+            END IF
+        CASE "coup de grace"
+            IF NecrotaliaHP% <= 30 THEN
+                PRINT "You grasp Necrotalia's head, draw back and crush her skull."
+                COLOR 14
+                PRINT "Necrotalia> Enough!"
+                SLEEP 2
+                COLOR 15
+                PRINT "Necrotalia casts Storm of Death!"
+                PRINT "You fall to one knee!"
+                GOTO 40000
+            END IF
+        CASE "use owl spell"
+            IF Owl% = 1 THEN
+                USEOWLSPELL
+                IF NecrotaliaHP% <= 0 THEN
                     COLOR 14
                     PRINT "Necrotalia> Enough!"
                     SLEEP 2
@@ -9792,198 +9830,26 @@ SUB NecrotaliaBattle
                     PRINT "You fall to one knee!"
                     GOTO 40000
                 END IF
-            NecrotaliaAI
-        ELSE
-            NecrotaliaAI
-            MAGIC
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-            END IF
-            GOTO 36000
-        END IF
-    END IF
-    IF ACTIONA$ = "spit" THEN
-        PRINT "You spit in Necrotalia's face."
-        PRINT "Necrotalia wipes it off and laughs."
-        GOTO 36000
-    END IF
-    IF ACTIONA$ = "help" THEN
-        HELP
-        GOTO 36000
-    END IF
-    IF ACTIONA$ = "slash" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-            PRINT "You slashed Necrotalia in the chest, she staggers back in pain"
-            NecrotaliaHP% = NecrotaliaHP% - (DAMAGEADDED% + STR% + 2)
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
             ELSE
-                NecrotaliaAI
-            GOTO 36000
-            NecrotaliaAI
-            PRINT "You slashed Necrotalia in the chest, she staggers back in pain."
-            NecrotaliaHP% = NecrotaliaHP% - (STR% + 2 + DAMAGEADDED%)
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-            ELSE
-                GOTO 36000
+                PRINT "You don't have an owl."
             END IF
-        END IF
-    END IF
-    END IF
-    IF ACTIONA$ = "thrust" THEN
-        IF COMBATSPEED% > ENEMYSPEED% THEN
-            PRINT "You lunge forward and pierce Necrotalia, she staggers back in pain."
-            NecrotaliaHP% = NecrotaliaHP% - (STR% + 5 + DAMAGEADDED%)
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-            ELSE
-                NecrotaliaAI
-            END IF
-            GOTO 36000
-        ELSE
-            NecrotaliaAI
-            PRINT "You lunge forward and pierce Necrotalia, she staggers back in pain."
-            NecrotaliaHP% = NecrotaliaHP% - (STR% + 5 + DAMAGEADDED%)
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-            ELSE
-                GOTO 36000
-            END IF
-        END IF
-    END IF
-    IF ACTIONA$ = "parry" THEN
-        GOTO 37000
-    END IF
-    IF ACTIONA$ = "punch" THEN
-        GOTO 38000
-    END IF
-    IF ACTIONA$ = "kick" THEN
-        GOTO 39000
-    END IF
-    IF ACTIONA$ = "dodge" THEN
-        GOTO 39500
-    END IF
-    IF ACTIONA$ = "coup de grace" THEN
-        IF NecrotaliaHP% = 30 THEN
-            GOTO 39750
-        END IF
-    END IF
-    IF ACTIONA$ = "use owl spell" THEN
-        IF Owl% = 1 THEN
-            USEOWLSPELL
-            IF NecrotaliaHP% <= 0 THEN
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-            ELSE
-                GOTO 36000
-            END IF
-        ELSE
-            PRINT "You don't have an owl."
-            GOTO 36000
-        END IF
-    END IF
-    IF ACTIONA$ = "run" THEN
-        PRINT "You won't run from Necrotalia!"
-        GOTO 36000
-    END IF
-    IF ACTIONA$ = "judge enemy" THEN
-        CORRECTJUDGECHANCE% = INT(RND * 100) + 1
-        IF CORRECTJUDGECHANCE% <= 35 THEN
-            PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
-            GOTO 36000
-        END IF
-        IF CORRECTJUDGECHANCE% >= 36 THEN
-            IF CORRECTJUDGECHANCE% >= 65 THEN
+        CASE "run"
+            PRINT "You won't run from Necrotalia!"
+        CASE "judge enemy"
+            CORRECTJUDGECHANCE% = INT(RND * 100) + 1
+            IF CORRECTJUDGECHANCE% <= 35 THEN
+                PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP%; "."
+            ELSEIF CORRECTJUDGECHANCE% >= 65 THEN
                 PRINT "Necrotalia's hitpoints appear to be "; NecrotaliaHP% + 10; "."
-                GOTO 36000
+            ELSE
+                PRINT "Necrotalia's hit points appear to be "; NecrotaliaHP% + 5; "."
             END IF
-            PRINT "Necrotalia's hit points appear to be "; NecrotaliaHP% + 5; "."
-            GOTO 36000
-        END IF
-    END IF
-    PRINT "Huh?"
-    GOTO 36000
-    37000 PRINT "You attempt to parry Necrotalia's blow."
-    PC% = INT(RND * 100) + 1
-    PARRYCHANCE% = PC% + ShieldSave%
-    IF PARRYCHANCE% >= 50 THEN
-        PRINT "You were successful in parrying Necrotalia's blow."
-        GOTO 36000
-    ELSE PRINT "You failed to parry Necrotalia's blow.  You take 2 damage."
-        HPS% = HPS% - 2
-    END IF
-    38000
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "Necrotalia ignores the punch."
-        END IF
-        NecrotaliaAI
-    GOTO 36000
-    39000
-        IF COMBATSPEED% >= ENEMYSPEED% THEN
-        PRINT "You aim your foot and strike Necrotalia in the groin."
-        PRINT "Necrotalia evades the kick."
-        END IF
+        CASE ELSE
+            PRINT "Huh?"
+    END SELECT
     GOTO 36000
 
-    39500 PRINT "As Necrotalia attacks, you attempt to dodge her attack."
-    DC% = INT(RND * 100) + 1
-    DODGECHANCE% = DC% - DEX%
-    IF DODGECHANCE% >= 45 THEN
-        PRINT "You were successfully able to dodge Necrotalia's attack."
-        GOTO 36000
-    ELSE PRINT "You were not successful at dodging the Necrotalia's attack. You take 2 damage."
-        HPS% = HPS% - 1
-        GOTO 36000
-    END IF
-    39750 IF NecrotaliaHP% <= 30 THEN
-        PRINT "You grasp Necrotalia's shead, draw back and crush her skull."
-                    COLOR 14
-                    PRINT "Necrotalia> Enough!"
-                    SLEEP 2
-                    COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    PRINT "You fall to one knee!"
-                    GOTO 40000
-    END IF
-
-    40000
-    40010
+  40000
     PlayerReflect% = 0
     ReturnWeapon
 END SUB
