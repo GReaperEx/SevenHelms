@@ -6065,7 +6065,7 @@ SUB _BATTLE
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTION$
     SELECT CASE ACTION$
-        CASE "call familiar" 
+        CASE "call familiar"
             IF FAMILIARHP% <= 0 THEN
                 ColorPrint 5, "Your familiar has fainted."
             ELSEIF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -6083,7 +6083,7 @@ SUB _BATTLE
                 COLOR 5
                 PRINT "You don't have a familiar flute"
             END IF
-        CASE "use potion" 
+        CASE "use potion"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6097,9 +6097,9 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-            
+
             GOTO 1020
-        CASE "spit" 
+        CASE "spit"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6110,9 +6110,9 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "help" 
+        CASE "help"
             HELP
-        CASE "ready weapon" 
+        CASE "ready weapon"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6122,10 +6122,10 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "run" 
+        CASE "run"
             PRINT "You ran away."
             GOTO 102000
-        CASE "kick" 
+        CASE "kick"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6141,12 +6141,12 @@ SUB _BATTLE
                 PRINT "back up."
                 ENEMYPTS% = 0
                 GOTO 102000
-            ELSE 
+            ELSE
                 PRINT "The "; ENEMY$; " is rather upset that his crown jewels were threatened."
                 PRINT "He is really PISSED."
                 GOTO 1020
             END IF
-        CASE "punch" 
+        CASE "punch"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6166,7 +6166,7 @@ SUB _BATTLE
                 PRINT "He is really PISSED."
                 GOTO 1020
             END IF
-        CASE "judge enemy" 
+        CASE "judge enemy"
             CORRECTJUDGECHANCE% = INT(RND * 100) + 1
             IF CORRECTJUDGECHANCE% <= 35 THEN
                 PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -6175,7 +6175,7 @@ SUB _BATTLE
             ELSE
                 PRINT "The "; ENEMY$; "'s hit points appear to be "; ENEMYPTS% + 5; "."
             END IF
-        CASE "use magic" 
+        CASE "use magic"
             IF Expertise% <> CLASS_MAGE THEN
                 ColorPrint 5, "Only mages can use magic!"
             ELSE
@@ -6190,7 +6190,7 @@ SUB _BATTLE
                     AI
                 END IF
             END IF
-        CASE "use owl spell" 
+        CASE "use owl spell"
             IF Owl% = 1 THEN
                 USEOWLSPELL
                 IF EnemyKilled() THEN GOTO 102000
@@ -6211,7 +6211,7 @@ SUB _BATTLE
     PRINT "Hitpoints: "; HPS%; "/"; HP%
     INPUT ">", ACTIONA$
     SELECT CASE ACTIONA$
-        CASE "steal" 
+        CASE "steal"
             IF Expertise% <> CLASS_THIEF THEN
                 ColorPrint 5, "Only thieves can steal."
             ELSE
@@ -6223,7 +6223,7 @@ SUB _BATTLE
                     Steal
                 END IF
             END IF
-        CASE "throw weapon" 
+        CASE "throw weapon"
             IF Expertise% <> CLASS_ROGUE THEN
                 ColorPrint 5, "Only rogues can throw weapons."
             ELSE
@@ -6247,7 +6247,7 @@ SUB _BATTLE
                     AI
                 END IF
             END IF
-        CASE "play music" 
+        CASE "play music"
             IF Expertise% <> CLASS_BARD THEN
                 ColorPrint 5, "Only bards can play music."
             ELSE
@@ -6259,7 +6259,7 @@ SUB _BATTLE
                     BardMusic
                 END IF
             END IF
-        CASE "call familiar" 
+        CASE "call familiar"
             IF FAMILIARHP% <= 0 THEN
                 ColorPrint 5, "Your familiar has fainted."
             ELSEIF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
@@ -6274,7 +6274,7 @@ SUB _BATTLE
             ELSE
                 ColorPrint 5, "you don't have a familiar flute"
             END IF
-        CASE "use potion" 
+        CASE "use potion"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6288,7 +6288,7 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "use magic" 
+        CASE "use magic"
             IF Expertise% <> CLASS_MAGE THEN
                 ColorPrint 5, "Only mages can use magic!"
             ELSE
@@ -6308,7 +6308,7 @@ SUB _BATTLE
             PRINT "The "; ENEMY$; " is disgusted.  He shakes his head and cries out."
         CASE "help"
             HELP
-        CASE "slash" 
+        CASE "slash"
             IF COMBATSPEED% <= ENEMYSPEED% THEN
                 AI
             END IF
@@ -6326,7 +6326,7 @@ SUB _BATTLE
             IF COMBATSPEED% > ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "thrust" 
+        CASE "thrust"
             IF COMBATSPEED% <= ENEMYSPEED% THEN
                 AI
             END IF
@@ -6344,7 +6344,7 @@ SUB _BATTLE
             IF COMBATSPEED% > ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "parry" 
+        CASE "parry"
             PRINT "You attempt to parry the "; ENEMY$; "'s blow."
             PC% = INT(RND * 100) + 1
             PARRYCHANCE% = PC% + ShieldSave%
@@ -6378,7 +6378,7 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "kick" 
+        CASE "kick"
             IF COMBATSPEED% < ENEMYSPEED% THEN
                 AI
             END IF
@@ -6403,7 +6403,7 @@ SUB _BATTLE
             IF COMBATSPEED% >= ENEMYSPEED% THEN
                 AI
             END IF
-        CASE "dodge" 
+        CASE "dodge"
             PRINT "As the "; ENEMY$; " attacks, you attempt to dodge his attack."
             DC% = INT(RND * 100) + 1
             DODGECHANCE% = DC% - DEX%
@@ -6413,7 +6413,7 @@ SUB _BATTLE
                 PRINT "You were not successful at dodging the "; ENEMY$; "'s attack. You take 2 damage."
                 HPS% = HPS% - 1
             END IF
-        CASE "coup de grace" 
+        CASE "coup de grace"
             IF ENEMYPTS% <= 3 THEN
                 IF Ethereal% = 1 THEN
                     PRINT Name$; "> I can't hurt it! it seems like it's ethereal!"
@@ -6425,17 +6425,17 @@ SUB _BATTLE
                     GOTO 102000
                 END IF
             END IF
-        CASE "use owl spell" 
+        CASE "use owl spell"
             IF Owl% = 1 THEN
                 USEOWLSPELL
                 IF EnemyKilled() THEN GOTO 102000
             ELSE
                 PRINT "You don't have an owl."
             END IF
-        CASE "run" 
+        CASE "run"
             PRINT "You ran away."
             GOTO 102001
-        CASE "judge enemy" 
+        CASE "judge enemy"
             CORRECTJUDGECHANCE% = INT(RND * 100) + 1
             IF CORRECTJUDGECHANCE% <= 35 THEN
                 PRINT "The "; ENEMY$; "'s hitpoints appear to be "; ENEMYPTS%; "."
@@ -6639,7 +6639,7 @@ SUB CHARCREATE
         CASE ELSE
             ColorPrint 5, "Huh?"
             GOTO 10
-    END SELECT 
+    END SELECT
 
   21
     PRINT "Please select "; Name$; "'s class."
@@ -6754,7 +6754,7 @@ SUB CHARCREATE
 
     'Character creation ends
 
-  24 
+  24
     PRINT "Do you wish to redo the character creation <Y/N>?"
     INPUT ">", Redo$
     SELECT CASE LCASE$(Redo$)
@@ -6763,7 +6763,7 @@ SUB CHARCREATE
         CASE ELSE
             ColorPrint 5, "Huh?"
             GOTO 24
-    END SELECT 
+    END SELECT
     CLS
 END SUB
 
