@@ -83,6 +83,7 @@ DECLARE SUB FamiliarCall ()
 DECLARE SUB ToadSteal ()
 DECLARE SUB CallFamiliar ()
 
+DECLARE SUB VampireBeaten ()
 DECLARE SUB ColorPrint (outputColor%, outputStr$)
 DECLARE SUB InitGlobals ()
 
@@ -8179,15 +8180,47 @@ SUB EXPERIENCELVLUP
     END IF
 END SUB
 
+SUB VampireBeaten
+    COLOR 14
+    PRINT "Vampire> No! no more! I yield!"
+    SLEEP 2
+    PRINT Name$; "> Why should I spare you?"
+    SLEEP 2
+    PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
+    SLEEP 4
+    COLOR 15
+    PRINT "Victory!"
+    A56VampFight% = 2
+END SUB
+
+FUNCTION EnemyKilled () AS INTEGER
+    IF ENEMYPTS <= 0 THEN
+        IF A56VampFight% = 1 THEN
+            VampireBeaten
+        ELSE
+            COLOR 14
+            PRINT "The "; ENEMY$; " falls to the wound."
+            COLOR 15
+        END IF
+        EnemyKilled = 1
+    ELSE
+        EnemyKilled = 0
+    END IF
+END SUB
+
 REM $STATIC
 SUB FamiliarCall
     FamiliarCalled% = 1
-    IF Familiar$ = "Owl" THEN FamiliarSpeed% = 25
-    IF Familiar$ = "Toad" THEN FamiliarSpeed% = 33
-    IF Familiar$ = "Cat" THEN FamiliarSpeed% = 30
-    IF Familiar$ = "Pheonix" THEN FamiliarSpeed% = 43
+    SELECT CASE Familiar$
+        CASE "Owl"     : FamiliarSpeed% = 25
+        CASE "Toad"    :  FamiliarSpeed% = 33
+        CASE "Cat"     :  FamiliarSpeed% = 30
+        CASE "Pheonix" : FamiliarSpeed% = 43
+    END SELECT
     PRINT Familiar$; " arrives and takes your place"
-    1011 PRINT "What do you want to do?"
+
+  1011
+    PRINT "What do you want to do?"
     PRINT "Mana points:"; MP%; "/"; MPS%
     PRINT "Hit points: "; FAMILIARHP%; "/"; FamiliarHPS%
     PRINT "----------------"
@@ -8195,412 +8228,171 @@ SUB FamiliarCall
     COLOR 12
     PRINT "      Attack"
     PRINT "      Use Magic"
-    IF Familiar$ = "Owl" THEN PRINT "      Use Owl Magic"
-    IF Familiar$ = "Toad" THEN PRINT "      Jump"
-    IF Familiar$ = "Cat" THEN PRINT "      Quick Attack        (MP: 1)"
-    IF Familiar$ = "Pheonix" THEN PRINT "      Use Pheonix Spell"
+    SELECT CASE Familiar$
+        CASE "Owl"     : PRINT "      Use Owl Magic"
+        CASE "Toad"    : PRINT "      Jump"
+        CASE "Cat"     : PRINT "      Quick Attack        (MP: 1)"
+        CASE "Pheonix" : PRINT "      Use Pheonix Spell"
+    END SELECT
     PRINT "      Dismiss"
     COLOR 15
     PRINT "----------------"
-    1012 INPUT "What is your command?>", Fam$
-        IF Fam$ = "attack" THEN
+
+  1012
+    INPUT "What is your command?>", Fam$
+    SELECT CASE Fam$
+        CASE "attack"
+            IF FamiliarSpeed% < ENEMYSPEED% THEN
+                AI
+            END IF
+
+            PRINT Familiar$; " leaps forward and wounds the "; ENEMY$
+            ENEMYPTS% = ENEMYPTS% - (FAMILIARDAMAGE + 20)
+            IF EnemyKilled() GOTO 1013
+
             IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                PRINT Familiar$; " leaps forward and wounds the "; ENEMY$
-                ENEMYPTS% = ENEMYPTS% - (FAMILIARDAMAGE + 20)
-                IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-                    COLOR 14
-                    PRINT "The "; ENEMY$; " falls to the wound."
-                    COLOR 15
-                    GOTO 1013
-                END IF
                 AI
-                GOTO 1011
-            ELSE
-                AI
-                PRINT Familiar$; " leaps forward and wounds the "; ENEMY$
-                ENEMYPTS% = ENEMYPTS% - (FAMILIARDAMAGE + 20)
-                IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                    COLOR 14
-                    PRINT "The "; ENEMY$; " falls to the wound."
-                    COLOR 15
-                    GOTO 1013
-                END IF
-            GOTO 1011
-        END IF
-        END IF
-
-        IF Fam$ = "use magic" THEN
-        PRINT Familiar$; "'s basic magic"
-        PRINT "-------------------------"
-        PRINT "Spell Name:           MP:"
-        COLOR 12
-        PRINT ""
-        PRINT "  Fire                  5"
-        PRINT "  Thunder               6"
-        PRINT "  Wind                 10"
-        PRINT "  Water                 4"
-        PRINT "-------------------------"
-        COLOR 15
-        INPUT ">", MGC$
-            IF MGC$ = "fire" THEN
-                IF MP% >= 5 THEN
-                    IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                    MP% = MP% - 5
-                    PRINT Familiar$; " casts fire!"
-                    IF Undead% = 1 THEN
-                        PRINT "Critical Damage!"
-                        Critical% = 20
-                    END IF
-                    ENEMYPTS% = ENEMYPTS% - 5 - Critical%
-                    Critical% = 0
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
-                    AI
-                    ELSE
-                    AI
-                    MP% = MP% - 5
-                    PRINT Familiar$; " casts fire!"
-                    IF Undead% = 1 THEN
-                        PRINT "Critical Damage!"
-                        Critical% = 20
-                    END IF
-                    ENEMYPTS% = ENEMYPTS% - 5 - Critical%
-                    Critical% = 0
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
-                    END IF
-                END IF
-                IF MP% < 5 THEN
-                    PRINT "Insufficent MP"
-                    GOTO 1011
-                END IF
             END IF
-        IF MGC$ = "thunder" THEN
-               IF MP% >= 6 THEN
-                IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                    MP% = MP% - 6
-                    PRINT Familiar$; " casts thunder!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
-                    AI
-                ELSE
-                    AI
-                    MP% = MP% - 6
-                    PRINT Familiar$; " casts thunder!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    IF Undead% = 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-                    END IF
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
-                END IF
-               END IF
-               IF MP% < 6 THEN
-                PRINT "Insufficent MP"
-                GOTO 1011
-            END IF
-        END IF
-        IF MGC$ = "wind" THEN
-            IF MP% >= 10 THEN
-                IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                    MP% = MP% - 10
-                    PRINT Familiar$; " casts wind!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    Tornado% = INT(RND * 20)
-                        IF Tornado% <= 7 THEN
-                            IF Boss% = 0 THEN
-                                IF A56VampFight% = 1 THEN
-                                    COLOR 14
-                                    PRINT "Vampire> No! no more! I yield!"
-                                    SLEEP 2
-                                    PRINT Name$; "> Why should I spare you?"
-                                    SLEEP 2
-                                    PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                                    SLEEP 4
-                                    COLOR 15
-                                    PRINT "Victory!"
-                                    A56VampFight% = 2
-                                    GOTO 1013
-                                END IF
-                                PRINT "The wind spell throws the "; ENEMY$; " far from the battlefield."
-                                ENEMYPTS% = 0
-                            GOTO 1013
-                            END IF
+        CASE "use magic"
+            PRINT Familiar$; "'s basic magic"
+            PRINT "-------------------------"
+            PRINT "Spell Name:           MP:"
+            COLOR 12
+            PRINT ""
+            PRINT "  Fire                  5"
+            PRINT "  Thunder               6"
+            PRINT "  Wind                 10"
+            PRINT "  Water                 4"
+            PRINT "-------------------------"
+            COLOR 15
+            INPUT ">", MGC$
+            SELECT CASE MGC$
+                CASE "fire"
+                    IF MP% >= 5 THEN
+                        IF FamiliarSpeed% < ENEMYSPEED% THEN
+                            AI
                         END IF
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
-                    AI
-                ELSE
-                    AI
-                    MP% = MP% - 10
-                    PRINT Familiar$; " casts wind!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    Tornado% = INT(RND * 20)
-                        IF Tornado% <= 7 THEN
-                            IF A56VampFight% = 1 THEN
-                                COLOR 14
-                                PRINT "Vampire> No! no more! I yield!"
-                                SLEEP 2
-                                PRINT Name$; "> Why should I spare you?"
-                                SLEEP 2
-                                PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                                SLEEP 4
-                                COLOR 15
-                                PRINT "Victory!"
-                                A56VampFight% = 2
-                                GOTO 1013
-                            END IF
 
+                        MP% = MP% - 5
+                        PRINT Familiar$; " casts fire!"
+                        IF Undead% = 1 THEN
+                            PRINT "Critical Damage!"
+                            Critical% = 20
+                        END IF
+                        ENEMYPTS% = ENEMYPTS% - 5 - Critical%
+                        Critical% = 0
+                        IF EnemyKilled() GOTO 1013
+
+                        IF FamiliarSpeed% >= ENEMYSPEED% THEN
+                            AI
+                        END IF
+                    ELSE
+                        PRINT "Insufficent MP"
+                    END IF
+                CASE "thunder"
+                    IF MP% >= 6 THEN
+                        IF FamiliarSpeed% < ENEMYSPEED% THEN
+                            AI
+                        END IF
+
+                        MP% = MP% - 6
+                        PRINT Familiar$; " casts thunder!"
+                        ENEMYPTS% = ENEMYPTS% - 5
+                        IF EnemyKilled() GOTO 1013
+
+                        IF FamiliarSpeed% >= ENEMYSPEED% THEN
+                            AI
+                        END IF
+                    ELSE
+                        PRINT "Insufficent MP"
+                    END IF
+                CASE "wind"
+                    IF MP% >= 10 THEN
+                        IF FamiliarSpeed% < ENEMYSPEED% THEN
+                            AI
+                        END IF
+
+                        MP% = MP% - 10
+                        PRINT Familiar$; " casts wind!"
+                        ENEMYPTS% = ENEMYPTS% - 5
+                        Tornado% = INT(RND * 20)
+                        IF Tornado% <= 7 AND Boss% = 0 THEN
+                            IF A56VampFight% = 1 THEN
+                                VampireBeaten
+                            END IF
                             PRINT "The wind spell throws the "; ENEMY$; " far from the battlefield."
                             ENEMYPTS% = 0
                             GOTO 1013
                         END IF
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
+                        IF EnemyKilled() GOTO 1013
+
+                        IF FamiliarSpeed% >= ENEMYSPEED% THEN
+                            AI
+                        END IF
+                    ELSE
+                        PRINT "Insufficent MP"
                     END IF
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
+                CASE "water"
+                    IF MP% >= 4 THEN
+                        IF FamiliarSpeed% < ENEMYSPEED% THEN
+                            AI
+                        END IF
+
+                        MP% = MP% - 4
+                        PRINT Familiar$; " casts water!"
+                        ENEMYPTS% = ENEMYPTS% - 5
+                        IF EnemyKilled() GOTO 1013
+
+                        IF FamiliarSpeed% >= ENEMYSPEED% THEN
+                            AI
+                        END IF
+                    ELSE
+                        PRINT "Insufficent MP"
                     END IF
+            END SELECT
+        CASE "use owl magic"
+            IF Owl% = 1 THEN USEOWLSPELL
+        CASE "jump"
+            IF Familiar$ = "Toad" THEN
+                IF FamiliarSpeed% < ENEMYSPEED% THEN
+                    AI
+                END IF
+
+                PRINT "Toad jumps!"
+                PRINT "Toad lands on the "; ENEMY$
+                ToadSteal
+
+                IF FamiliarSpeed% >= ENEMYSPEED% THEN
+                    AI
                 END IF
             END IF
-            IF MP% < 10 THEN
-                PRINT "Insufficent MP"
-                GOTO 1011
-            END IF
-        END IF
-            IF MGC$ = "water" THEN
-               IF MP% >= 4 THEN
-                IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                    MP% = MP% - 4
-                    PRINT Familiar$; " casts water!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
+        CASE "quick hit"
+            IF Familiar$ = "cat" THEN
+                IF MP% >= 1 THEN
+                    PRINT "Cat attacks!"
+                    PRINT "The "; ENEMY$; " didn't know what hit it."
+                    ENEMYPTS% = ENEMYPTS% - (FAMILIARDAMAGE% + 20)
                     AI
                 ELSE
-                    AI
-                    MP% = MP% - 4
-                    PRINT Familiar$; " casts water!"
-                    ENEMYPTS% = ENEMYPTS% - 5
-                    IF ENEMYPTS% <= 0 THEN
-                    IF A56VampFight% = 1 THEN
-                    COLOR 14
-                        PRINT "Vampire> No! no more! I yield!"
-                        SLEEP 2
-                        PRINT Name$; "> Why should I spare you?"
-                        SLEEP 2
-                        PRINT "Vampire> because...if you do then I will tell you how to get to Necrotalia."
-                        SLEEP 4
-                        COLOR 15
-                        PRINT "Victory!"
-                        A56VampFight% = 2
-                        GOTO 1013
-                    END IF
-
-                        PRINT "The "; ENEMY$; " falls to the wound"
-                        GOTO 1013
-                    END IF
+                    PRINT "Insufficent MP"
                 END IF
-               IF MP% < 4 THEN
-                PRINT "Insufficent MP"
-                GOTO 1011
-               END IF
             END IF
-            END IF
-        END IF
-        IF Fam$ = "use owl magic" THEN
-            IF Owl% = 1 THEN USEOWLSPELL
-        END IF
-        IF Fam$ = "jump" THEN
-            IF Familiar$ = "Toad" THEN
-            IF FamiliarSpeed% >= ENEMYSPEED% THEN
-                PRINT "Toad jumps!"
-                PRINT "Toad lands on the "; ENEMY$
-                ToadSteal
-                AI
-               ELSE
-                AI
-                PRINT "Toad jumps!"
-                PRINT "Toad lands on the "; ENEMY$
-                ToadSteal
-               END IF
-            END IF
-        END IF
-        IF Fam$ = "quick hit" THEN
-            IF Familiar$ = "cat" THEN
-            IF MP% >= 1 THEN
-            PRINT "Cat attacks!"
-            PRINT "The "; ENEMY$; " didn't know what hit it."
-            ENEMYPTS% = ENEMYPTS% - (FAMILIARDAMAGE% + 20)
-            AI
-            END IF
-            IF MP% <= 0 THEN
-            PRINT "Insufficent MP"
-            GOTO 1011
-            END IF
-            END IF
-        END IF
 
-        IF Fam$ = "use pheonix spell" THEN
+        CASE "use pheonix spell"
             IF Familiar$ = "Pheonix" THEN USEOWLSPELL
-        END IF
 
-        IF Fam$ = "dismiss" THEN
+        CASE "dismiss"
             COLOR 5
             PRINT Familiar$; " leaves the battle, you step into it's place."
             FamiliarCalled% = 0
             COLOR 15
-            GOTO 1013
-        END IF
-    ColorPrint 5, "Huh?"
-    GOTO 1012
-1013 END SUB
+        CASE ELSE
+            ColorPrint 5, "Huh?"
+            GOTO 1012
+    END SELECT
+    GOTO 1011
+  1013
+END SUB
 
 SUB GameIntro
     Quest% = 1
