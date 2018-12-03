@@ -9371,138 +9371,100 @@ SUB MainMenu
 END SUB
 
 SUB NecrotaliaAI
-    NecroAI% = INT(RND * 4) + 1
-    IF NecroAI% = 1 THEN
-        GOTO 39760
-    END IF
-
-    IF NecroAI% = 2 THEN
-        GOTO 39770
-    END IF
-
-    IF NecroAI% = 3 THEN
-        GOTO 39780
-    END IF
-
-    IF NecroAI% = 4 THEN
-        GOTO 39790
-    END IF
-
-    IF NecroAI% = 5 THEN
-        GOTO 39800
-    END IF
-    PRINT "Error: No AI protocol chosen"
-    GOTO 39900
-
-    39760 PRINT "Necrotalia stands there and laughs"
-    GOTO 39900
-
-    39770 PRINT "Necrotalia casts fire"
-    MiscastChance% = INT(RND * 40)
-    IF MiscastChance% >= 10 THEN
-        PRINT "Necrotalia miscasts!"
-        GOTO 39900
-    END IF
-    IF PlayerReflect% = 1 THEN
-        COLOR 5
-        PRINT "The spell reflects off your magic"
-        PRINT "The reflect spell wears off"
-        PlayerReflect% = 0
-        COLOR 15
-        GOTO 39890
-    END IF
-
-    ArrowDamage% = INT(RND * 20)
-        PRINT "The fire causes you "; ArrowDamage%; " damage."
-        HPS% = HPS% - ArrowDamage%
-        IF HPS% <= 0 THEN
-            PRINT "You have died."
-
-        ELSE
-            GOTO 39900
-        END IF
-
-    39780 PRINT "Necrotalia casts Gaze of Death!"
-    MiscastChance% = INT(RND * 11)
-    IF MiscastChance% >= 10 THEN
-        PRINT "Necrotalia miscasts!"
-        GOTO 39890
-    END IF
-    IF PlayerReflect% = 1 THEN
-        COLOR 5
-        PRINT "The spell reflects off your magic"
-        PRINT "The reflect spell wears off"
-        PlayerReflect% = 0
-        COLOR 15
-        GOTO 39890
-    END IF
-    HPS% = 0
-    SaveChance% = INT(RND * 20)
-    IF SaveChance% >= 10 THEN
-        PRINT "You feel a strange magic field forming around you!"
-        PRINT "Necrotalia notices something"
-        SLEEP 4
-        COLOR 14
-        PRINT "Necrotalia>Could it be? The legendary holy guardian Pheonix?"
-        SLEEP 4
-        COLOR 15
-        NecrotaliaHP% = 0
-        PRINT "The spell reflects off of the magic field and wounds Necrotalia!"
-        SLEEP 6
-        COLOR 5
-        PRINT "Your familiar is replaced by Pheonix."
-        Familiar$ = "Pheonix"
-        FAMILIARDAMAGE% = 50
-        FAMILIARHP% = 50
-        FamiliarHPS% = 50
-        MP% = 50
-        MPS% = 50
-        IF NecrotaliaHP% <= 0 THEN
+    SELECT CASE INT(RND * 5)
+        CASE 0
+            PRINT "Necrotalia stands there and laughs"
+        CASE 1
+            PRINT "Necrotalia casts fire"
+            MiscastChance% = INT(RND * 40)
+            IF MiscastChance% >= 10 THEN
+                PRINT "Necrotalia miscasts!"
+            ELSEIF PlayerReflect% = 1 THEN
+                COLOR 5
+                PRINT "The spell reflects off your magic"
+                PRINT "The reflect spell wears off"
+                PlayerReflect% = 0
+                COLOR 15
+            ELSE
+                ArrowDamage% = INT(RND * 20)
+                PRINT "The fire causes you "; ArrowDamage%; " damage."
+                HPS% = HPS% - ArrowDamage%
+                IF HPS% <= 0 THEN
+                    PRINT "You have died."
+                END IF
+            END IF
+        CASE 2
+            PRINT "Necrotalia casts Gaze of Death!"
+            MiscastChance% = INT(RND * 11)
+            IF MiscastChance% >= 10 THEN
+                PRINT "Necrotalia miscasts!"
+            ELSEIF PlayerReflect% = 1 THEN
+                COLOR 5
+                PRINT "The spell reflects off your magic"
+                PRINT "The reflect spell wears off"
+                PlayerReflect% = 0
+                COLOR 15
+            ELSE
+                HPS% = 0
+                SaveChance% = INT(RND * 20)
+                IF SaveChance% >= 10 THEN
+                    PRINT "You feel a strange magic field forming around you!"
+                    PRINT "Necrotalia notices something"
+                    SLEEP 4
                     COLOR 14
-                    PRINT "Necrotalia> Enough!"
+                    PRINT "Necrotalia>Could it be? The legendary holy guardian Pheonix?"
                     SLEEP 4
                     COLOR 15
-                    PRINT "Necrotalia casts Storm of Death!"
-                    SLEEP 4
-                    PRINT "You fall to one knee!"
-                    SLEEP 4
-                    EndGameCutscene
+                    NecrotaliaHP% = 0
+                    PRINT "The spell reflects off of the magic field and wounds Necrotalia!"
+                    SLEEP 6
+                    COLOR 5
+                    PRINT "Your familiar is replaced by Pheonix."
+                    Familiar$ = "Pheonix"
+                    FAMILIARDAMAGE% = 50
+                    FAMILIARHP% = 50
+                    FamiliarHPS% = 50
+                    MP% = 50
+                    MPS% = 50
+                    IF NecrotaliaHP% <= 0 THEN
+                                COLOR 14
+                                PRINT "Necrotalia> Enough!"
+                                SLEEP 4
+                                COLOR 15
+                                PRINT "Necrotalia casts Storm of Death!"
+                                SLEEP 4
+                                PRINT "You fall to one knee!"
+                                SLEEP 4
+                                EndGameCutscene
+                        END IF
+                ELSE
+                    PRINT "You have died."
+                END IF
             END IF
-        GOTO 39900
-    END IF
-    PRINT "You have died."
-
-    GOTO 39900
-
-    39790 PRINT "Necrotalia jumps forward and slashes you!"
-    HPS% = HPS% - 1
-    IF HPS% <= 0 THEN
-        PRINT "You have died."
-
-    END IF
-    GOTO 39900
-
-    39800 PRINT "Necrotalia casts hand of dust!"
-    MiscastChance% = INT(RND * 100)
-    IF MiscastChance% >= 10 THEN
-        PRINT "Necrotalia miscasts!"
-        GOTO 39890
-    END IF
-    IF PlayerReflect% = 1 THEN
-        COLOR 5
-        PRINT "The spell reflects off your magic"
-        PRINT "The reflect spell wears off"
-        PlayerReflect% = 0
-        COLOR 15
-        GOTO 39890
-    END IF
-    PRINT "You feel your strength fleeing from you."
-    ColorPrint 13, "Your strength is temporarily reduced by 1."
-    STR% = STR% - 2
-    GOTO 39900
-
-    39890
-39900 END SUB
+        CASE 3
+            PRINT "Necrotalia jumps forward and slashes you!"
+            HPS% = HPS% - 1
+            IF HPS% <= 0 THEN
+                PRINT "You have died."
+            END IF
+        CASE 4
+            PRINT "Necrotalia casts hand of dust!"
+            MiscastChance% = INT(RND * 100)
+            IF MiscastChance% >= 10 THEN
+                PRINT "Necrotalia miscasts!"
+            ELSEIF PlayerReflect% = 1 THEN
+                COLOR 5
+                PRINT "The spell reflects off your magic"
+                PRINT "The reflect spell wears off"
+                PlayerReflect% = 0
+                COLOR 15
+            ELSE
+                PRINT "You feel your strength fleeing from you."
+                ColorPrint 13, "Your strength is temporarily reduced by 1."
+                STR% = STR% - 2
+            END IF
+    END SELECT
+END SUB
 
 SUB NecrotaliaBattle
     CLS
