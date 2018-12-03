@@ -5994,7 +5994,7 @@ SUB AI
                     HPS% = HPS% - TotalDamage%
                     IF HPS% > HP% THEN
                         HPS% = HP%
-                    ELSE
+                    ELSEIF HPS% <= 0 THEN
                         PRINT "You have died."
                         END
                     END IF
@@ -6035,7 +6035,7 @@ SUB AI
                 STR% = STR% + 5
                 IF HPS% > HP% THEN
                     HPS% = HP%
-                ELSE
+                ELSEIF HPS% <= 0 THEN
                     PRINT "You have died."
                     END
                 END IF
@@ -6068,7 +6068,6 @@ SUB _BATTLE
         CASE "call familiar" 
             IF FAMILIARHP% <= 0 THEN
                 ColorPrint 5, "Your familiar has fainted."
-                GOTO 1000
             ELSEIF Inventory(QITEM_FAMILIAR_FLUTE).amount = 1 THEN
                 IF COMBATSPEED% < ENEMYSPEED% THEN
                     AI
@@ -6488,7 +6487,6 @@ SUB BATTLE
     CLS
     LHO$ = LH$
 
-    M% = INT(RND * 6) + 1
     SELECT CASE INT(RND * 6)
         CASE 0
             ENEMY$ = "Axe Maiden"
@@ -6520,7 +6518,6 @@ SUB BATTLE
         ENEMY$ = "Corpse"
     END IF
 
-    0.2
     P% = INT(RND * 6) + 1
     q% = INT(RND * 6) + 1
     ENEMYPTS% = P% + q% + ENEMYHPSBONUS
