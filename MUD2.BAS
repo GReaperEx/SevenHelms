@@ -17,6 +17,7 @@
 CONST FALSE = 0
 CONST TRUE = 1
 
+' Subroutine declaration
 DECLARE SUB XanathusWorldFlee ()
 DECLARE SUB XanathusAI ()
 DECLARE SUB XanathusFlee ()
@@ -51,11 +52,8 @@ DECLARE SUB Preload ()
 DECLARE SUB LoadGame ()
 DECLARE SUB MainMenu ()
 DECLARE SUB SaveGame ()
-DECLARE SUB jacobstats ()
-DECLARE SUB JACOB2000 ()
 DECLARE SUB EqHead ()
 DECLARE SUB USEOWLSPELL ()
-DECLARE SUB CLASSBONUS ()
 DECLARE SUB OWLSPELL ()
 DECLARE SUB AI ()
 DECLARE SUB Runes ()
@@ -6520,7 +6518,7 @@ SUB BATTLE
 
     P% = INT(RND * 6) + 1
     q% = INT(RND * 6) + 1
-    ENEMYPTS% = P% + q% + ENEMYHPSBONUS
+    ENEMYPTS% = P% + q% + ENEMYHPSBONUS%()
 
     IF WightLord% = 1 THEN
         ENEMY$ = "Wight Lord"
@@ -6546,7 +6544,7 @@ SUB BATTLE2
     Ethereal% = 0
     P% = INT(RND * 6) + 1
     q% = INT(RND * 6) + 1
-    ENEMYHPB% = P% + q% + ENEMYHPSBONUS
+    ENEMYHPB% = P% + q% + ENEMYHPSBONUS%()
 
     ENEMY% = INT(RND * 20) + 1
     SPEED% = INT(RND * 20) + 1
@@ -7073,7 +7071,7 @@ END SUB
 
 REM $DYNAMIC
 FUNCTION ENEMYHPSBONUS%
-    ENEMYHPSBONUS = (Lvl% - 1)*5
+    ENEMYHPSBONUS% = (Lvl% - 1)*5
 END FUNCTION
 
 SUB UnequipItem (equipType AS INTEGER)
