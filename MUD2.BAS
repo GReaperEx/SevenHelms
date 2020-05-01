@@ -452,6 +452,44 @@ SUB A56GetHint
   999
 END SUB
 
+FUNCTION commonCmds(cmd AS STRING) AS INTEGER
+    commonCmds = -1
+
+    SELECT CASE cmd
+        CASE "menu"
+            CALL MainMenu
+        CASE "help"
+            CALL WorldHelp
+        CASE "describe"
+            commonCmds = 1
+        CASE "stats"
+            CALL displaystats
+        CASE "inventory"
+            CALL displayinventory
+        CASE "equipment"
+            CALL displayequip
+        CASE "equip LH"
+            CALL EQlh
+        CASE "equip RH"
+            CALL EQrh
+        CASE "equip ARMOUR"
+            CALL EqArmour
+        CASE "equip HEAD"
+            CALL EqHead
+        CASE "use potion"
+            IF Inventory(ITEM_POTION).amount >= 1 THEN
+                HPS% = HPS% + 15
+                IF HPS% > HP% THEN HPS% = HP%
+                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
+                COLOR 5
+                PRINT "Used potion"
+                COLOR 15
+            END IF
+        CASE ELSE
+            commonCmds = 0
+    END SELECT
+END FUNCTION
+
 REM $DYNAMIC
 SUB ACT1
     GameOn% = 1
@@ -459,124 +497,91 @@ SUB ACT1
     IF LadderUp% = 1 GOTO 350
     IF BottomLift% = 1 GOTO 650
     IF A67PillarUse% = 1 GOTO 230
+
     IF JustLoaded% = 1 THEN
-        IF SavePos% = 0 THEN
-            CLS
-
-            PRINT "You have re-entered the world of Fargaia, good luck on your quest."
-            SLEEP 4
-            GOTO 230
-        END IF
-        IF SavePos% = 1 THEN
-            CLS
-
-            PRINT "You have re-entered the world of Fargaia, good luck on your quest."
-            SLEEP 4
-            Act1Pt2
-        END IF
-
-        IF SavePos% = 3 THEN
-            CLS
-
-            PRINT "You have re-entered the world of Fargaia, good luck on your quest."
-            SLEEP 4
-            HPS% = HP%
-            GOTO 230
-        END IF
+        SELECT CASE SavePos%
+            CASE 0
+                CLS
+                PRINT "You have re-entered the world of Fargaia, good luck on your quest."
+                SLEEP 4
+                GOTO 230
+            CASE 1
+                CLS
+                PRINT "You have re-entered the world of Fargaia, good luck on your quest."
+                SLEEP 4
+                Act1Pt2
+            CASE 3
+                CLS
+                PRINT "You have re-entered the world of Fargaia, good luck on your quest."
+                SLEEP 4
+                HPS% = HP%
+                GOTO 230
+        END SELECT
     END IF
     GameIntro
     'This is the beginning spot, once a player leaves the area this area will
     'never be able to be accessed again.
-    209 CLS
+209 CLS
 
     SLEEP 1
-    PRINT "You sit in front of the campfire.  The dark city is quiet for now, you begin to look at your surroundings.  An old shop is off to the northeast.  There is a set of pillars surrounding a chaos star carved into the ground nearby.  The fiery pit lies to the northwest.  Sir Jacob is standing beside the abandoned shop."
+    PRINT "You sit in front of the campfire.  The dark city is quiet for now, you begin to"
+    PRINT "look at your surroundings.  An old shop is off to the northeast.  There is a"
+    PRINT "set of pillars surrounding a chaos star carved into the ground nearby.  The"
+    PRINT "fiery pit lies to the northwest.  Sir Jacob is standing beside the abandoned shop."
 
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "  The old shop: northeast"
     PRINT "  The fiery pit: northwest"
     COLOR 15
-    210 INPUT ">", A$
-        IF A$ = "northeast" GOTO 220
-        IF A$ = "northwest" GOTO 240
-        IF A$ = "NorthEast" GOTO 220
-        IF A$ = "NorthWest" GOTO 240
+210 INPUT ">", A$
 
-        IF A$ = "menu" THEN MainMenu
-        IF A$ = "menu" GOTO 210
+    IF A$ = "northeast" GOTO 220
+    IF A$ = "northwest" GOTO 240
+    IF A$ = "NorthEast" GOTO 220
+    IF A$ = "NorthWest" GOTO 240
 
-        IF A$ = "help" THEN WorldHelp
-        IF A$ = "help" GOTO 210
+    retVal% = commonCmds(A$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 210
+        CASE 1
+            GOTO 209
+    END SELECT
 
-        IF A$ = "describe" GOTO 209
-
-        IF A$ = "stats" THEN displaystats
-        IF A$ = "stats" GOTO 210
-
-        IF A$ = "inventory" THEN displayinventory
-        IF A$ = "inventory" GOTO 210
-
-        IF A$ = "equipment" THEN displayequip
-        IF A$ = "equipment" GOTO 210
-
-        IF A$ = "equip LH" THEN EQlh
-        IF A$ = "equip LH" GOTO 210
-
-        IF A$ = "equip RH" THEN EQrh
-        IF A$ = "equip RH" GOTO 210
-
-        IF A$ = "equip ARMOUR" THEN EqArmour
-        IF A$ = "equip ARMOUR" GOTO 210
-
-        IF A$ = "equip HEAD" THEN EqHead
-        IF A$ = "equip HEAD" GOTO 210
-
-        IF A$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                GOTO 210
-                COLOR 15
-            END IF
+    IF A$ = "talk to sir jacob" THEN
+        PRINT "Sir Jacob casts a spell of healing on you."
+        PRINT "Your familiar is healed."
+        HPS% = HP%
+        FAMILIARHP% = FamiliarHPS%
+        COLOR 5
+        PRINT "Sir Jacob>We should check out that shop first."
+215     PRINT "Do you wish to save <Y/N>?"
+        COLOR 15
+        INPUT ">", Save$
+        IF Save$ = "y" OR Save$ = "Y" THEN
+            SavePos% = 0
+            SaveGame
+            ColorPrint 5, "Game Saved"
+            GOTO 210
+        ELSEIF Save$ = "n" OR Save$ = "N" THEN
+            GOTO 210
         END IF
 
-        IF A$ = "talk to sir jacob" THEN
-            PRINT "Sir Jacob casts a spell of healing on you."
-            PRINT "Your familiar is healed."
-            HPS% = HP%
-            FAMILIARHP% = FamiliarHPS%
-            COLOR 5
-            PRINT "Sir Jacob>We should check out that shop first."
-    215             PRINT "Do you wish to save <Y/N>?"
-            COLOR 15
-            INPUT ">", Save$
-                IF Save$ = "y" THEN
-                    SavePos% = 0
-                    SaveGame
-                    ColorPrint 5, "Game Saved"
-                    GOTO 210
-                END IF
+        ColorPrint 5, "Huh?"
+        GOTO 215
+    END IF
 
-                IF Save$ = "n" GOTO 210
-            ColorPrint 5, "Huh?"
-            GOTO 215
-        END IF
     ColorPrint 5, "huh?"
     GOTO 210
 
-    220 CLS
+220 CLS
     PRINT " You step into the abandoned shop, there are several cracks in the floor"
     PRINT "the shelves are ransacked.  Several broken jars that once contained "
     PRINT "potions now lie on the floor.  Other than that the shop seems empty."
     IF A1ShopEnter% = 1 THEN
         ColorPrint 5, "Samael is standing behind the counter"
-        END IF
-
-    IF A1ShopEnter% = 0 THEN
+    ELSE
         IF A0CutsceneDone% = 0 THEN
             COLOR 14
                 PRINT ""
@@ -606,84 +611,55 @@ SUB ACT1
             COLOR 15
         END IF
     END IF
+
     COLOR 5
     IF A1ShopPotion% = 0 THEN PRINT "There is one usable potion on the ground"
     PRINT "There is one obvious exit:"
     PRINT "         The Door: south"
     COLOR 15
-    225 INPUT ">", A0$
+225 INPUT ">", A0$
 
-        IF A0$ = "south" THEN A1ShopEnter% = 1
-        IF A0$ = "south" GOTO 230
+    IF A0$ = "south" THEN
+        A1ShopEnter% = 1
+        GOTO 230
+    END IF
 
-        IF A0$ = "talk to samael" THEN
-            COLOR 5
-            PRINT "Samael> What can I do fer ye?"
-            PurchaseSamael
-            COLOR 15
+    IF A0$ = "talk to samael" THEN
+        COLOR 5
+        PRINT "Samael> What can I do fer ye?"
+        PurchaseSamael
+        COLOR 15
+        GOTO 225
+    END IF
+
+    IF A0$ = "talk to sir jacob" THEN
+        IF A1ShopEnter% = 0 THEN
+            ColorPrint 5, "Sir Jacob> It seems as we can trust this dwarf."
             GOTO 225
         END IF
+    END IF
 
-        IF A0$ = "talk to sir jacob" THEN
-            IF A1ShopEnter% = 0 THEN
-                ColorPrint 5, "Sir Jacob> It seems as we can trust this dwarf."
-                GOTO 225
-            END IF
+    retVal% = commonCmds(A0$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 225
+        CASE 1
+            GOTO 220
+    END SELECT
+
+    IF A0$ = "get potion" THEN
+        IF A1ShopPotion% = 0 THEN
+            ColorPrint 5, "Got Potion"
+            A1ShopPotion% = 1
+            Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
+            GOTO 225
         END IF
+    END IF
 
-        IF A0$ = "menu" THEN MainMenu
-        IF A0$ = "menu" GOTO 225
-
-        IF A0$ = "help" THEN WorldHelp
-        IF A0$ = "help" GOTO 225
-
-        IF A0$ = "describe" GOTO 220
-
-        IF A0$ = "stats" THEN displaystats
-        IF A0$ = "stats" GOTO 225
-
-        IF A0$ = "inventory" THEN displayinventory
-        IF A0$ = "inventory" GOTO 225
-
-        IF A0$ = "equipment" THEN displayequip
-        IF A0$ = "equipment" GOTO 225
-
-        IF A0$ = "equip LH" THEN EQlh
-        IF A0$ = "equip LH" GOTO 225
-
-        IF A0$ = "equip RH" THEN EQrh
-        IF A0$ = "equip RH" GOTO 225
-
-        IF A0$ = "equip ARMOUR" THEN EqArmour
-        IF A0$ = "equip ARMOUR" GOTO 225
-
-        IF A0$ = "equip HEAD" THEN EqHead
-        IF A0$ = "equip HEAD" GOTO 225
-
-        IF A0$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                COLOR 5
-                PRINT "Used potion"
-                GOTO 225
-                COLOR 15
-            END IF
-        END IF
-
-        IF A0$ = "get potion" THEN
-            IF A1ShopPotion% = 0 THEN
-                ColorPrint 5, "Got Potion"
-                A1ShopPotion% = 1
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
-                GOTO 225
-            END IF
-        END IF
     ColorPrint 5, "huh?"
     GOTO 225
 
-    230 CLS
+230 CLS
     A67PillarUse% = 0
     PRINT "You step into the camp area, the fire is still burning.  Sir Jacob is"
     PRINT "standing next to the abandoned shop.  The chaos star surrounded by "
@@ -692,92 +668,62 @@ SUB ACT1
     PRINT "There are two obvious exits:"
     PRINT "         northeast: The abandoned shop"
     PRINT "         northwest: The fiery pit"
-    235 COLOR 15
+235 COLOR 15
     INPUT ">", AEncampment$
-        IF AEncampment$ = "northeast" GOTO 220
-        IF AEncampment$ = "NorthEast" GOTO 220
 
-        IF AEncampment$ = "northwest" GOTO 240
+    IF AEncampment$ = "northeast" GOTO 220
+    IF AEncampment$ = "northeast" GOTO 220
 
-        IF AEncampment$ = "talk to sir jacob" THEN
-            PRINT "Sir Jacob casts a spell of healing on you."
-            PRINT "Your familiar is healed."
-            HPS% = HP%
-            FAMILIARHP% = FamiliarHPS%
+    IF AEncampment$ = "northwest" GOTO 240
+
+    IF AEncampment$ = "talk to sir jacob" THEN
+        PRINT "Sir Jacob casts a spell of healing on you."
+        PRINT "Your familiar is healed."
+        HPS% = HP%
+        FAMILIARHP% = FamiliarHPS%
+        COLOR 5
+        PRINT "Sir Jacob> No time to waste, let's go down into the fiery pits."
+        PRINT "Would you like to save your game? <Y/N>"
+        COLOR 15
+236     INPUT ">", SirJacobA1$
+        IF SirJacobA1$ = "y" THEN
+            SavePos% = 0
+            SaveGame
+            ColorPrint 5, "Game Saved"
+            GOTO 235
+        END IF
+
+        IF SirJacobA1$ = "n" GOTO 235
+
+        ColorPrint 5, "Huh?"
+        GOTO 236
+    END IF
+
+    retVal% = commonCmds(AEncampment$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 235
+        CASE 1
+            GOTO 230
+    END SELECT
+
+    IF AEncampment$ = "use chaos star" THEN
+        IF A67PillarOn% = 1 THEN
             COLOR 5
-            PRINT "Sir Jacob> No time to waste, let's go down into the fiery pits."
-            PRINT "Would you like to save your game? <Y/N>"
+            AEncampmentUsePillar% = 1
+
+            PRINT "You walk onto the burning chaos star, immediately you feel yourself being pulled to some far place."
+            SLEEP 5
             COLOR 15
-    236             INPUT ">", SirJacobA1$
-                IF SirJacobA1$ = "y" THEN
-                    SavePos% = 0
-                    SaveGame
-                    ColorPrint 5, "Game Saved"
-                    GOTO 235
-                END IF
-
-                IF SirJacobA1$ = "n" GOTO 235
-
-            ColorPrint 5, "Huh?"
-            GOTO 236
+            Act1Pt2
         END IF
-        IF AEncampment$ = "help" THEN WorldHelp
-        IF AEncampment$ = "help" GOTO 235
-
-        IF AEncampment$ = "menu" THEN MainMenu
-        IF AEncampment$ = "menu" GOTO 235
-
-        IF AEncampment$ = "describe" GOTO 230
-        IF AEncampment$ = "describe" GOTO 235
-
-        IF AEncampment$ = "stats" THEN displaystats
-        IF AEncampment$ = "stats" GOTO 235
-
-        IF AEncampment$ = "inventory" THEN displayinventory
-        IF AEncampment$ = "inventory" GOTO 235
-
-        IF AEncampment$ = "equipment" THEN displayequip
-        IF AEncampment$ = "equipment" GOTO 235
-
-        IF AEncampment$ = "equip LH" THEN EQlh
-        IF AEncampment$ = "equip LH" GOTO 235
-
-        IF AEncampment$ = "equip RH" THEN EQrh
-        IF AEncampment$ = "equip RH" GOTO 235
-
-        IF AEncampment$ = "equip ARMOUR" THEN EqArmour
-        IF AEncampment$ = "equip ARMOUR" GOTO 235
-
-        IF AEncampment$ = "equip HEAD" THEN EqHead
-        IF AEncampment$ = "equip HEAD" GOTO 235
-
-        IF AEncampment$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 235
-            END IF
-        END IF
-
-        IF AEncampment$ = "use chaos star" THEN
-            IF A67PillarOn% = 1 THEN
-                COLOR 5
-                AEncampmentUsePillar% = 1
-
-                PRINT "You walk onto the burning chaos star, immediately you feel yourself being pulled to some far place."
-                SLEEP 5
-                COLOR 15
-                Act1Pt2
-            END IF
-        END IF
+    END IF
 
     ColorPrint 5, "huh?"
     GOTO 210
 
     'Area 1
-    240 CLS
+240 CLS
     PRINT "You slowly make your way down into the fiery pit, when you reach the"
     PRINT "bottom you notice a hidden passageway opening up into a dimly lit room."
     IF A1EnterPit% = 0 THEN
@@ -793,149 +739,100 @@ SUB ACT1
 
         GOTO 241
         END IF
-    241 CLS
+241 CLS
     PRINT "  You make your way into the fiery pit, all around you flames burn"
     PRINT "unnaturally, above you is a dark starless night but beside you looms"
-    PRINT "the dark labrynth."
-        BATTLECHANCE% = INT(RND * 100)
-        IF BATTLECHANCE% <= 15 THEN
-            ColorPrint 4, "BATTLE!"
-            SLEEP 2
-            BATTLE
+    PRINT "the dark labyrinth."
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        ColorPrint 4, "BATTLE!"
+        SLEEP 2
+        BATTLE
 
-            GOTO 241
-        END IF
+        GOTO 241
+    END IF
+
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "         up: The Camp"
     PRINT "         southeast: into the labrynth"
     COLOR 15
-    245 INPUT ">", A1$
+245 INPUT ">", A1$
 
     IF A1$ = "up" THEN GOTO 230
-
     IF A1$ = "southeast" THEN GOTO 250
 
-        IF A1$ = "help" THEN WorldHelp
-        IF A1$ = "help" GOTO 245
+    retVal% = commonCmds(A1$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 245
+        CASE 1
+            GOTO 241
+    END SELECT
 
-        IF A1$ = "menu" THEN MainMenu
-        IF A1$ = "menu" GOTO 245
-
-        IF A1$ = "describe" GOTO 241
-        IF A1$ = "describe" GOTO 245
-
-        IF A1$ = "stats" THEN displaystats
-        IF A1$ = "stats" GOTO 245
-
-        IF A1$ = "inventory" THEN displayinventory
-        IF A1$ = "inventory" GOTO 245
-
-        IF A1$ = "equipment" THEN displayequip
-        IF A1$ = "equipment" GOTO 245
-
-        IF A1$ = "equip LH" THEN EQlh
-        IF A1$ = "equip LH" GOTO 245
-
-        IF A1$ = "equip RH" THEN EQrh
-        IF A1$ = "equip RH" GOTO 245
-
-        IF A1$ = "equip ARMOUR" THEN EqArmour
-        IF A1$ = "equip ARMOUR" GOTO 245
-
-        IF A1$ = "equip HEAD" THEN EqHead
-        IF A1$ = "equip HEAD" GOTO 245
-
-        IF A1$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-            END IF
-        END IF
-
-        ColorPrint 5, "Huh?"
-
+    ColorPrint 5, "Huh?"
     GOTO 245
 
     'Area A2
 
-    250 CLS
+250 CLS
     PRINT "You enter a small room with two adjoining hallways."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 250
-        END IF
+        GOTO 250
+    END IF
+
     COLOR 5
     PRINT "There are three obvious exits:"
     PRINT "         east: hallway"
     PRINT "         west: hallway"
     PRINT "         northwest: fiery pit"
     COLOR 15
-    255 INPUT ">", A2$
-        IF A2$ = "east" GOTO 260
-        IF A2$ = "west" GOTO 270
-        IF A2$ = "northwest" GOTO 240
-        IF A2$ = "help" THEN WorldHelp
-        IF A2$ = "help" GOTO 255
-        IF A2$ = "menu" THEN MainMenu
-        IF A2$ = "menu" GOTO 225
-        IF A2$ = "describe" GOTO 250
-        IF A2$ = "describe" GOTO 255
-        IF A2$ = "stats" THEN displaystats
-        IF A2$ = "stats" GOTO 255
-        IF A2$ = "inventory" THEN displayinventory
-        IF A2$ = "inventory" GOTO 255
-        IF A2$ = "equipment" THEN displayequip
-        IF A2$ = "equipment" GOTO 255
-        IF A2$ = "equip LH" THEN EQlh
-        IF A2$ = "equip LH" GOTO 255
-        IF A2$ = "equip RH" THEN EQrh
-        IF A2$ = "equip RH" GOTO 255
-        IF A2$ = "equip ARMOUR" THEN EqArmour
-        IF A2$ = "equip ARMOUR" GOTO 255
-        IF A2$ = "equip HEAD" THEN EqHead
-        IF A2$ = "equip HEAD" GOTO 255
-        IF A2$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 255
-            END IF
-        END IF
+255 INPUT ">", A2$
+
+    IF A2$ = "east" GOTO 260
+    IF A2$ = "west" GOTO 270
+    IF A2$ = "northwest" GOTO 240
+
+    retVal% = commonCmds(A2$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 255
+        CASE 1
+            GOTO 250
+    END SELECT
+
     ColorPrint 5, "Huh?"
     GOTO 255
 
     'Area 4
-    260 CLS
+260 CLS
     PRINT "You are now standing in an intersection.  To the north is a tunnel"
     PRINT "To the east is a long corridor that falls into darkness. To the west"
     PRINT "is a small storage closet. The south hallway opens into a large room."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 260
-        END IF
+        GOTO 260
+    END IF
+
     COLOR 5
     PRINT "There are four obvious paths:"
     PRINT "         north: tunnel"
@@ -943,61 +840,43 @@ SUB ACT1
     PRINT "         west: storage room"
     PRINT "         south: large room"
     COLOR 15
-    265 INPUT ">", A4$
-        IF A4$ = "north" GOTO 250
-        IF A4$ = "east" GOTO 270
-        IF A4$ = "west" GOTO 290
-        IF A4$ = "south" GOTO 300
-        IF A4$ = "help" THEN WorldHelp
-        IF A4$ = "help" GOTO 265
-        IF A4$ = "describe" GOTO 260
-        IF A4$ = "describe" GOTO 265
-        IF A4$ = "stats" THEN displaystats
-        IF A4$ = "stats" GOTO 265
-        IF A4$ = "inventory" THEN displayinventory
-        IF A4$ = "inventory" GOTO 265
-        IF A4$ = "menu" THEN MainMenu
-        IF A4$ = "menu" GOTO 265
-        IF A4$ = "equipment" THEN displayequip
-        IF A4$ = "equipment" GOTO 265
-        IF A4$ = "equip LH" THEN EQlh
-        IF A4$ = "equip LH" GOTO 265
-        IF A4$ = "equip RH" THEN EQrh
-        IF A4$ = "equip RH" GOTO 265
-        IF A4$ = "equip ARMOUR" THEN EqArmour
-        IF A4$ = "equip ARMOUR" GOTO 265
-        IF A4$ = "equip HEAD" THEN EqHead
-        IF A4$ = "equip HEAD" GOTO 265
-        IF A4$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 265
-            END IF
-        END IF
+265 INPUT ">", A4$
+
+    IF A4$ = "north" GOTO 250
+    IF A4$ = "east" GOTO 270
+    IF A4$ = "west" GOTO 290
+    IF A4$ = "south" GOTO 300
+
+    retVal% = commonCmds(A4$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 265
+        CASE 1
+            GOTO 260
+    END SELECT
+
     ColorPrint 5, "huh?"
     GOTO 265
 
     'Area 5
-    270 CLS
+270 CLS
     PRINT "You look around.  This is an intersection of four paths.  To the north"
     PRINT "is a small bending tunnel.  To the east and west is a dark corridor. The"
     PRINT "south hallway leads into a large room."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 270
-        END IF
+        GOTO 270
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         north: bending hallway"
@@ -1005,69 +884,42 @@ SUB ACT1
     PRINT "         south: large room"
     PRINT "         west: long corridor"
     COLOR 15
-    275 INPUT ">", A5$
-        IF A5$ = "north" GOTO 250
-        IF A5$ = "east" GOTO 280
-        IF A5$ = "south" GOTO 310
-        IF A5$ = "west" GOTO 260
+275 INPUT ">", A5$
 
-        IF A5$ = "help" THEN WorldHelp
-        IF A5$ = "help" GOTO 275
+    IF A5$ = "north" GOTO 250
+    IF A5$ = "east" GOTO 280
+    IF A5$ = "south" GOTO 310
+    IF A5$ = "west" GOTO 260
 
-        IF A5$ = "menu" THEN MainMenu
-        IF A5$ = "menu" GOTO 275
+    retVal% = commonCmds(A5$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 275
+        CASE 1
+            GOTO 270
+    END SELECT
 
-        IF A5$ = "describe" GOTO 270
-        IF A5$ = "describe" GOTO 275
-
-        IF A5$ = "stats" THEN displaystats
-        IF A5$ = "stats" GOTO 275
-
-        IF A5$ = "inventory" THEN displayinventory
-        IF A5$ = "inventory" GOTO 275
-
-        IF A5$ = "equipment" THEN displayequip
-        IF A5$ = "equipment" GOTO 275
-
-        IF A5$ = "equip LH" THEN EQlh
-        IF A5$ = "equip LH" GOTO 275
-
-        IF A5$ = "equip RH" THEN EQrh
-        IF A5$ = "equip RH" GOTO 275
-
-        IF A5$ = "equip ARMOUR" THEN EqArmour
-        IF A5$ = "equip ARMOUR" GOTO 275
-        IF A5$ = "equip HEAD" THEN EqHead
-        IF A5$ = "equip HEAD" GOTO 225
-        IF A5$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 275
-            END IF
-        END IF
     ColorPrint 5, "huh?"
     GOTO 275
 
     'Area 6
-    280 CLS
+280 CLS
     PRINT "This is a small junction of two hallways.  To the west is a long dark"
     PRINT "tunnel.  To the east is the entrance to a large hall."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 270
-        END IF
+        GOTO 270
+    END IF
+
     COLOR 5
     PRINT ""
     PRINT "There are two obvious exits:"
@@ -1075,149 +927,88 @@ SUB ACT1
     PRINT "         south: large hall"
     COLOR 15
     PRINT ""
-    285 INPUT ">", A6$
-        IF A6$ = "west" GOTO 270
-        IF A6$ = "south" GOTO 320
+285 INPUT ">", A6$
 
-        IF A6$ = "help" THEN WorldHelp
-        IF A6$ = "help" GOTO 285
+    IF A6$ = "west" GOTO 270
+    IF A6$ = "south" GOTO 320
 
-        IF A6$ = "menu" THEN MainMenu
-        IF A6$ = "menu" GOTO 285
-
-        IF A6$ = "describe" GOTO 280
-        IF A6$ = "describe" GOTO 285
-
-        IF A6$ = "stats" THEN displaystats
-        IF A6$ = "stats" GOTO 285
-
-        IF A6$ = "inventory" THEN displayinventory
-        IF A6$ = "inventory" GOTO 285
-
-        IF A6$ = "equipment" THEN displayequip
-        IF A6$ = "equipment" GOTO 285
-
-        IF A6$ = "equip LH" THEN EQlh
-        IF A6$ = "equip LH" GOTO 285
-
-        IF A6$ = "equip RH" THEN EQrh
-        IF A6$ = "equip RH" GOTO 285
-
-        IF A6$ = "equip ARMOUR" THEN EqArmour
-        IF A6$ = "equip ARMOUR" GOTO 285
-
-        IF A6$ = "equip HEAD" THEN EqHead
-        IF A6$ = "equip HEAD" GOTO 285
-
-        IF A6$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 285
-            END IF
-        END IF
+    retVal% = commonCmds(A6$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 285
+        CASE 1
+            GOTO 280
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 285
 
     'Area 3
-    290 CLS
+290 CLS
     PRINT "You have entered the storage room, it seems as it should except for the"
     PRINT "corpse lying propped against a wall.  On the shelves are several broken"
     PRINT "bottles possibly containing potions at one time."
     IF A3LS% = 0 THEN
         ColorPrint 5, "There is a long sword sitting on a shelf"
-        END IF
+    END IF
+
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+        IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 290
-        END IF
+        GOTO 290
+    END IF
+
     COLOR 5
     PRINT "There is one obvious exit:"
     PRINT "         East: The corridor"
     COLOR 15
-    295 INPUT ">", A3$
-        IF A3$ = "east" GOTO 260
+295 INPUT ">", A3$
+    IF A3$ = "east" GOTO 260
 
-        IF A3$ = "get long sword" THEN
-            IF A3LS% = 0 THEN
-                A3LS% = 1
-                Inventory(ITEM_LONG_SWORD).amount = Inventory(ITEM_LONG_SWORD).amount + 1
-                ColorPrint 5, "Got long sword"
-                GOTO 295
-                END IF
-        END IF
-
-        IF A3$ = "examine corpse" THEN
-            IF A3Corpse% = 0 THEN
-                A3Corpse% = 1
-                COLOR 5
-                PRINT "You examine the corpse and find 50 gold coins"
-                Gold& = Gold& + 50
-                ColorPrint 3, "All of a sudden the corpse lunges towards you!"
-                SLEEP 4
-                BATTLE
-
-                GOTO 290
-                END IF
+    IF A3$ = "get long sword" THEN
+        IF A3LS% = 0 THEN
+            A3LS% = 1
+            Inventory(ITEM_LONG_SWORD).amount = Inventory(ITEM_LONG_SWORD).amount + 1
+            ColorPrint 5, "Got long sword"
+            GOTO 295
             END IF
+    END IF
 
-        IF A3$ = "help" THEN WorldHelp
-        IF A3$ = "help" GOTO 295
+    IF A3$ = "examine corpse" THEN
+        IF A3Corpse% = 0 THEN
+            A3Corpse% = 1
+            COLOR 5
+            PRINT "You examine the corpse and find 50 gold coins"
+            Gold& = Gold& + 50
+            ColorPrint 3, "All of a sudden the corpse lunges towards you!"
+            SLEEP 4
+            BATTLE
 
-        IF A3$ = "menu" THEN MainMenu
-        IF A3$ = "menu" GOTO 295
-
-        IF A3$ = "describe" GOTO 290
-        IF A3$ = "describe" GOTO 295
-
-        IF A3$ = "stats" THEN displaystats
-        IF A3$ = "stats" GOTO 295
-
-        IF A3$ = "inventory" THEN displayinventory
-        IF A3$ = "inventory" GOTO 295
-
-        IF A3$ = "equipment" THEN displayequip
-        IF A3$ = "equipment" GOTO 295
-
-        IF A3$ = "equip LH" THEN EQlh
-        IF A3$ = "equip LH" GOTO 295
-
-        IF A3$ = "equip RH" THEN EQrh
-        IF A3$ = "equip RH" GOTO 295
-
-        IF A3$ = "equip ARMOUR" THEN EqArmour
-        IF A3$ = "equip ARMOUR" GOTO 295
-
-        IF A3$ = "equip HEAD" THEN EqHead
-        IF A3$ = "equip HEAD" GOTO 295
-
-        IF A3$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 295
+            GOTO 290
             END IF
         END IF
+
+    retVal% = commonCmds(A3$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 295
+        CASE 1
+            GOTO 290
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 295
 
     'Area 8
-    300 CLS
+300 CLS
     PRINT "    You are now standing...in a hall of horror.  Littered all around"
     PRINT "are corpses of dwarfs and humans.  Some lay on tables with cut marks"
     PRINT "on their bodies.  Some are fresh and still leak blood. You turn your"
@@ -1225,18 +1016,19 @@ SUB ACT1
     PRINT "north is a small corridor.  To the west lies a small room which appears"
     PRINT "to be a spiral staircase, and to the east remains the rest of this"
     PRINT "great hall of horror."
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 30 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 30 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 300
-        END IF
+        GOTO 300
+    END IF
+
     PRINT ""
     COLOR 5
     PRINT "There are three obvious exits:"
@@ -1244,60 +1036,42 @@ SUB ACT1
     PRINT "         East: Mid section of hall"
     PRINT "         West: Spiral Staircase"
     COLOR 15
-    305 INPUT ">", A8$
-        IF A8$ = "north" GOTO 260
-        IF A8$ = "east" GOTO 310
-        IF A8$ = "west" GOTO 330
-        IF A8$ = "help" THEN WorldHelp
-        IF A8$ = "help" GOTO 305
-        IF A8$ = "menu" THEN MainMenu
-        IF A8$ = "menu" GOTO 305
-        IF A8$ = "describe" GOTO 300
-        IF A8$ = "stats" THEN displaystats
-        IF A8$ = "stats" GOTO 305
-        IF A8$ = "inventory" THEN displayinventory
-        IF A8$ = "inventory" GOTO 305
-        IF A8$ = "equipment" THEN displayequip
-        IF A8$ = "equipment" GOTO 305
-        IF A8$ = "equip LH" THEN EQlh
-        IF A8$ = "equip LH" GOTO 305
-        IF A8$ = "equip RH" THEN EQrh
-        IF A8$ = "equip RH" GOTO 305
-        IF A8$ = "equip ARMOUR" THEN EqArmour
-        IF A8$ = "equip ARMOUR" GOTO 305
-        IF A8$ = "equip HEAD" THEN EqHead
-        IF A8$ = "equip HEAD" GOTO 305
-        IF A8$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 305
-            END IF
-        END IF
+305 INPUT ">", A8$
+
+    IF A8$ = "north" GOTO 260
+    IF A8$ = "east" GOTO 310
+    IF A8$ = "west" GOTO 330
+
+    retVal% = commonCmds(A8$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 305
+        CASE 1
+            GOTO 300
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 305
 
     'Area 7
-    310 CLS
+310 CLS
     PRINT "  This room is dominated by corpses and blood.  You begin to feel an urge"
     PRINT "to leave this evil hall and quickly search for exits. To the north lies"
     PRINT "a small corridor.  To the east and west lie the rest of the hall. To the"
     PRINT "south is a small dark passageway."
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 30 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 30 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 310
-        END IF
+        GOTO 310
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         North: small corridor"
@@ -1305,294 +1079,179 @@ SUB ACT1
     PRINT "         West: Grand Hall"
     PRINT "         South: Small passageway"
     COLOR 15
-    315 INPUT ">", A7$
-        IF A7$ = "north" GOTO 270
-        IF A7$ = "east" GOTO 320
-        IF A7$ = "west" GOTO 300
-        IF A7$ = "south" GOTO 360
+315 INPUT ">", A7$
 
-        IF A7$ = "help" THEN WorldHelp
-        IF A7$ = "help" GOTO 315
+    IF A7$ = "north" GOTO 270
+    IF A7$ = "east" GOTO 320
+    IF A7$ = "west" GOTO 300
+    IF A7$ = "south" GOTO 360
 
-        IF A7$ = "menu" THEN MainMenu
-        IF A7$ = "menu" GOTO 225
-
-        IF A7$ = "describe" GOTO 310
-        IF A7$ = "describe" GOTO 315
-
-        IF A7$ = "stats" THEN displaystats
-        IF A7$ = "stats" GOTO 315
-
-        IF A7$ = "inventory" THEN displayinventory
-        IF A7$ = "inventory" GOTO 315
-
-        IF A7$ = "equipment" THEN displayequip
-        IF A7$ = "equipment" GOTO 315
-
-        IF A7$ = "equip LH" THEN EQlh
-        IF A7$ = "equip LH" GOTO 315
-
-        IF A7$ = "equip RH" THEN EQrh
-        IF A7$ = "equip RH" GOTO 315
-
-        IF A7$ = "equip ARMOUR" THEN EqArmour
-        IF A7$ = "equip ARMOUR" GOTO 315
-        IF A7$ = "equip HEAD" THEN EqHead
-        IF A7$ = "equip HEAD" GOTO 315
-        IF A7$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 315
-            END IF
-        END IF
+    retVal% = commonCmds(A7$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 315
+        CASE 1
+            GOTO 310
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 315
 
     'Area 9
-    320 CLS
+320 CLS
     PRINT "    You are standing at the head of this hallway dominated by corpses."
     PRINT "You hear the scuttering of undead minions nearby and decide to move"
     PRINT "away from this hallway quickly.  To the north is a small corridor. To"
     PRINT "the west is the rest of the hall.  To the east lies a stage with a "
     PRINT "large throne on top."
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 30 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 30 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 320
-        END IF
+        GOTO 320
+    END IF
+
     COLOR 5
     PRINT "There are three obvious exits:"
     PRINT "         North: Small corridor"
     PRINT "         West: Hall"
     PRINT "         East: Stage"
     COLOR 15
-    325 INPUT ">", A9$
-        IF A9$ = "north" GOTO 280
-        IF A9$ = "west" GOTO 310
-        IF A9$ = "east" GOTO 340
+325 INPUT ">", A9$
 
-        IF A9$ = "help" THEN WorldHelp
-        IF A9$ = "help" GOTO 325
+    IF A9$ = "north" GOTO 280
+    IF A9$ = "west" GOTO 310
+    IF A9$ = "east" GOTO 340
 
-        IF A9$ = "menu" THEN MainMenu
-        IF A9$ = "menu" GOTO 325
-
-        IF A9$ = "describe" GOTO 320
-        IF A9$ = "describe" GOTO 325
-
-        IF A9$ = "stats" THEN displaystats
-        IF A9$ = "stats" GOTO 325
-
-        IF A9$ = "inventory" THEN displayinventory
-        IF A9$ = "inventory" GOTO 325
-
-        IF A9$ = "equipment" THEN displayequip
-        IF A9$ = "equipment" GOTO 325
-
-        IF A9$ = "equip LH" THEN EQlh
-        IF A9$ = "equip LH" GOTO 325
-
-        IF A9$ = "equip RH" THEN EQrh
-        IF A9$ = "equip RH" GOTO 325
-
-        IF A9$ = "equip ARMOUR" THEN EqArmour
-        IF A9$ = "equip ARMOUR" GOTO 325
-        IF A9$ = "equip HEAD" THEN EqHead
-        IF A9$ = "equip HEAD" GOTO 325
-        IF A9$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 325
-            END IF
-        END IF
+    retVal% = commonCmds(A9$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 325
+        CASE 1
+            GOTO 320
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 325
 
     'Area 10
-    330 CLS
+330 CLS
     PRINT "You have entered the room which contains a spiral staircase.  Other"
     PRINT "than the staircase the room seems blank."
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 330
-        END IF
+        GOTO 330
+    END IF
+
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "         East: The great hall"
     PRINT "         Down: The spiral staircase"
     COLOR 15
-    335 INPUT ">", A10$
-        IF A10$ = "down" GOTO 500
-        IF A10$ = "east" GOTO 300
+335 INPUT ">", A10$
 
-        IF A10$ = "help" THEN WorldHelp
-        IF A10$ = "help" GOTO 335
+    IF A10$ = "down" GOTO 500
+    IF A10$ = "east" GOTO 300
 
-        IF A10$ = "menu" THEN MainMenu
-        IF A10$ = "menu" GOTO 335
-
-        IF A10$ = "describe" GOTO 330
-        IF A10$ = "describe" GOTO 335
-
-        IF A10$ = "stats" THEN displaystats
-        IF A10$ = "stats" GOTO 335
-
-        IF A10$ = "inventory" THEN displayinventory
-        IF A10$ = "inventory" GOTO 335
-
-        IF A10$ = "equipment" THEN displayequip
-        IF A10$ = "equipment" GOTO 335
-
-        IF A10$ = "equip LH" THEN EQlh
-        IF A10$ = "equip LH" GOTO 335
-
-        IF A10$ = "equip RH" THEN EQrh
-        IF A10$ = "equip RH" GOTO 335
-
-        IF A10$ = "equip ARMOUR" THEN EqArmour
-        IF A10$ = "equip ARMOUR" GOTO 335
-        IF A10$ = "equip HEAD" THEN EqHead
-        IF A10$ = "equip HEAD" GOTO 335
-        IF A10$ = "use potion" THEN
-               IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 335
-            END IF
-        END IF
+    retVal% = commonCmds(A10$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 335
+        CASE 1
+            GOTO 330
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 335
 
     'Area 11
-    340 CLS
+340 CLS
     PRINT "   You are now standing on the stage, corpses here appear to be crucified"
     PRINT "There is a large throne sitting in the middle of the stage."
     IF GoldenSkullTaken% = 0 THEN
         ColorPrint 5, "There is a golden skull sitting in the middle of the throne"
     END IF
 
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 340
-        END IF
+        GOTO 340
+    END IF
+
     COLOR 5
-    IF ThroneSwitch% = 1 THEN PRINT "There are two obvious exits:"
-    IF ThroneSwitch% = 1 THEN PRINT "       West: The Great Hall"
-    IF ThroneSwitch% = 1 THEN PRINT "       East: The hidden passageway"
-
-    IF ThroneSwitch% = 0 THEN PRINT "There is one obvious exit:"
-    IF ThroneSwitch% = 0 THEN PRINT "        West: The Great Hall"
+    IF ThroneSwitch% = 1 THEN
+        PRINT "There are two obvious exits:"
+        PRINT "       West: The Great Hall"
+        PRINT "       East: The hidden passageway"
+    ELSE
+        PRINT "There is one obvious exit:"
+        PRINT "        West: The Great Hall"
+    END IF
     COLOR 15
-    345 INPUT ">", A11$
-        IF A11$ = "west" GOTO 320
+345 INPUT ">", A11$
 
-        IF A11$ = "east" THEN
-            IF ThroneSwitch% = 1 GOTO 350
+    IF A11$ = "west" GOTO 320
+    IF A11$ = "east" THEN
+        IF ThroneSwitch% = 1 GOTO 350
+    END IF
+
+    IF A11$ = "get golden skull" THEN
+        IF GoldenSkullTaken% = 0 THEN
+            Inventory(QITEM_GOLDEN_SKULL).amount = 1
+            ColorPrint 5, "Got golden skull"
+            GoldenSkullTaken% = 1
+            GOTO 345
         END IF
+    END IF
 
-        IF A11$ = "get golden skull" THEN
-            IF GoldenSkullTaken% = 0 THEN
-                Inventory(QITEM_GOLDEN_SKULL).amount = 1
-                ColorPrint 5, "Got golden skull"
-                GoldenSkullTaken% = 1
-                GOTO 345
-            END IF
+    IF A11$ = "examine throne" THEN
+        IF ThroneSwitch% = 0 THEN
+            COLOR 3
+            PRINT "You take a close look at the throne, you reveal a switch and decide to"
+            PRINT "press it, at the EAST end of the stage a wall section moves aside"
+            PRINT "revealing a hidden passageway"
+            ThroneSwitch% = 1
+            COLOR 15
+        ELSE
+            ColorPrint 5, "There's no need to examine it again."
         END IF
+        GOTO 345
+    END IF
 
-        IF A11$ = "examine throne" THEN
-            IF ThroneSwitch% = 0 THEN
-                COLOR 3
-                PRINT "You take a close look at the throne, you reveal a switch and decide to"
-                PRINT "press it, at the EAST end of the stage a wall section moves aside"
-                PRINT "revealing a hidden passageway"
-                ThroneSwitch% = 1
-                COLOR 15
-                GOTO 345
-            END IF
-
-            IF ThroneSwitch% = 1 THEN
-                ColorPrint 5, "There's no need to examine it again."
-                GOTO 345
-            END IF
-        END IF
-
-        IF A11$ = "help" THEN WorldHelp
-        IF A11$ = "help" GOTO 345
-
-        IF A11$ = "menu" THEN MainMenu
-        IF A11$ = "menu" GOTO 345
-
-        IF A11$ = "describe" GOTO 340
-        IF A11$ = "describe" GOTO 345
-
-        IF A11$ = "stats" THEN displaystats
-        IF A11$ = "stats" GOTO 345
-
-        IF A11$ = "inventory" THEN displayinventory
-        IF A11$ = "inventory" GOTO 345
-
-        IF A11$ = "equipment" THEN displayequip
-        IF A11$ = "equipment" GOTO 345
-
-        IF A11$ = "equip LH" THEN EQlh
-        IF A11$ = "equip LH" GOTO 345
-
-        IF A11$ = "equip RH" THEN EQrh
-        IF A11$ = "equip RH" GOTO 345
-
-        IF A11$ = "equip ARMOUR" THEN EqArmour
-        IF A11$ = "equip ARMOUR" GOTO 345
-        IF A11$ = "equip HEAD" THEN EqHead
-        IF A11$ = "equip HEAD" GOTO 345
-        IF A11$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 345
-            END IF
-        END IF
+    retVal% = commonCmds(A11$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 345
+        CASE 1
+            GOTO 340
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 345
 
     'Area 12
-    350 CLS
+350 CLS
     LadderUp% = 0
     PRINT "   You enter the secret room behind the throne. The room seems bare"
     PRINT "except for the table in the middle and the ladder in the southeast"
@@ -1601,114 +1260,86 @@ SUB ACT1
         COLOR 5
         PRINT "You see "; A12Potions%; " potion(s) lying on the ground"
         COLOR 15
-        END IF
+    END IF
 
     IF A12ShieldPlusTwo% = 0 THEN
         ColorPrint 5, "You see a special shield lying on the table"
-        END IF
+    END IF
 
     IF A12SwordPlusTwo% = 0 THEN
         ColorPrint 5, "You see a special sword mounted on the wall"
-        END IF
+    END IF
 
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "         West: The Stage"
     PRINT "         Down: The Ladder"
     COLOR 15
-    355 INPUT ">", A12$
-        IF A12$ = "west" GOTO 340
-        IF A12$ = "down" THEN
-            LadderDown% = 1
-            Act1Pt2
+355 INPUT ">", A12$
+
+    IF A12$ = "west" GOTO 340
+    IF A12$ = "down" THEN
+        LadderDown% = 1
+        Act1Pt2
+    END IF
+
+    IF A12$ = "get potion" THEN
+        IF A12Potions% >= 1 THEN
+            A12Potions% = A12Potions% - 1
+            ColorPrint 5, "Got one Potion"
+            Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
+            GOTO 355
         END IF
+    END IF
 
-        IF A12$ = "get potion" THEN
-            IF A12Potions% >= 1 THEN
-                A12Potions% = A12Potions% - 1
-                ColorPrint 5, "Got one Potion"
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount + 1
-                GOTO 355
-            END IF
+    IF A12$ = "get special sword" THEN
+        IF A12SwordPlusTwo% = 0 THEN
+            A12SwordPlusTwo% = 1
+            ColorPrint 5, "You pick up the sword and realize it is a Sword +2, rare."
+            Inventory(ITEM_SWORD_PLUS_TWO).amount = Inventory(ITEM_SWORD_PLUS_TWO).amount + 1
+            GOTO 355
         END IF
+    END IF
 
-        IF A12$ = "get special sword" THEN
-            IF A12SwordPlusTwo% = 0 THEN
-                A12SwordPlusTwo% = 1
-                ColorPrint 5, "You pick up the sword and realize it is a Sword +2, rare."
-                Inventory(ITEM_SWORD_PLUS_TWO).amount = Inventory(ITEM_SWORD_PLUS_TWO).amount + 1
-                GOTO 355
-            END IF
+    IF A12$ = "get special shield" THEN
+        IF A12ShieldPlusTwo% = 0 THEN
+            A12ShieldPlusTwo% = 1
+            ColorPrint 5, "You picked up the shield, it is a Shield +2"
+            Inventory(ITEM_SHIELD_PLUS_TWO).amount = Inventory(ITEM_SHIELD_PLUS_TWO).amount + 1
+            GOTO 355
         END IF
+    END IF
 
-        IF A12$ = "get special shield" THEN
-            IF A12ShieldPlusTwo% = 0 THEN
-                A12ShieldPlusTwo% = 1
-                ColorPrint 5, "You picked up the shield, it is a Shield +2"
-                Inventory(ITEM_SHIELD_PLUS_TWO).amount = Inventory(ITEM_SHIELD_PLUS_TWO).amount + 1
-                GOTO 355
-            END IF
-        END IF
-
-        IF A12$ = "help" THEN WorldHelp
-        IF A12$ = "help" GOTO 355
-
-        IF A12$ = "menu" THEN MainMenu
-        IF A12$ = "menu" GOTO 355
-
-        IF A12$ = "describe" GOTO 350
-        IF A12$ = "describe" GOTO 355
-
-        IF A12$ = "stats" THEN displaystats
-        IF A12$ = "stats" GOTO 355
-
-        IF A12$ = "inventory" THEN displayinventory
-        IF A12$ = "inventory" GOTO 355
-
-        IF A12$ = "equipment" THEN displayequip
-        IF A12$ = "equipment" GOTO 355
-
-        IF A12$ = "equip LH" THEN EQlh
-        IF A12$ = "equip LH" GOTO 355
-
-        IF A12$ = "equip RH" THEN EQrh
-        IF A12$ = "equip RH" GOTO 355
-
-        IF A12$ = "equip ARMOUR" THEN EqArmour
-        IF A12$ = "equip ARMOUR" GOTO 355
-        IF A12$ = "equip HEAD" THEN EqHead
-        IF A12$ = "equip HEAD" GOTO 355
-        IF A12$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 355
-            END IF
-        END IF
+    retVal% = commonCmds(A12$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 355
+        CASE 1
+            GOTO 350
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 355
 
     'Area 13
-    360 CLS
+360 CLS
     PRINT "    You enter the dark hallway, the surrounding area appears to be"
     PRINT "jail cells, skeletons seem to inhabit these once empty rooms. There"
     PRINT "are a total of three jail cells to the east, west and south."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 360
-        END IF
+        GOTO 360
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         North: The Great Hall"
@@ -1716,358 +1347,215 @@ SUB ACT1
     PRINT "         South: Jail Cell"
     PRINT "         West: Jail Cell"
     COLOR 15
-    365 INPUT ">", A13$
-        IF A13$ = "north" GOTO 310
-        IF A13$ = "east" GOTO 370
-        IF A13$ = "south" GOTO 380
-        IF A13$ = "west" GOTO 390
+365 INPUT ">", A13$
 
-        IF A13$ = "help" THEN WorldHelp
-        IF A13$ = "help" GOTO 365
+    IF A13$ = "north" GOTO 310
+    IF A13$ = "east" GOTO 370
+    IF A13$ = "south" GOTO 380
+    IF A13$ = "west" GOTO 390
 
-        IF A13$ = "menu" THEN MainMenu
-        IF A13$ = "menu" GOTO 365
-
-        IF A13$ = "describe" GOTO 300
-        IF A13$ = "describe" GOTO 365
-
-        IF A13$ = "stats" THEN displaystats
-        IF A13$ = "stats" GOTO 365
-
-        IF A13$ = "inventory" THEN displayinventory
-        IF A13$ = "inventory" GOTO 365
-
-        IF A13$ = "equipment" THEN displayequip
-        IF A13$ = "equipment" GOTO 365
-
-        IF A13$ = "equip LH" THEN EQlh
-        IF A13$ = "equip LH" GOTO 365
-
-        IF A13$ = "equip RH" THEN EQrh
-        IF A13$ = "equip RH" GOTO 365
-
-        IF A13$ = "equip ARMOUR" THEN EqArmour
-        IF A13$ = "equip ARMOUR" GOTO 365
-        IF A13$ = "equip HEAD" THEN EqHead
-        IF A13$ = "equip HEAD" GOTO 365
-
-        IF A13$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 365
-            END IF
-        END IF
+    retVal% = commonCmds(A13$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 365
+        CASE 1
+            GOTO 360
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 365
 
     'Area 14
-    370 CLS
+370 CLS
     PRINT "   You enter a jail cell inhabited by one skeleton."
     IF A14Key1% = 0 THEN
         ColorPrint 5, "The skeleton seems to have some kind of key in its mouth"
     END IF
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 370
-        END IF
+        GOTO 370
+    END IF
+
     COLOR 5
     PRINT "There is one obvious exit:"
     PRINT "         West: The hallway"
     COLOR 15
-    375 INPUT ">", A14$
-        IF A14$ = "west" GOTO 360
+375 INPUT ">", A14$
 
-        IF A14$ = "get key" THEN
-            IF A14Key1% = 0 THEN
-                ColorPrint 5, "Got a key, type 1"
-                Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount + 1
-                A14Key1% = 1
-                GOTO 375
-            END IF
+    IF A14$ = "west" GOTO 360
+
+    IF A14$ = "get key" THEN
+        IF A14Key1% = 0 THEN
+            ColorPrint 5, "Got a key, type 1"
+            Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount + 1
+            A14Key1% = 1
+            GOTO 375
         END IF
+    END IF
 
-        IF A14$ = "help" THEN WorldHelp
-        IF A14$ = "help" GOTO 375
-
-        IF A14$ = "menu" THEN MainMenu
-        IF A14$ = "menu" GOTO 375
-
-        IF A14$ = "describe" GOTO 370
-        IF A14$ = "describe" GOTO 375
-
-        IF A14$ = "stats" THEN displaystats
-        IF A14$ = "stats" GOTO 375
-
-        IF A14$ = "inventory" THEN displayinventory
-        IF A14$ = "inventory" GOTO 375
-
-        IF A14$ = "equipment" THEN displayequip
-        IF A14$ = "equipment" GOTO 375
-
-        IF A14$ = "equip LH" THEN EQlh
-        IF A14$ = "equip LH" GOTO 375
-
-        IF A14$ = "equip RH" THEN EQrh
-        IF A14$ = "equip RH" GOTO 375
-
-        IF A14$ = "equip ARMOUR" THEN EqArmour
-        IF A14$ = "equip ARMOUR" GOTO 375
-        IF A14$ = "equip HEAD" THEN EqHead
-        IF A14$ = "equip HEAD" GOTO 375
-
-        IF A14$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 375
-            END IF
-        END IF
+    retVal% = commonCmds(A14$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 375
+        CASE 1
+            GOTO 370
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 375
 
     'Area 15
-    380 CLS
+380 CLS
     PRINT "You enter this cell which, except for a few skeletons, seems to be bare."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 380
-        END IF
+        GOTO 380
+    END IF
+
     COLOR 5
     PRINT "There is one obvious exit:"
     PRINT "         North: The Hallway"
     COLOR 15
-    385 INPUT ">", A15$
-        IF A15$ = "north" GOTO 360
+385 INPUT ">", A15$
 
-        IF A15$ = "help" THEN WorldHelp
-        IF A15$ = "help" GOTO 385
+    IF A15$ = "north" GOTO 360
 
-        IF A15$ = "menu" THEN MainMenu
-        IF A15$ = "menu" GOTO 385
-
-        IF A15$ = "describe" GOTO 380
-        IF A15$ = "describe" GOTO 385
-
-        IF A15$ = "stats" THEN displaystats
-        IF A15$ = "stats" GOTO 385
-
-        IF A15$ = "inventory" THEN displayinventory
-        IF A15$ = "inventory" GOTO 385
-
-        IF A15$ = "equipment" THEN displayequip
-        IF A15$ = "equipment" GOTO 385
-
-        IF A15$ = "equip LH" THEN EQlh
-        IF A15$ = "equip LH" GOTO 385
-
-        IF A15$ = "equip RH" THEN EQrh
-        IF A15$ = "equip RH" GOTO 385
-
-        IF A15$ = "equip ARMOUR" THEN EqArmour
-        IF A15$ = "equip ARMOUR" GOTO 385
-        IF A15$ = "equip HEAD" THEN EqHead
-        IF A15$ = "equip HEAD" GOTO 385
-
-        IF A15$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 385
-            END IF
-        END IF
+    retVal% = commonCmds(A15$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 385
+        CASE 1
+            GOTO 380
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 385
 
     'Area 16
-    390 CLS
+390 CLS
     PRINT "The western jail cell is completely bare and devoid of any objects."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 390
-        END IF
+        GOTO 390
+    END IF
+
     COLOR 5
     PRINT "There is one obvious exit:"
     PRINT "         East: The Hallway"
     COLOR 15
-    395 INPUT ">", A16$
-        IF A16$ = "east" GOTO 360
+395 INPUT ">", A16$
 
-        IF A16$ = "help" THEN WorldHelp
-        IF A16$ = "help" GOTO 395
+    IF A16$ = "east" GOTO 360
 
-        IF A16$ = "menu" THEN MainMenu
-        IF A16$ = "menu" GOTO 395
-
-        IF A16$ = "describe" GOTO 390
-        IF A16$ = "describe" GOTO 395
-
-        IF A16$ = "stats" THEN displaystats
-        IF A16$ = "stats" GOTO 395
-
-        IF A16$ = "inventory" THEN displayinventory
-        IF A16$ = "inventory" GOTO 395
-
-        IF A16$ = "equipment" THEN displayequip
-        IF A16$ = "equipment" GOTO 395
-
-        IF A16$ = "equip LH" THEN EQlh
-        IF A16$ = "equip LH" GOTO 395
-
-        IF A16$ = "equip RH" THEN EQrh
-        IF A16$ = "equip RH" GOTO 395
-
-        IF A16$ = "equip ARMOUR" THEN EqArmour
-        IF A16$ = "equip ARMOUR" GOTO 395
-        IF A16$ = "equip HEAD" THEN EqHead
-        IF A16$ = "equip HEAD" GOTO 395
-
-        IF A16$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 395
-            END IF
-        END IF
+    retVal% = commonCmds(A16$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 395
+        CASE 1
+            GOTO 390
+    END SELECT
 
     ColorPrint 5, "Huh?"
     GOTO 395
 
     'Area 17
-    500 CLS
+500 CLS
     PRINT "   You are now at the bottom of the spiral staircase.  A small hallway"
     PRINT "to the east opens up into a large spacious room with a burning fire in"
     PRINT "the middle of this room."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 500
-        END IF
+        GOTO 500
+    END IF
+
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "         Up: The Spiral Staircase"
     PRINT "         East: The large room"
     COLOR 15
-    505 INPUT ">", A17$
-        IF A17$ = "up" GOTO 330
-        IF A17$ = "east" GOTO 510
+505 INPUT ">", A17$
 
-        IF A17$ = "help" THEN WorldHelp
-        IF A17$ = "help" GOTO 505
+    IF A17$ = "up" GOTO 330
+    IF A17$ = "east" GOTO 510
 
-        IF A17$ = "menu" THEN MainMenu
-        IF A17$ = "menu" GOTO 500
+    retVal% = commonCmds(A17$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 505
+        CASE 1
+            GOTO 500
+    END SELECT
 
-        IF A17$ = "describe" GOTO 500
-
-        IF A17$ = "stats" THEN displaystats
-        IF A17$ = "stats" GOTO 505
-
-        IF A17$ = "inventory" THEN displayinventory
-        IF A17$ = "inventory" GOTO 505
-
-        IF A17$ = "equipment" THEN displayequip
-        IF A17$ = "equipment" GOTO 505
-
-        IF A17$ = "equip LH" THEN EQlh
-        IF A17$ = "equip LH" GOTO 505
-
-        IF A17$ = "equip RH" THEN EQrh
-        IF A17$ = "equip RH" GOTO 505
-
-        IF A17$ = "equip ARMOUR" THEN EqArmour
-        IF A17$ = "equip ARMOUR" GOTO 505
-        IF A17$ = "equip HEAD" THEN EqHead
-        IF A17$ = "equip HEAD" GOTO 505
-
-        IF A17$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 505
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 505
 
     'Area 18
-    510 CLS
+510 CLS
     PRINT "You have entered a large room with stone walls.  Several pillars dominate"
     PRINT "the area.";
     IF ChaosStarInsert% = 0 THEN
-    PRINT "There is a large burning fire in the center of the room, which "
-    PRINT "appears to have the form of a chaos star."
+        PRINT "There is a large burning fire in the center of the room, which "
+        PRINT "appears to have the form of a chaos star."
     END IF
 
     IF ChaosStarInsert% = 1 THEN
-    PRINT "The large burning fire in the center of the room seems to be"
-    PRINT "small enough for you to pass.  In the center of the flames you can see a"
-    PRINT "table with a dead corpse."
+        PRINT "The large burning fire in the center of the room seems to be"
+        PRINT "small enough for you to pass.  In the center of the flames you can see a"
+        PRINT "table with a dead corpse."
         IF StrangePendantTaken% = 0 THEN
             ColorPrint 5, "As you lean closer you see the corpse is grasping a strange pendant."
         END IF
     END IF
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 510
-        END IF
+        GOTO 510
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         West: The spiral staircase."
@@ -2075,68 +1563,39 @@ SUB ACT1
     PRINT "         East: Tunnel"
     PRINT "         South: Tunnel"
     COLOR 15
-    515 INPUT ">", A18$
-        IF A18$ = "west" GOTO 500
-        IF A18$ = "north" GOTO 520
-        IF A18$ = "east" GOTO 530
-        IF A18$ = "south" GOTO 540
+515 INPUT ">", A18$
 
-        IF A18$ = "help" THEN WorldHelp
-        IF A18$ = "help" GOTO 515
+    IF A18$ = "west" GOTO 500
+    IF A18$ = "north" GOTO 520
+    IF A18$ = "east" GOTO 530
+    IF A18$ = "south" GOTO 540
 
-        IF A18$ = "menu" THEN MainMenu
-        IF A18$ = "menu" GOTO 510
+    retVal% = commonCmds(A18$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 515
+        CASE 1
+            GOTO 510
+    END SELECT
 
-        IF A18$ = "describe" GOTO 510
-
-        IF A18$ = "stats" THEN displaystats
-        IF A18$ = "stats" GOTO 515
-
-        IF A18$ = "inventory" THEN displayinventory
-        IF A18$ = "inventory" GOTO 515
-
-        IF A18$ = "equipment" THEN displayequip
-        IF A18$ = "equipment" GOTO 515
-
-        IF A18$ = "equip LH" THEN EQlh
-        IF A18$ = "equip LH" GOTO 515
-
-        IF A18$ = "equip RH" THEN EQrh
-        IF A18$ = "equip RH" GOTO 515
-
-        IF A18$ = "equip ARMOUR" THEN EqArmour
-        IF A18$ = "equip ARMOUR" GOTO 515
-
-        IF A18$ = "equip HEAD" THEN EqHead
-        IF A18$ = "equip HEAD" GOTO 515
-
-        IF A18$ = "get strange pendant" THEN
-            IF ChaosStarInsert% = 1 THEN
-                IF StrangePendantTaken% = 0 THEN
-                    StrangePendantTaken% = 1
-                    COLOR 5
-                    PRINT "Got Strange Pendant"
-                    Inventory(QITEM_STRANGE_PENDANT).amount = Inventory(QITEM_STRANGE_PENDANT).amount + 1
-                    COLOR 15
-                    GOTO 515
-                END IF
-            END IF
-        END IF
-
-        IF A18$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
+    IF A18$ = "get strange pendant" THEN
+        IF ChaosStarInsert% = 1 THEN
+            IF StrangePendantTaken% = 0 THEN
+                StrangePendantTaken% = 1
+                COLOR 5
+                PRINT "Got Strange Pendant"
+                Inventory(QITEM_STRANGE_PENDANT).amount = Inventory(QITEM_STRANGE_PENDANT).amount + 1
+                COLOR 15
                 GOTO 515
             END IF
         END IF
+    END IF
+
     ColorPrint 5, "Huh?"
     GOTO 515
 
     'Area 19
-    520 CLS
+520 CLS
     PRINT "You have entered a small intersection with four exits."
     IF A19Lvl2Door% = 0 THEN PRINT "There is a door to the north which you can't seem to open without a key."
     IF A19Lvl2Door% = 1 THEN PRINT "The unlocked northern door leads to a sort of lift."
@@ -2145,18 +1604,19 @@ SUB ACT1
     PRINT "To the south is another long passageway.  To the west is a passage that"
     PRINT "bends south."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 520
-        END IF
+        GOTO 520
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     IF A19Lvl2Door% = 0 THEN PRINT "         North: Locked Door"
@@ -2166,22 +1626,24 @@ SUB ACT1
     PRINT "         South: Long passage"
     PRINT "         West: Long passage"
     COLOR 15
-    525 INPUT ">", A19$
-        IF A19$ = "north" THEN
-            IF A19Lvl2Door% = 0 THEN
-                ColorPrint 5, "A locked door blocks your way."
-                GOTO 525
-            END IF
-            IF A19Lvl2Door% = 1 GOTO 620
-        END IF
+525 INPUT ">", A19$
 
-        IF A19$ = "east" THEN
-            IF A19Lvl1Door% = 0 THEN
-                ColorPrint 5, "A locked door blocks your way."
-                GOTO 525
-            END IF
-            IF A19Lvl1Door% = 1 GOTO 570
+    IF A19$ = "north" THEN
+        IF A19Lvl2Door% = 0 THEN
+            ColorPrint 5, "A locked door blocks your way."
+            GOTO 525
         END IF
+        IF A19Lvl2Door% = 1 GOTO 620
+    END IF
+
+    IF A19$ = "east" THEN
+        IF A19Lvl1Door% = 0 THEN
+            ColorPrint 5, "A locked door blocks your way."
+            GOTO 525
+        END IF
+        IF A19Lvl1Door% = 1 GOTO 570
+    END IF
+
     IF A19$ = "use key 1" THEN
         IF Inventory(QITEM_KEY1).amount >= 1 THEN
             Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount - 1
@@ -2205,69 +1667,42 @@ SUB ACT1
             GOTO 525
         END IF
     END IF
-        IF A19$ = "south" GOTO 530
-        IF A19$ = "west" GOTO 510
 
-        IF A19$ = "help" THEN WorldHelp
-        IF A19$ = "help" GOTO 525
+    IF A19$ = "south" GOTO 530
+    IF A19$ = "west" GOTO 510
 
-        IF A19$ = "menu" THEN MainMenu
-        IF A19$ = "menu" GOTO 520
+    retVal% = commonCmds(A19$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 525
+        CASE 1
+            GOTO 520
+    END SELECT
 
-        IF A19$ = "describe" GOTO 520
-
-        IF A19$ = "stats" THEN displaystats
-        IF A19$ = "stats" GOTO 525
-
-        IF A19$ = "inventory" THEN displayinventory
-        IF A19$ = "inventory" GOTO 525
-
-        IF A19$ = "equipment" THEN displayequip
-        IF A19$ = "equipment" GOTO 525
-
-        IF A19$ = "equip LH" THEN EQlh
-        IF A19$ = "equip LH" GOTO 525
-
-        IF A19$ = "equip RH" THEN EQrh
-        IF A19$ = "equip RH" GOTO 525
-
-        IF A19$ = "equip ARMOUR" THEN EqArmour
-        IF A19$ = "equip ARMOUR" GOTO 525
-        IF A19$ = "equip HEAD" THEN EqHead
-        IF A19$ = "equip HEAD" GOTO 525
-
-        IF A19$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 525
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 525
 
     'Area 20
-    530 CLS
+530 CLS
     PRINT "You have entered an intersection. There are exits to all directions."
     PRINT "To the north is a long tunnel.  To the west is a large hall.  To the"
     PRINT "south is another long tunnel.";
     IF A20Lvl1Door% = 0 THEN PRINT "  To the east is a locked door."
     IF A20Lvl1Door% = 1 THEN PRINT "  To the east is a small hall."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 530
-        END IF
+        GOTO 530
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         North: Tunnel"
@@ -2276,11 +1711,12 @@ SUB ACT1
     PRINT "         South: Tunnel"
     PRINT "         West: Hall"
     COLOR 15
-    535 INPUT ">", A20$
-        IF A20$ = "north" GOTO 520
-        IF A20$ = "south" GOTO 550
-        IF A20$ = "west" GOTO 510
-        IF A20$ = "use key 1" THEN
+535 INPUT ">", A20$
+
+    IF A20$ = "north" GOTO 520
+    IF A20$ = "south" GOTO 550
+    IF A20$ = "west" GOTO 510
+    IF A20$ = "use key 1" THEN
         IF Inventory(QITEM_KEY1).amount >= 1 THEN
             Inventory(QITEM_KEY1).amount = Inventory(QITEM_KEY1).amount - 1
             A20Lvl1Door% = 1
@@ -2292,146 +1728,88 @@ SUB ACT1
         END IF
     END IF
 
-        IF A20$ = "south" GOTO 530
-        IF A20$ = "east" THEN
-            IF A20Lvl1Door% = 0 THEN
-                ColorPrint 5, "A locked door blocks your path"
-                GOTO 535
-            END IF
-            IF A20Lvl1Door% = 1 THEN GOTO 570
+    IF A20$ = "east" THEN
+        IF A20Lvl1Door% = 0 THEN
+            ColorPrint 5, "A locked door blocks your path"
+            GOTO 535
         END IF
+        IF A20Lvl1Door% = 1 THEN GOTO 570
+    END IF
 
-        IF A20$ = "help" THEN WorldHelp
-        IF A20$ = "help" GOTO 535
+    retVal% = commonCmds(A20$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 535
+        CASE 1
+            GOTO 530
+    END SELECT
 
-        IF A20$ = "menu" THEN MainMenu
-        IF A20$ = "menu" GOTO 530
-
-        IF A20$ = "describe" GOTO 530
-
-        IF A20$ = "stats" THEN displaystats
-        IF A20$ = "stats" GOTO 535
-
-        IF A20$ = "inventory" THEN displayinventory
-        IF A20$ = "inventory" GOTO 535
-
-        IF A20$ = "equipment" THEN displayequip
-        IF A20$ = "equipment" GOTO 535
-
-        IF A20$ = "equip LH" THEN EQlh
-        IF A20$ = "equip LH" GOTO 535
-
-        IF A20$ = "equip RH" THEN EQrh
-        IF A20$ = "equip RH" GOTO 535
-
-        IF A20$ = "equip ARMOUR" THEN EqArmour
-        IF A20$ = "equip ARMOUR" GOTO 535
-
-        IF A20$ = "equip HEAD" THEN EqHead
-        IF A20$ = "equip HEAD" GOTO 535
-
-        IF A20$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 535
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 535
 
     'Area 21
-    540 CLS
+540 CLS
     PRINT "You have entered a 3-Way intersection.  To the north is the large hall."
     PRINT "To the east is a long tunel.  The southern exit leads to an open area"
     PRINT "which appears to be a chasm."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 540
-        END IF
+        GOTO 540
+    END IF
+
     COLOR 5
     PRINT "There are three obvious exits:"
     PRINT "         North: Hall"
     PRINT "         East: Tunnel"
     PRINT "         South: Chasm"
     COLOR 15
-    545 INPUT ">", A21$
-        IF A21$ = "north" GOTO 510
-        IF A21$ = "east" GOTO 550
-        IF A21$ = "south" GOTO 630
+545 INPUT ">", A21$
 
-        IF A21$ = "help" THEN WorldHelp
-        IF A21$ = "help" GOTO 545
+    IF A21$ = "north" GOTO 510
+    IF A21$ = "east" GOTO 550
+    IF A21$ = "south" GOTO 630
 
-        IF A21$ = "menu" THEN MainMenu
-        IF A21$ = "menu" GOTO 540
+    retVal% = commonCmds(A21$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 545
+        CASE 1
+            GOTO 540
+    END SELECT
 
-        IF A21$ = "describe" GOTO 540
-
-        IF A21$ = "stats" THEN displaystats
-        IF A21$ = "stats" GOTO 545
-
-        IF A21$ = "inventory" THEN displayinventory
-        IF A21$ = "inventory" GOTO 545
-
-        IF A21$ = "equipment" THEN displayequip
-        IF A21$ = "equipment" GOTO 545
-
-        IF A21$ = "equip LH" THEN EQlh
-        IF A21$ = "equip LH" GOTO 545
-
-        IF A21$ = "equip RH" THEN EQrh
-        IF A21$ = "equip RH" GOTO 545
-
-        IF A21$ = "equip ARMOUR" THEN EqArmour
-        IF A21$ = "equip ARMOUR" GOTO 545
-
-        IF A21$ = "equip HEAD" THEN EqHead
-        IF A21$ = "equip HEAD" GOTO 545
-
-        IF A21$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 545
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 545
 
     'Area 22
-    550 CLS
+550 CLS
     PRINT "This area is yet another intersection.  This particular intersection "
     PRINT "splits four ways.  To the north is a long tunnel.  To the east is a"
     PRINT "small room which you can't identify from this distance.  To the south"
     PRINT "is a large open room which seems to be a chasm. The western exit leads"
     PRINT "down a long hallway."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 550
-        END IF
+        GOTO 550
+    END IF
+
     COLOR 5
     PRINT "There are four obvious exits:"
     PRINT "         North: Tunnel"
@@ -2439,71 +1817,42 @@ SUB ACT1
     PRINT "         South: Chasm"
     PRINT "         West: Tunnel"
     COLOR 15
-    555 INPUT ">", A22$
+555 INPUT ">", A22$
         IF A22$ = "north" GOTO 530
         IF A22$ = "east" GOTO 560
         IF A22$ = "south" GOTO 640
         IF A22$ = "west" GOTO 540
 
-        IF A22$ = "help" THEN WorldHelp
-        IF A22$ = "help" GOTO 555
-
-        IF A22$ = "menu" THEN MainMenu
-        IF A22$ = "menu" GOTO 550
-
-        IF A22$ = "describe" GOTO 550
-
-        IF A22$ = "stats" THEN displaystats
-        IF A22$ = "stats" GOTO 555
-
-        IF A22$ = "inventory" THEN displayinventory
-        IF A22$ = "inventory" GOTO 555
-
-        IF A22$ = "equipment" THEN displayequip
-        IF A22$ = "equipment" GOTO 555
-
-        IF A22$ = "equip LH" THEN EQlh
-        IF A22$ = "equip LH" GOTO 555
-
-        IF A22$ = "equip RH" THEN EQrh
-        IF A22$ = "equip RH" GOTO 555
-
-        IF A22$ = "equip ARMOUR" THEN EqArmour
-        IF A22$ = "equip ARMOUR" GOTO 555
-
-        IF A22$ = "equip HEAD" THEN EqHead
-        IF A22$ = "equip HEAD" GOTO 555
-
-        IF A22$ = "use potion" THEN
-              IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
+        retVal% = commonCmds(A22$)
+        SELECT CASE retVal%
+            CASE -1
                 GOTO 555
-            END IF
-        END IF
+            CASE 1
+                GOTO 550
+        END SELECT
+
     ColorPrint 5, "Huh?"
     GOTO 555
 
     'Area 23
-    560 CLS
+560 CLS
     PRINT "You have entered the dark room. Before you is a deep pit which leads off"
     PRINT "into the darkness.  There is a walkway forming a U in the room.  In the"
     PRINT "middle of the room is a small platform with a skeleton in the middle."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 560
-        END IF
+        GOTO 560
+    END IF
+
     COLOR 5
     IF A23FamiliarFlute% = 0 THEN
     PRINT "The skeleton seems to be holding some kind of flute."
@@ -2511,139 +1860,81 @@ SUB ACT1
     PRINT "There is one obvious exit:"
     PRINT "         West: Intersection"
     COLOR 15
-    565 INPUT ">", A23$
-        IF A23$ = "west" GOTO 550
+565 INPUT ">", A23$
 
-        IF A23$ = "help" THEN WorldHelp
-        IF A23$ = "help" GOTO 565
+    IF A23$ = "west" GOTO 550
 
-        IF A23$ = "menu" THEN MainMenu
-        IF A23$ = "menu" GOTO 560
+    retVal% = commonCmds(A23$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 565
+        CASE 1
+            GOTO 560
+    END SELECT
 
-        IF A23$ = "describe" GOTO 560
-
-        IF A23$ = "stats" THEN displaystats
-        IF A23$ = "stats" GOTO 565
-
-        IF A23$ = "inventory" THEN displayinventory
-        IF A23$ = "inventory" GOTO 565
-
-        IF A23$ = "equipment" THEN displayequip
-        IF A23$ = "equipment" GOTO 565
-
-        IF A23$ = "equip LH" THEN EQlh
-        IF A23$ = "equip LH" GOTO 565
-
-        IF A23$ = "equip RH" THEN EQrh
-        IF A23$ = "equip RH" GOTO 565
-
-        IF A23$ = "equip ARMOUR" THEN EqArmour
-        IF A23$ = "equip ARMOUR" GOTO 565
-
-        IF A23$ = "equip HEAD" THEN EqHead
-        IF A23$ = "equip HEAD" GOTO 565
-
-        IF A23$ = "use potion" THEN
-              IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 565
-            END IF
+    IF A23$ = "get flute" THEN
+        IF A23FamiliarFlute% = 0 THEN
+            A23FamiliarFlute% = 1
+            Inventory(QITEM_FAMILIAR_FLUTE).amount = Inventory(QITEM_FAMILIAR_FLUTE).amount + 1
+            ColorPrint 5, "You got the flute, it appears to call familiars."
+            GOTO 565
         END IF
-
-        IF A23$ = "get flute" THEN
-            IF A23FamiliarFlute% = 0 THEN
-                A23FamiliarFlute% = 1
-                Inventory(QITEM_FAMILIAR_FLUTE).amount = Inventory(QITEM_FAMILIAR_FLUTE).amount + 1
-                ColorPrint 5, "You got the flute, it appears to call familiars."
-                GOTO 565
-            END IF
-        END IF
+    END IF
 
     ColorPrint 5, "Huh?"
     GOTO 565
 
     'Area 24
-    570 CLS
+570 CLS
     PRINT "You have entered a large dimly lit room filled with corpses. You stare"
     PRINT "in disgust as you see that their blood seems to be draining into a small"
     PRINT "pool.  As much as you hate to look at the pool you can make out the edge"
     PRINT "of a underwater tunnel."
     RANDOMSTRING
-        BATTLECHANCE% = INT(RND * 100)
-            IF BATTLECHANCE% <= 15 THEN
-            COLOR 4
-            SLEEP 4
-            PRINT "BATTLE!"
+    BATTLECHANCE% = INT(RND * 100)
+    IF BATTLECHANCE% <= 15 THEN
+        COLOR 4
+        SLEEP 4
+        PRINT "BATTLE!"
 
-            COLOR 15
-            SLEEP 2
-            BATTLE
+        COLOR 15
+        SLEEP 2
+        BATTLE
 
-            GOTO 570
-        END IF
+        GOTO 570
+    END IF
+
     COLOR 5
     PRINT "There are three obvious exits:"
     PRINT "         NorthWest: Intersection"
     PRINT "         SouthWest: Intersection"
     PRINT "         Down: The Pool of Blood"
     COLOR 15
-    575 INPUT ">", A24$
-        IF A24$ = "northwest" GOTO 520
-            A19Lvl1Door% = 1
-        IF A24$ = "southwest" THEN
-            A20Lvl1Door% = 1
-            GOTO 530
-        END IF
+575 INPUT ">", A24$
 
-        IF A24$ = "down" GOTO 580
+    IF A24$ = "northwest" GOTO 520
+    A19Lvl1Door% = 1
+    IF A24$ = "southwest" THEN
+        A20Lvl1Door% = 1
+        GOTO 530
+    END IF
 
-        IF A24$ = "help" THEN WorldHelp
-        IF A24$ = "help" GOTO 575
+    IF A24$ = "down" GOTO 580
 
-        IF A24$ = "menu" THEN MainMenu
-        IF A24$ = "menu" GOTO 570
+    retVal% = commonCmds(A24$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 575
+        CASE 1
+            GOTO 570
+    END SELECT
 
-        IF A24$ = "describe" GOTO 570
-
-        IF A24$ = "stats" THEN displaystats
-        IF A24$ = "stats" GOTO 575
-
-        IF A24$ = "inventory" THEN displayinventory
-        IF A24$ = "inventory" GOTO 575
-
-        IF A24$ = "equipment" THEN displayequip
-        IF A24$ = "equipment" GOTO 575
-
-        IF A24$ = "equip LH" THEN EQlh
-        IF A24$ = "equip LH" GOTO 575
-
-        IF A24$ = "equip RH" THEN EQrh
-        IF A24$ = "equip RH" GOTO 575
-
-        IF A24$ = "equip ARMOUR" THEN EqArmour
-        IF A24$ = "equip ARMOUR" GOTO 575
-
-        IF A24$ = "equip HEAD" THEN EqHead
-        IF A24$ = "equip HEAD" GOTO 575
-
-        IF A24$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 575
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 575
 
     'Area 25
     'Areas 25, 26, 27, 28, 29, 30 and 31 are no-battle areas and no string areas
-    580 CLS
+580 CLS
     PRINT "You have entered a small pool of blood with a large raised platform in"
     PRINT "the middle.  There is a small passageway in the pool of blood back to"
     PRINT "the corpse filled room.  The platform leads to a small shrine."
@@ -2652,144 +1943,82 @@ SUB ACT1
     PRINT "         Down: passageway"
     PRINT "         East: small shrine"
     COLOR 15
-    585 INPUT ">", A25$
-        IF A25$ = "down" GOTO 570
-        IF A25$ = "east" GOTO 590
+585 INPUT ">", A25$
 
-        IF A25$ = "help" THEN WorldHelp
-        IF A25$ = "help" GOTO 585
+    IF A25$ = "down" GOTO 570
+    IF A25$ = "east" GOTO 590
 
-        IF A25$ = "menu" THEN MainMenu
-        IF A25$ = "menu" GOTO 580
+    retVal% = commonCmds(A25$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 585
+        CASE 1
+            GOTO 580
+    END SELECT
 
-        IF A25$ = "describe" GOTO 580
-
-        IF A25$ = "stats" THEN displaystats
-        IF A25$ = "stats" GOTO 585
-
-        IF A25$ = "inventory" THEN displayinventory
-        IF A25$ = "inventory" GOTO 585
-
-        IF A25$ = "equipment" THEN displayequip
-        IF A25$ = "equipment" GOTO 585
-
-        IF A25$ = "equip LH" THEN EQlh
-        IF A25$ = "equip LH" GOTO 585
-
-        IF A25$ = "equip RH" THEN EQrh
-        IF A25$ = "equip RH" GOTO 585
-
-        IF A25$ = "equip ARMOUR" THEN EqArmour
-        IF A25$ = "equip ARMOUR" GOTO 585
-
-        IF A25$ = "equip HEAD" THEN EqHead
-        IF A25$ = "equip HEAD" GOTO 585
-
-        IF A25$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 585
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 585
 
     'Area 26
-    590 CLS
+590 CLS
     PRINT "You have entered a small intersection with a chaos shrine placed in"
     PRINT "one of the walls.  There are exits to the north, south and west. To"
     PRINT "the north is a tunnel emerging into a small room. The south passage"
     PRINT "also leads to a small room.  To the east is the pool of blood."
     COLOR 5
     IF A26ChaosStar% = 0 THEN
-    PRINT "You hear a humming sound coming from the shrine, a pendant in the"
-    PRINT "shape of a chaos star is embedded in the shrine."
+        PRINT "You hear a humming sound coming from the shrine, a pendant in the"
+        PRINT "shape of a chaos star is embedded in the shrine."
+    ELSE
+        PRINT "You approach the shrine and no longer hear the humming sound."
+        PRINT "A chaos star pendant is embedded in the shrine."
     END IF
-    IF A26ChaosStar% = 1 THEN
-    PRINT "You approach the shrine and no longer hear the humming sound."
-    PRINT "A chaos star pendant is embedded in the shrine."
-    END IF
+
     PRINT "There are three obvious exits:"
     PRINT "         North: Small Room"
     PRINT "         South: Small Room"
     PRINT "         West: Pool of Blood"
     COLOR 15
-    595 INPUT ">", A26$
-        IF A26$ = "north" GOTO 610
-        IF A26$ = "south" GOTO 600
-        IF A26$ = "west" GOTO 580
+595 INPUT ">", A26$
 
-        IF A26$ = "help" THEN WorldHelp
-        IF A26$ = "help" GOTO 595
+    IF A26$ = "north" GOTO 610
+    IF A26$ = "south" GOTO 600
+    IF A26$ = "west" GOTO 580
 
-        IF A26$ = "menu" THEN MainMenu
-        IF A26$ = "menu" GOTO 590
+    retVal% = commonCmds(A26$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 595
+        CASE 1
+            GOTO 590
+    END SELECT
 
-        IF A26$ = "describe" GOTO 590
-
-        IF A26$ = "stats" THEN displaystats
-        IF A26$ = "stats" GOTO 595
-
-        IF A26$ = "inventory" THEN displayinventory
-        IF A26$ = "inventory" GOTO 595
-
-        IF A26$ = "equipment" THEN displayequip
-        IF A26$ = "equipment" GOTO 595
-
-        IF A26$ = "equip LH" THEN EQlh
-        IF A26$ = "equip LH" GOTO 595
-
-        IF A26$ = "equip RH" THEN EQrh
-        IF A26$ = "equip RH" GOTO 595
-
-        IF A26$ = "equip ARMOUR" THEN EqArmour
-        IF A26$ = "equip ARMOUR" GOTO 595
-
-        IF A26$ = "equip HEAD" THEN EqHead
-        IF A26$ = "equip HEAD" GOTO 595
-
-        IF A26$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 595
-            END IF
+    IF A26$ = "get chaos star pendant" THEN
+        IF A26ChaosStar% = 0 THEN
+            COLOR 5
+            PRINT "You lean forward to grab the chaos star pendant, suddenly you are thrown"
+            PRINT "against a nearby wall by a repelling magic field."
+            COLOR 15
+            GOTO 595
+        ELSE
+            ColorPrint 5, "You got the chaos star pendant"
+            A26ChaosStar% = 2
+            Inventory(QITEM_CHAOS_STAR).amount = 1
+            GOTO 595
         END IF
-
-        IF A26$ = "get chaos star pendant" THEN
-            IF A26ChaosStar% = 0 THEN
-                COLOR 5
-                PRINT "You lean forward to grab the chaos star pendant, suddenly you are thrown"
-                PRINT "against a nearby wall by a repelling magic field."
-                COLOR 15
-                GOTO 595
-            END IF
-
-            IF A26ChaosStar% = 1 THEN
-                ColorPrint 5, "You got the chaos star pendant"
-                A26ChaosStar% = 2
-                Inventory(QITEM_CHAOS_STAR).amount = 1
-                GOTO 595
-            END IF
-        END IF
+    END IF
 
     ColorPrint 5, "Huh?"
     GOTO 595
 
     'Area 27
-    600 CLS
+600 CLS
     IF A27GoldenSocket% = 0 THEN
         IF A27JadeSocket% = 0 THEN
             PRINT "You have entered a small room with many skulls embedded into the wall."
             PRINT "as you gaze around the room you realize that two skulls are missing, there"
             PRINT "are coloured sockets in their place.  One is gold, the other is jade."
-        END IF
-        IF A27JadeSocket% = 1 THEN
+        ELSE
             PRINT "You have entered a small room with many skulls embedded into the wall."
             PRINT "as you gaze around the room you realize that one skull is missing, there"
             PRINT "is a gold coloured socket in it's place."
@@ -2806,107 +2035,77 @@ SUB ACT1
     IF A27AvengerSword% = 1 THEN
         ColorPrint 5, "There is a very special looking sword lying on the ground next to the wight lord."
     END IF
+
     COLOR 5
     PRINT "There is one obvious exit:"
     PRINT "         North: Small Shrine"
     COLOR 15
-    605 INPUT ">", A27$
-        IF A27$ = "north" GOTO 590
+605 INPUT ">", A27$
 
-        IF A27$ = "help" THEN WorldHelp
-        IF A27$ = "help" GOTO 605
+    IF A27$ = "north" GOTO 590
 
-        IF A27$ = "menu" THEN MainMenu
-        IF A27$ = "menu" GOTO 600
+    retVal% = commonCmds(A27$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 605
+        CASE 1
+            GOTO 600
+    END SELECT
 
-        IF A27$ = "describe" GOTO 600
+    IF A27$ = "use golden skull" THEN
+        IF Inventory(QITEM_GOLDEN_SKULL).amount >= 1 THEN
+            Inventory(QITEM_GOLDEN_SKULL).amount = 0
+            A26ChaosStar% = 1
+            A27GoldSocket% = 1
+            Inventory(QITEM_KEY2).amount = Inventory(QITEM_KEY2).amount + 1
+            COLOR 5
+            PRINT "You inserted the gold skull into the gold socket, the skull locks in place."
+            PRINT "a key, type 2 falls out of the skull's eye, you take it."
+            COLOR 15
+            GOTO 605
+        END IF
+    END IF
 
-        IF A27$ = "stats" THEN displaystats
-        IF A27$ = "stats" GOTO 605
+    IF A27$ = "use jade skull" THEN
+        IF Inventory(QITEM_JADE_SKULL).amount >= 1 THEN
+            Inventory(QITEM_JADE_SKULL).amount = 0
+            A27JadeSocket% = 1
+            COLOR 5
+            PRINT "You have inserted the jade skull into the jade socket, the skull locks in place."
+            PRINT "suddenly the wall starts sliding down into the floor revealing a laughing skeleton."
+            PRINT "decked out in black armour."
+            COLOR 15
+            SLEEP 7
+            WightLord% = 1
+            BATTLE
+            WightLord% = 2
+            A27JadeSocket% = 3
+            GOTO 600
+        END IF
+    END IF
 
-        IF A27$ = "inventory" THEN displayinventory
-        IF A27$ = "inventory" GOTO 605
-
-        IF A27$ = "equipment" THEN displayequip
-        IF A27$ = "equipment" GOTO 605
-
-        IF A27$ = "equip LH" THEN EQlh
-        IF A27$ = "equip LH" GOTO 605
-
-        IF A27$ = "equip RH" THEN EQrh
-        IF A27$ = "equip RH" GOTO 605
-
-        IF A27$ = "equip ARMOUR" THEN EqArmour
-        IF A27$ = "equip ARMOUR" GOTO 605
-
-        IF A27$ = "equip HEAD" THEN EqHead
-        IF A27$ = "equip HEAD" GOTO 605
-
-        IF A27$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
+    IF A27$ = "get special sword" THEN
+        IF A27AvengerSword% = 0 THEN
+            IF A27JadeSocket% = 1 THEN
+                Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount = Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount + 1
+                A27AvengerSword% = 1
+                ColorPrint 5, "You got the sword, it is an Avenger Sword +7"
                 GOTO 605
             END IF
         END IF
-
-        IF A27$ = "use golden skull" THEN
-            IF Inventory(QITEM_GOLDEN_SKULL).amount >= 1 THEN
-                Inventory(QITEM_GOLDEN_SKULL).amount = 0
-                A26ChaosStar% = 1
-                A27GoldSocket% = 1
-                Inventory(QITEM_KEY2).amount = Inventory(QITEM_KEY2).amount + 1
-                COLOR 5
-                PRINT "You inserted the gold skull into the gold socket, the skull locks in place."
-                PRINT "a key, type 2 falls out of the skull's eye, you take it."
-                COLOR 15
-                GOTO 605
-            END IF
-        END IF
-
-        IF A27$ = "use jade skull" THEN
-            IF Inventory(QITEM_JADE_SKULL).amount >= 1 THEN
-                Inventory(QITEM_JADE_SKULL).amount = 0
-                A27JadeSocket% = 1
-                COLOR 5
-                PRINT "You have inserted the jade skull into the jade socket, the skull locks in place."
-                PRINT "suddenly the wall starts sliding down into the floor revealing a laughing skeleton."
-                PRINT "decked out in black armour."
-                COLOR 15
-                SLEEP 7
-                WightLord% = 1
-                BATTLE
-                WightLord% = 2
-                A27JadeSocket% = 3
-                GOTO 600
-            END IF
-        END IF
-
-        IF A27$ = "get special sword" THEN
-            IF A27AvengerSword% = 0 THEN
-                IF A27JadeSocket% = 1 THEN
-                    Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount = Inventory(ITEM_AVENGER_SWORD_PLUS_SEVEN).amount + 1
-                    A27AvengerSword% = 1
-                    ColorPrint 5, "You got the sword, it is an Avenger Sword +7"
-                    GOTO 605
-                END IF
-            END IF
-        END IF
+    END IF
 
     ColorPrint 5, "Huh?"
     GOTO 605
 
     'Area 28
-    610 CLS
+610 CLS
     PRINT "You have entered a room with a raised platform in the middle.  On the"
     PRINT "raised platform is a stand.";
     IF A28ChaosStarSocket% = 0 THEN
         PRINT "  On the stand is an empty socket in the"
         PRINT "shape of a chaos star."
-        END IF
-    IF A28ChaosStarSocket% = 1 THEN
+    ELSE
         PRINT "  On the stand is your socketed chaos star"
         PRINT "pendant."
     END IF
@@ -2915,183 +2114,121 @@ SUB ACT1
     PRINT "There is one obvious exit:"
     PRINT "         South: Small Shrine"
     COLOR 15
-    615 INPUT ">", A28$
-        IF A28$ = "south" GOTO 590
+615 INPUT ">", A28$
 
-        IF A28$ = "help" THEN WorldHelp
-        IF A28$ = "help" GOTO 615
+    IF A28$ = "south" GOTO 590
 
-        IF A28$ = "menu" THEN MainMenu
-        IF A28$ = "menu" GOTO 610
+    retVal% = commonCmds(A28$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 615
+        CASE 1
+            GOTO 610
+    END SELECT
 
-        IF A28$ = "describe" GOTO 610
-
-        IF A28$ = "stats" THEN displaystats
-        IF A28$ = "stats" GOTO 615
-
-        IF A28$ = "inventory" THEN displayinventory
-        IF A28$ = "inventory" GOTO 615
-
-        IF A28$ = "equipment" THEN displayequip
-        IF A28$ = "equipment" GOTO 615
-
-        IF A28$ = "equip LH" THEN EQlh
-        IF A28$ = "equip LH" GOTO 615
-
-        IF A28$ = "equip RH" THEN EQrh
-        IF A28$ = "equip RH" GOTO 615
-
-        IF A28$ = "equip ARMOUR" THEN EqArmour
-        IF A28$ = "equip ARMOUR" GOTO 615
-
-        IF A28$ = "equip HEAD" THEN EqHead
-        IF A28$ = "equip HEAD" GOTO 615
-
-        IF A28$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 615
-            END IF
+    IF A28$ = "use chaos star pendant" THEN
+        IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
+            ColorPrint 5, "You inserted the chaos star pendant into the socket."
+            ChaosStarInsert% = 1
+            A28ChaosStarSocket% = 1
+            Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
+            GOTO 615
         END IF
+    END IF
 
-        IF A28$ = "use chaos star pendant" THEN
-            IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
-                ColorPrint 5, "You inserted the chaos star pendant into the socket."
-                ChaosStarInsert% = 1
-                A28ChaosStarSocket% = 1
-                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
-                GOTO 615
-            END IF
+    IF A28$ = "get chaos star pendant" THEN
+        IF A28ChaosStarSocket% = 1 THEN
+            ColorPrint 5, "Got chaos star pendant from the socket."
+            ChaosStarInsert% = 0
+            A28ChaosStarSocket% = 0
+            Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
+            GOTO 615
         END IF
+    END IF
 
-        IF A28$ = "get chaos star pendant" THEN
-            IF A28ChaosStarSocket% = 1 THEN
-                ColorPrint 5, "Got chaos star pendant from the socket."
-                ChaosStarInsert% = 0
-                A28ChaosStarSocket% = 0
-                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
-                GOTO 615
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 615
 
     'Area 29
-    620 CLS
+620 CLS
     PRINT "You are now standing in some kind of lift.  The room is bare except for"
     PRINT "a large chaos star burned into the middle.";
     IF A29StarSocket% = 0 THEN
         PRINT "  In the middle of the lift"
         PRINT "is a socket in the shape of a chaos star."
+
+        COLOR 5
+        PRINT "There is one obvious exit:"
+        PRINT "         South: Intersection"
+        COLOR 15
     END IF
 
     IF A29StarSocket% = 1 THEN
         PRINT "  Your chaos star pendant lies"
         PRINT "inside the socket in the middle of the lift."
+
+        COLOR 5
+        PRINT "There are two obvious exits:"
+        PRINT "         South: Intersection"
+        PRINT "         Down: Underground Level 3"
+        COLOR 15
     END IF
 
     IF A29StarSocket% = 2 THEN
         PRINT "  Your chaos star pendant lies"
         PRINT "locked inside the socket.  You can't get it."
-    END IF
 
-    COLOR 5
-    IF A29StarSocket% = 0 THEN
-        PRINT "There is one obvious exit:"
-        PRINT "         South: Intersection"
-    END IF
-
-    IF A29StarSocket% = 1 THEN
+        COLOR 5
         PRINT "There are two obvious exits:"
         PRINT "         South: Intersection"
         PRINT "         Down: Underground Level 3"
+        COLOR 15
     END IF
 
-    IF A29StarSocket% = 2 THEN
-        PRINT "There are two obvious exits:"
-        PRINT "         South: Intersection"
-        PRINT "         Down: Underground Level 3"
+625 INPUT ">", A29$
+    IF A29$ = "south" GOTO 520
+    IF A29$ = "down" THEN
+        IF A29StarSocket% = 1 OR A29StarSocket% = 2 GOTO 650
     END IF
 
-    COLOR 15
-    625 INPUT ">", A29$
-        IF A29$ = "south" GOTO 520
-        IF A29$ = "down" THEN
-            IF A29StarSocket% = 1 GOTO 650
-            IF A29StarSocket% = 2 GOTO 650
+    retVal% = commonCmds(A29$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 625
+        CASE 1
+            GOTO 620
+    END SELECT
+
+    IF A29$ = "use chaos star pendant" THEN
+        IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
+            ColorPrint 5, "You inserted the chaos star pendant into the socket."
+            A29StarSocket% = 1
+            Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
+            GOTO 625
         END IF
+    END IF
 
-        IF A29$ = "help" THEN WorldHelp
-        IF A29$ = "help" GOTO 625
-
-        IF A29$ = "menu" THEN MainMenu
-        IF A29$ = "menu" GOTO 620
-
-        IF A29$ = "describe" GOTO 620
-
-        IF A29$ = "stats" THEN displaystats
-        IF A29$ = "stats" GOTO 625
-
-        IF A29$ = "inventory" THEN displayinventory
-        IF A29$ = "inventory" GOTO 625
-
-        IF A29$ = "equipment" THEN displayequip
-        IF A29$ = "equipment" GOTO 625
-
-        IF A29$ = "equip LH" THEN EQlh
-        IF A29$ = "equip LH" GOTO 625
-
-        IF A29$ = "equip RH" THEN EQrh
-        IF A29$ = "equip RH" GOTO 625
-
-        IF A29$ = "equip ARMOUR" THEN EqArmour
-        IF A29$ = "equip ARMOUR" GOTO 625
-
-        IF A29$ = "equip HEAD" THEN EqHead
-        IF A29$ = "equip HEAD" GOTO 625
-
-        IF A29$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 625
-            END IF
+    IF A29$ = "get chaos star pendant" THEN
+        IF A29StarSocket% = 1 THEN
+            A29StarSocket% = 0
+            Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
+            ColorPrint 5, "Got chaos star pendant"
+            GOTO 625
         END IF
-
-        IF A29$ = "use chaos star pendant" THEN
-            IF Inventory(QITEM_CHAOS_STAR).amount >= 1 THEN
-                ColorPrint 5, "You inserted the chaos star pendant into the socket."
-                A29StarSocket% = 1
-                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount - 1
-                GOTO 625
-            END IF
+        IF A29StarSocket% = 2 THEN
+            COLOR 5
+            PRINT "The chaos star pendant is locked in place."
+            PRINT "you can't get it."
+            GOTO 625
+            COLOR 15
         END IF
+    END IF
 
-        IF A29$ = "get chaos star pendant" THEN
-            IF A29StarSocket% = 1 THEN
-                A29StarSocket% = 0
-                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
-                ColorPrint 5, "Got chaos star pendant"
-                GOTO 625
-            END IF
-            IF A29StarSocket% = 2 THEN
-                COLOR 5
-                PRINT "The chaos star pendant is locked in place."
-                PRINT "you can't get it."
-                GOTO 625
-                COLOR 15
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 625
 
     'Area 30
-    630 CLS
+630 CLS
     PRINT "You have entered a large open space with a chasm in the middle. You can't"
     PRINT "see the bottom of the chasm.  Other than that the area is plain."
     COLOR 5
@@ -3099,53 +2236,24 @@ SUB ACT1
     PRINT "         North: Intersection"
     PRINT "         East: Chasm"
     COLOR 15
-    635 INPUT ">", A30$
-        IF A30$ = "north" GOTO 540
-        IF A30$ = "east" GOTO 640
+635 INPUT ">", A30$
 
-        IF A30$ = "help" THEN WorldHelp
-        IF A30$ = "help" GOTO 635
+    IF A30$ = "north" GOTO 540
+    IF A30$ = "east" GOTO 640
 
-        IF A30$ = "menu" THEN MainMenu
-        IF A30$ = "menu" GOTO 630
+    retVal% = commonCmds(A30$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 635
+        CASE 1
+            GOTO 630
+    END SELECT
 
-        IF A30$ = "describe" GOTO 630
-
-        IF A30$ = "stats" THEN displaystats
-        IF A30$ = "stats" GOTO 635
-
-        IF A30$ = "inventory" THEN displayinventory
-        IF A30$ = "inventory" GOTO 635
-
-        IF A30$ = "equipment" THEN displayequip
-        IF A30$ = "equipment" GOTO 635
-
-        IF A30$ = "equip LH" THEN EQlh
-        IF A30$ = "equip LH" GOTO 635
-
-        IF A30$ = "equip RH" THEN EQrh
-        IF A30$ = "equip RH" GOTO 635
-
-        IF A30$ = "equip ARMOUR" THEN EqArmour
-        IF A30$ = "equip ARMOUR" GOTO 635
-
-        IF A30$ = "equip HEAD" THEN EqHead
-        IF A30$ = "equip HEAD" GOTO 635
-
-        IF A30$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 635
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 635
 
     'Area 31
-    640 CLS
+640 CLS
     PRINT "You have arrived at the eastern edge of the chasm.  The area around you"
     PRINT "is very open, but plain.  You can see no enemies in the area."
     COLOR 5
@@ -3153,53 +2261,24 @@ SUB ACT1
     PRINT "         North: Intersection"
     PRINT "         West: Chasm"
     COLOR 15
-    645 INPUT ">", A31$
-        IF A31$ = "north" GOTO 550
-        IF A31$ = "west" GOTO 630
+645 INPUT ">", A31$
 
-        IF A31$ = "help" THEN WorldHelp
-        IF A31$ = "help" GOTO 645
+    IF A31$ = "north" GOTO 550
+    IF A31$ = "west" GOTO 630
 
-        IF A31$ = "menu" THEN MainMenu
-        IF A31$ = "menu" GOTO 640
+    retVal% = commonCmds(A31$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 645
+        CASE 1
+            GOTO 640
+    END SELECT
 
-        IF A31$ = "describe" GOTO 640
-
-        IF A31$ = "stats" THEN displaystats
-        IF A31$ = "stats" GOTO 645
-
-        IF A31$ = "inventory" THEN displayinventory
-        IF A31$ = "inventory" GOTO 645
-
-        IF A31$ = "equipment" THEN displayequip
-        IF A31$ = "equipment" GOTO 645
-
-        IF A31$ = "equip LH" THEN EQlh
-        IF A31$ = "equip LH" GOTO 645
-
-        IF A31$ = "equip RH" THEN EQrh
-        IF A31$ = "equip RH" GOTO 645
-
-        IF A31$ = "equip ARMOUR" THEN EqArmour
-        IF A31$ = "equip ARMOUR" GOTO 645
-
-        IF A31$ = "equip HEAD" THEN EqHead
-        IF A31$ = "equip HEAD" GOTO 645
-
-        IF A31$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 645
-            END IF
-        END IF
     ColorPrint 5, "Huh?"
     GOTO 645
 
     'Area 32
-    650 CLS
+650 CLS
     BottomLift% = 0
     XanathusHP% = 150
 
@@ -3213,80 +2292,51 @@ SUB ACT1
         END IF
     END IF
     IF A29StarSocket% = 2 THEN PRINT "  Your chaos star pendant lies locked in place."
+
     COLOR 5
     PRINT "There are two obvious exits:"
     PRINT "         Up: Underground, level 2"
     PRINT "         South: lift's exit"
     COLOR 15
-    655 INPUT ">", A32$
-        IF A32$ = "up" THEN
-            IF A29StarSocket% = 0 THEN
-                ColorPrint 5, "The lift doesn't seem to move"
-                GOTO 655
-            END IF
+655 INPUT ">", A32$
 
-            GOTO 620
+    IF A32$ = "up" THEN
+        IF A29StarSocket% = 0 THEN
+            ColorPrint 5, "The lift doesn't seem to move"
+            GOTO 655
         END IF
 
-        IF A32$ = "south" THEN
-            ToHall% = 1
-            Act1Pt2
+        GOTO 620
+    END IF
+
+    IF A32$ = "south" THEN
+        ToHall% = 1
+        Act1Pt2
+    END IF
+
+    retVal% = commonCmds(A32$)
+    SELECT CASE retVal%
+        CASE -1
+            GOTO 655
+        CASE 1
+            GOTO 650
+    END SELECT
+
+    IF A32$ = "get chaos star pendant" THEN
+        IF A29StarSocket% = 1 THEN
+            A29StarSocket% = 0
+            Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
+            ColorPrint 5, "Got chaos star pendant"
+            GOTO 655
         END IF
-
-        IF A32$ = "help" THEN WorldHelp
-        IF A32$ = "help" GOTO 655
-
-        IF A32$ = "menu" THEN MainMenu
-        IF A32$ = "menu" GOTO 650
-
-        IF A32$ = "describe" GOTO 650
-
-        IF A32$ = "stats" THEN displaystats
-        IF A32$ = "stats" GOTO 655
-
-        IF A32$ = "inventory" THEN displayinventory
-        IF A32$ = "inventory" GOTO 655
-
-        IF A32$ = "equipment" THEN displayequip
-        IF A32$ = "equipment" GOTO 655
-
-        IF A32$ = "equip LH" THEN EQlh
-        IF A32$ = "equip LH" GOTO 655
-
-        IF A32$ = "equip RH" THEN EQrh
-        IF A32$ = "equip RH" GOTO 655
-
-        IF A32$ = "equip ARMOUR" THEN EqArmour
-        IF A32$ = "equip ARMOUR" GOTO 655
-
-        IF A32$ = "equip HEAD" THEN EqHead
-        IF A32$ = "equip HEAD" GOTO 655
-
-        IF A32$ = "use potion" THEN
-            IF Inventory(ITEM_POTION).amount >= 1 THEN
-                HPS% = HPS% + 15
-                IF HPS% > HP% THEN HPS% = HP%
-                Inventory(ITEM_POTION).amount = Inventory(ITEM_POTION).amount - 1
-                ColorPrint 5, "Used potion"
-                GOTO 655
-            END IF
+        IF A29StarSocket% = 2 THEN
+            COLOR 5
+            PRINT "The chaos star pendant is locked in place."
+            PRINT "you can't get it."
+            COLOR 15
+            GOTO 655
         END IF
-
-        IF A32$ = "get chaos star pendant" THEN
-            IF A29StarSocket% = 1 THEN
-                A29StarSocket% = 0
-                Inventory(QITEM_CHAOS_STAR).amount = Inventory(QITEM_CHAOS_STAR).amount + 1
-                ColorPrint 5, "Got chaos star pendant"
-                GOTO 655
-            END IF
-            IF A29StarSocket% = 2 THEN
-                COLOR 5
-                PRINT "The chaos star pendant is locked in place."
-                PRINT "you can't get it."
-                COLOR 15
-                GOTO 655
-            END IF
-        END IF
+    END IF
 
     ColorPrint 5, "Huh?"
     GOTO 655
@@ -8079,16 +7129,16 @@ SUB NecrotaliaAI
                     MP% = 50
                     MPS% = 50
                     IF NecrotaliaHP% <= 0 THEN
-                                COLOR 14
-                                PRINT "Necrotalia> Enough!"
-                                SLEEP 4
-                                COLOR 15
-                                PRINT "Necrotalia casts Storm of Death!"
-                                SLEEP 4
-                                PRINT "You fall to one knee!"
-                                SLEEP 4
-                                EndGameCutscene
-                        END IF
+                        COLOR 14
+                        PRINT "Necrotalia> Enough!"
+                        SLEEP 4
+                        COLOR 15
+                        PRINT "Necrotalia casts Storm of Death!"
+                        SLEEP 4
+                        PRINT "You fall to one knee!"
+                        SLEEP 4
+                        EndGameCutscene
+                    END IF
                 ELSE
                     PRINT "You have died."
                 END IF
